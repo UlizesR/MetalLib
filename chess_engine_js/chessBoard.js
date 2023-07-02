@@ -13,16 +13,53 @@ class ChessBoard {
             ["W_P", "W_P", "W_P", "W_P", "W_P", "W_P", "W_P", "W_P"],
             ["W_R", "W_N", "W_B", "W_Q", "W_K", "W_B", "W_N", "W_R"]
         ];
-        
+        this.enPassantTarget = null;
     }
 
     /**
-     * Takes Position of the form [col, row] and returns the piece at that position
-     * @param {Array} position 
+     * Takes the from and to Position of the form 'colrow' and moves the piece at the from position to the to position 
+     * @param {string} position
+     * @throws {Error} No piece at position
+     * @throws {Error} Illegal move
+     */
+
+    movePiece(from, to) {
+        const piece = this.getPiece(from);
+    
+        if (!piece) {
+          throw new Error("No piece at position");
+        }
+    
+        const legalMoves = piece.legalMoves();
+    
+        if (!legalMoves.some(move => move[0] === to[0] && move[1] === to[1])) {
+          throw new Error("Illegal move");
+        }
+    
+        // Check for en passant capture
+        if (piece instanceof Pawn && Math.abs(from[1] - to[1]) === 2) {
+          this.enPassantTarget = [(from[0] + to[0]) / 2, from[1]];
+        } else {
+          this.enPassantTarget = null;
+        }
+    
+        // Move the piece
+        this.setPiece(piece, to);
+        this.deletePiece(from);
+    
+        // Check for pawn promotion
+        if (piece instanceof Pawn && (to[1] === 0 || to[1] === 7)) {
+          this.setPiece(new Queen(piece.getColor(), to), to);
+        }
+      }
+
+    /**
+     * Takes Position of the form 'colrow' and returns the piece at that position
+     * @param {string} position 
      * @returns {string}
      */
     getPiece(position) {
-        const col = position[0] - 1; // Convert column character to numeric index
+        const col = position.charCodeAt(0) - 97; // Convert column character to numeric index
         const row = position[1] - 1; // Convert row character to numeric index
 
         if (!(row >= 0 && row < 8 && col >= 0 && col < 8)) {
@@ -34,12 +71,12 @@ class ChessBoard {
     }
 
     /**
-     * Takes Position of the form [col, row] and sets the piece at that position
+     * Takes Position of the form 'colrow' and sets the piece at that position
      * @param {Piece} piece 
      * @param {Array} position 
      */
-    setPiece(piece, position) {
-        const col = position[0] - 1; // Convert column character to numeric index
+    setPiece(piece_abr, position) {
+        const col = position.charCodeAt(0) - 97; // Convert column character to numeric index
         const row = position[1] - 1; // Convert row character to numeric index
 
         if (!(row >= 0 && row < 8 && col >= 0 && col < 8)) {
@@ -47,7 +84,7 @@ class ChessBoard {
         }
 
         // set piece to board
-        this.board[row][col] = piece;
+        this.board[row][col] = piece_abr;
     }
 
     /**

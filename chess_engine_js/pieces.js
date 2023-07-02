@@ -41,40 +41,11 @@ class Pawn extends Piece {
         let row = this.position[1];
 
         if (this.color === 'white') {
-            if (row === 6) {
-                moves.push([row - 2, col]);
+            if (row === '2') {
+                moves.push([col, row + 2]);
             }
-            if (this.board.getPiece([row - 1, col]) === null) {
-                moves.push([row - 1, col]);
-            }
-            // if right front position is occupied by a black piece, add it to moves
-            // check if right front position if empty ignore, otherwise check if it is occupied by a black piece
-            if (this.board.getPiece([row - 1, col + 1]) && this.board.getPiece([row - 1, col + 1]).getColor() !== this.color) {
-                moves.push([row - 1, col + 1]);
-            }
-            // if left front position is occupied by a black piece, add it to moves
-            // check if left front position if empty ignore, otherwise check if it is occupied by a black piece
-            if (this.board.getPiece([row - 1, col - 1]) && this.board.getPiece([row - 1, col - 1]).getColor() !== this.color) {
-                moves.push([row - 1, col - 1]);
-            }
-        } else {
-            if (row === 1) {
-                moves.push([row + 2, col]);
-            }
-            if (this.board.getPiece([row + 1, col]) === null) {
-                moves.push([row + 1, col]);
-            }
-            // if right front position is occupied by a white piece, add it to moves
-            // check if right front position if empty ignore, otherwise check if it is occupied by a white piece
-            if (this.board.getPiece([row + 1, col + 1]) && this.board.getPiece([row + 1, col + 1]).getColor() !== this.color) {
-                moves.push([row + 1, col + 1]);
-            }
-            // if left front position is occupied by a white piece, add it to moves
-            // check if left front position if empty ignore, otherwise check if it is occupied by a white piece
-            if (this.board.getPiece([row + 1, col - 1]) && this.board.getPiece([row + 1, col - 1]).getColor() !== this.color) {
-                moves.push([row + 1, col - 1]);
-            }
-        }
+            moves.push([col, row + 1]);
+        } else {}
         
         return moves;
     }
@@ -83,6 +54,11 @@ class Pawn extends Piece {
 class Rook extends Piece {
     constructor(board, color) {
         super(board, color);
+        if (this.color === 'white') {
+            this.abr = 'W_R';
+        } else {
+            this.abr = 'B_R';
+        }
     }
 
     legalMoves() {
@@ -93,6 +69,11 @@ class Rook extends Piece {
 class Knight extends Piece {
     constructor(board, color) {
         super(board, color);
+        if (this.color === 'white') {
+            this.abr = 'W_K';
+        } else {
+            this.abr = 'B_K';
+        }
     }
 
     legalMoves() {
@@ -103,6 +84,11 @@ class Knight extends Piece {
 class Bishop extends Piece {
     constructor(board, color) {
         super(board, color);
+        if (this.color === 'white') {
+            this.abr = 'W_B';
+        } else {
+            this.abr = 'B_B';
+        }
     }
 
     legalMoves() {
@@ -113,6 +99,11 @@ class Bishop extends Piece {
 class Queen extends Piece {
     constructor(board, color) {
         super(board, color);
+        if (this.color === 'white') {
+            this.abr = 'W_Q';
+        } else {
+            this.abr = 'B_Q';
+        }
     }
 
     legalMoves() {
@@ -123,6 +114,11 @@ class Queen extends Piece {
 class King extends Piece {
     constructor(board, color) {
         super(board, color);
+        if (this.color === 'white') {
+            this.abr = 'W_K';
+        } else {
+            this.abr = 'B_K';
+        }
     }
 
     legalMoves() {
