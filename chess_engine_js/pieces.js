@@ -2,10 +2,10 @@
 
 class Piece {
     constructor(board, color) {
-        this.board = board;
-        this.color = color;
-        this.abr = null;
-        this.position = null;
+        this.board = board;     // ChessBoard object
+        this.color = color;     // "W" or "B"
+        this.abr = null;        // "W_P" or "B_P"
+        this.position = null;   // "a1" or "h8"
     }
 
     getColor() {
@@ -35,63 +35,67 @@ class Pawn extends Piece {
         }
     }
 
-    legalMoves() {
-        let moves = [];
-        let col = this.position[0];
-        let col_num = this.position.charCodeAt(0) - 97;
-        let row = this.position[1];
-
-        if (this.color === 'white') {
-            // check for pawn at starting position (row 2) and no pieces in front of it
-            // if so, add the position two spaces in front of the pawn to the moves array
-            if (row === 2 && !this.board.getPiece(`${col}${row + 1}`) && !this.board.getPiece(`${col}${row + 2}`)) {
-                moves.push(`${col}${row + 2}`);
-            }
-            // check if there is a piece in front of the pawn
-            // if not, add the position to the moves array
-            if (!this.board.getPiece(`${col}${row + 1}`)) {
-                moves.push(`${col}${row + 1}`);
-            }
-            // check if there is an opponent piece diagonally to the right of the pawn
-            // if so, add the position to the moves array
-            if (this.board.getPiece(`${String.fromCharCode(col_num + 1)}${row + 1}`) && 
-                this.board.getPiece(`${String.fromCharCode(col_num + 1)}${row + 1}`)[0] === 'B') {
-                moves.push(`${String.fromCharCode(col_num + 1)}${row + 1}`);
-            }
-            // check if there is an opponent piece diagonally to the left of the pawn
-            // if so, add the position to the moves array
-            if (this.board.getPiece(`${String.fromCharCode(col_num - 1)}${row + 1}`) && 
-                this.board.getPiece(`${String.fromCharCode(col_num - 1)}${row + 1}`)[0] === 'B') {
-                moves.push(`${String.fromCharCode(col_num - 1)}${row + 1}`);
-            }
-            // check if there is an opponent piece en passant to the right of the pawn
-            // if so, add the position to the moves array
-
-
-            moves.push(`${col}${row + 1}`);
-        } else {
-            if (row === 7) {
-                moves.push(`${col}${row - 2}`);
-            }
-            // check if there is a piece in front of the pawn
-            // if not, add the position to the moves array
-            if (!this.board.getPiece(`${col}${row - 1}`)) {
-                moves.push(`${col}${row - 1}`);
-            }
-            // check if there is an opponent piece diagonally to the right of the pawn
-            // if so, add the position to the moves array
-            if (this.board.getPiece(`${String.fromCharCode(col_num + 1)}${row - 1}`) &&
-                this.board.getPiece(`${String.fromCharCode(col_num + 1)}${row - 1}`)[0] === 'W') {
-                moves.push(`${String.fromCharCode(col_num + 1)}${row - 1}`);
-            }
-            // check if there is an opponent piece diagonally to the left of the pawn   
-            // if so, add the position to the moves array
-            if (this.board.getPiece(`${String.fromCharCode(col_num - 1)}${row - 1}`) &&
-                this.board.getPiece(`${String.fromCharCode(col_num - 1)}${row - 1}`)[0] === 'W') {
-                moves.push(`${String.fromCharCode(col_num - 1)}${row - 1}`);
-            }
-        }
+    getLegalMoves() {
+        const moves = [];
+        const row_num = parseInt(this.position[1]);
+        const charCode = this.position.charCodeAt(0);
         
+        if (this.color === 'W') {
+          // check for front position moves
+          if (!this.board.getPiece(`${this.position[0]}${row_num + 1}`)) {
+            moves.push(`${this.position[0]}${row_num + 1}`);
+            // check for starting position moves
+            if (row_num === 2 && !this.board.getPiece(`${this.position[0]}${row_num + 2}`)) {
+              moves.push(`${this.position[0]}${row_num + 2}`);
+            }
+          }
+          // check for diagonal position moves
+          // check for left diagonal
+          if (this.board.getPiece(`${String.fromCharCode(charCode - 1)}${row_num + 1}`)?.[0] === 'B') {
+            moves.push(`${String.fromCharCode(charCode - 1)}${row_num + 1}`);
+          }
+          // check for right diagonal
+          if (this.board.getPiece(`${String.fromCharCode(charCode + 1)}${row_num + 1}`)?.[0] === 'B') {
+            moves.push(`${String.fromCharCode(charCode + 1)}${row_num + 1}`);
+          }
+          // check for en passant
+          const leftPiece = this.board.getPiece(`${String.fromCharCode(charCode - 1)}${row_num}`);
+          const rightPiece = this.board.getPiece(`${String.fromCharCode(charCode + 1)}${row_num}`);
+          if (leftPiece?.[0] === 'B' && leftPiece[1] === 7) {
+            moves.push(`${String.fromCharCode(charCode - 1)}${row_num + 1}`);
+          }
+          if (rightPiece?.[0] === 'B' && rightPiece[1] === 7) {
+            moves.push(`${String.fromCharCode(charCode + 1)}${row_num + 1}`);
+          }
+        } else {
+          // check for front position moves
+          if (!this.board.getPiece(`${this.position[0]}${row_num - 1}`)) {
+            moves.push(`${this.position[0]}${row_num - 1}`);
+            // check for starting position moves
+            if (row_num === 7 && !this.board.getPiece(`${this.position[0]}${row_num - 2}`)) {
+              moves.push(`${this.position[0]}${row_num - 2}`);
+            }
+          }
+          // check for diagonal position moves
+          // check for left diagonal
+          if (this.board.getPiece(`${String.fromCharCode(charCode - 1)}${row_num - 1}`)?.[0] === 'W') {
+            moves.push(`${String.fromCharCode(charCode - 1)}${row_num - 1}`);
+          }
+          // check for right diagonal
+          if (this.board.getPiece(`${String.fromCharCode(charCode + 1)}${row_num - 1}`)?.[0] === 'W') {
+            moves.push(`${String.fromCharCode(charCode + 1)}${row_num - 1}`);
+          }
+          // check for en passant
+          const leftPiece = this.board.getPiece(`${String.fromCharCode(charCode - 1)}${row_num}`);
+          const rightPiece = this.board.getPiece(`${String.fromCharCode(charCode + 1)}${row_num}`);
+          if (leftPiece?.[0] === 'W' && leftPiece[1] === 2) {
+            moves.push(`${String.fromCharCode(charCode - 1)}${row_num - 1}`);
+          }
+          if (rightPiece?.[0] === 'W' && rightPiece[1] === 2) {
+            moves.push(`${String.fromCharCode(charCode + 1)}${row_num - 1}`);
+          }
+        }
+
         return moves;
     }
 }
@@ -107,100 +111,58 @@ class Rook extends Piece {
     }
 
     legalMoves() {
-        let moves = [];
-        let col = this.position[0];
-        let col_num = this.position.charCodeAt(0) - 97;
-        let row_num = parseInt(this.position[1]);
+        const moves = [];
+        const row_num = parseInt(this.position[1]);
+        const charCode = this.position.charCodeAt(0);
 
-        if (this.color === 'white') {
-            // check for moves to the right
-            for (let i = col_num + 1; i < 8; i++) {
-                if (this.board.getPiece(`${String.fromCharCode(i)}${row_num}`)) {
-                    if (this.board.getPiece(`${String.fromCharCode(i)}${row_num}`)[0] === 'B') {
-                        moves.push(`${String.fromCharCode(i)}${row_num}`);
-                    }
-                    break;
-                }
+        // check for moves to the right
+        for (let i = charCode + 1; i <= 104; i++) {
+            const piece = this.board.getPiece(`${String.fromCharCode(i)}${row_num}`);
+            if (piece && piece[0] === this.color) {
+                break;
+            } else if (piece && piece[0] !== this.color) {
+                moves.push(`${String.fromCharCode(i)}${row_num}`);
+                break;
+            } else {
                 moves.push(`${String.fromCharCode(i)}${row_num}`);
             }
-
-            // check for moves to the left
-            for (let i = col_num - 1; i >= 0; i--) {
-                if (this.board.getPiece(`${String.fromCharCode(i)}${row_num}`)) {
-                    if (this.board.getPiece(`${String.fromCharCode(i)}${row_num}`)[0] === 'B') {
-                        moves.push(`${String.fromCharCode(i)}${row_num}`);
-                    }
-                    break;
-                }
+        }
+        // check for moves to the left
+        for (let i = charCode - 1; i >= 97; i--) {
+            const piece = this.board.getPiece(`${String.fromCharCode(i)}${row_num}`);
+            if (piece && piece[0] === this.color) {
+                break;
+            } else if (piece && piece[0] !== this.color) {
+                moves.push(`${String.fromCharCode(i)}${row_num}`);
+                break;
+            } else {
                 moves.push(`${String.fromCharCode(i)}${row_num}`);
             }
-
-            // check for moves to the top
-            for (let i = row_num + 1; i < 9; i++) {
-                if (this.board.getPiece(`${col}${i}`)) {
-                    if (this.board.getPiece(`${col}${i}`)[0] === 'B') {
-                        moves.push(`${col}${i}`);
-                    }
-                    break;
-                }
-                moves.push(`${col}${i}`);
+        }
+        // check for moves to the top
+        for (let i = row_num + 1; i <= 8; i++) {
+            const piece = this.board.getPiece(`${String.fromCharCode(charCode)}${i}`);
+            if (piece && piece[0] === this.color) {
+                break;
+            } else if (piece && piece[0] !== this.color) {
+                moves.push(`${String.fromCharCode(charCode)}${i}`);
+                break;
+            } else {
+                moves.push(`${String.fromCharCode(charCode)}${i}`);
             }
-
-            // check for moves to the bottom
-            for (let i = row_num - 1; i >= 0; i--) {
-                if (this.board.getPiece(`${col}${i}`)) {
-                    if (this.board.getPiece(`${col}${i}`)[0] === 'B') {
-                        moves.push(`${col}${i}`);
-                    }
-                    break;
-                }
-                moves.push(`${col}${i}`);
+        }
+        // check for moves to the bottom
+        for (let i = row_num - 1; i >= 1; i--) {
+            const piece = this.board.getPiece(`${String.fromCharCode(charCode)}${i}`);
+            if (piece && piece[0] === this.color) {
+                break;
+            } else if (piece && piece[0] !== this.color) {
+                moves.push(`${String.fromCharCode(charCode)}${i}`);
+                break;
+            } else {
+                moves.push(`${String.fromCharCode(charCode)}${i}`);
             }
-        } else {
-            // check for moves to the right
-            for (let i = col_num + 1; i < 8; i++) {
-                if (this.board.getPiece(`${String.fromCharCode(i)}${row_num}`)) {
-                    if (this.board.getPiece(`${String.fromCharCode(i)}${row_num}`)[0] === 'W') {
-                        moves.push(`${String.fromCharCode(i)}${row_num}`);
-                    }
-                    break;
-                }
-                moves.push(`${String.fromCharCode(i)}${row_num}`);
-            }
-
-            // check for moves to the left
-            for (let i = col_num - 1; i >= 0; i--) {
-                if (this.board.getPiece(`${String.fromCharCode(i)}${row_num}`)) {
-                    if (this.board.getPiece(`${String.fromCharCode(i)}${row_num}`)[0] === 'W') {
-                        moves.push(`${String.fromCharCode(i)}${row_num}`);
-                    }
-                    break;
-                }
-                moves.push(`${String.fromCharCode(i)}${row_num}`);
-            }
-
-            // check for moves to the top
-            for (let i = row_num + 1; i < 9; i++) {
-                if (this.board.getPiece(`${col}${i}`)) {
-                    if (this.board.getPiece(`${col}${i}`)[0] === 'W') {
-                        moves.push(`${col}${i}`);
-                    }
-                    break;
-                }
-                moves.push(`${col}${i}`);
-            }
-
-            // check for moves to the bottom
-            for (let i = row_num - 1; i >= 0; i--) {
-                if (this.board.getPiece(`${col}${i}`)) {
-                    if (this.board.getPiece(`${col}${i}`)[0] === 'W') {
-                        moves.push(`${col}${i}`);
-                    }
-                    break;
-                }
-                moves.push(`${col}${i}`);
-            }
-        }  
+        }
 
         return moves;
     }
@@ -217,53 +179,73 @@ class Knight extends Piece {
     }
 
     legalMoves() {
-        let moves = [];
-        let col = this.position[0];
-        let col_num = this.position.charCodeAt(0) - 97;
-        let row_num = parseInt(this.position[1]);
-
-        let upsideDownL_R = this.board.getPiece(`${String.fromCharCode(col_num + 1)}${row_num + 2}`) // 2 up 1 right
-        let upsideDownL_L = this.board.getPiece(`${String.fromCharCode(col_num - 1)}${row_num + 2}`) // 2 up 1 left
-        let flatL_U_R     = this.board.getPiece(`${String.fromCharCode(col_num + 2)}${row_num + 1}`) // 1 up 2 right
-        let flatL_U_L     = this.board.getPiece(`${String.fromCharCode(col_num - 2)}${row_num + 1}`) // 1 up 2 left
-        let flatL_D_R     = this.board.getPiece(`${String.fromCharCode(col_num + 2)}${row_num - 1}`) // 1 down 2 right
-        let flatL_D_L     = this.board.getPiece(`${String.fromCharCode(col_num - 2)}${row_num - 1}`) // 1 down 2 left
-        let regularL_R    = this.board.getPiece(`${String.fromCharCode(col_num + 1)}${row_num - 2}`) // 2 down 1 right
-        let regularL_L    = this.board.getPiece(`${String.fromCharCode(col_num - 1)}${row_num - 2}`) // 2 down 1 left
-
-
-
-        if (this.color === 'white') {
-            // check for moves to the top
-            if ((!upsideDownL_R || upsideDownL_R[0] === 'B') && upsideDownL_R !== "Invalid Position") {
-                moves.push(`${String.fromCharCode(col_num + 1)}${row_num + 2}`);
+        const moves = [];
+        const row_num = parseInt(this.position[1]);
+        const charCode = this.position.charCodeAt(0);
+      
+        // check for moves to the right
+        if (charCode <= 102) {
+          // check for moves to the right and up
+          if (row_num <= 6) {
+            const piece = this.board.getPiece(`${String.fromCharCode(charCode + 1)}${row_num + 2}`);
+            if (!piece || piece[0] !== this.color[0]) {
+              moves.push(`${String.fromCharCode(charCode + 1)}${row_num + 2}`);
             }
-            if ((!upsideDownL_L || upsideDownL_L[0] === 'B') && upsideDownL_L !== "Invalid Position") {
-                moves.push(`${String.fromCharCode(col_num - 1)}${row_num + 2}`);
+          }
+          // check for moves to the right and down
+          if (row_num >= 3) {
+            const piece = this.board.getPiece(`${String.fromCharCode(charCode + 1)}${row_num - 2}`);
+            if (!piece || piece[0] !== this.color[0]) {
+              moves.push(`${String.fromCharCode(charCode + 1)}${row_num - 2}`);
             }
-            if ((!flatL_U_R || flatL_U_R[0] === 'B') && flatL_U_R !== "Invalid Position") {
-                moves.push(`${String.fromCharCode(col_num + 2)}${row_num + 1}`);
+          }
+          // check for moves to the right and up
+          if (row_num <= 7) {
+            const piece = this.board.getPiece(`${String.fromCharCode(charCode + 2)}${row_num + 1}`);
+            if (!piece || piece[0] !== this.color[0]) {
+              moves.push(`${String.fromCharCode(charCode + 2)}${row_num + 1}`);
             }
-            if ((!flatL_U_L || flatL_U_L[0] === 'B') && flatL_U_L !== "Invalid Position") {
-                moves.push(`${String.fromCharCode(col_num - 2)}${row_num + 1}`);
+          }
+          // check for moves to the right and down
+          if (row_num >= 2) {
+            const piece = this.board.getPiece(`${String.fromCharCode(charCode + 2)}${row_num - 1}`);
+            if (!piece || piece[0] !== this.color[0]) {
+              moves.push(`${String.fromCharCode(charCode + 2)}${row_num - 1}`);
             }
-            if ((!flatL_D_R || flatL_D_R[0] === 'B') && flatL_D_R !== "Invalid Position") {
-                moves.push(`${String.fromCharCode(col_num + 2)}${row_num - 1}`);
-            }
-            if ((!flatL_D_L || flatL_D_L[0] === 'B') && flatL_D_L !== "Invalid Position") {
-                moves.push(`${String.fromCharCode(col_num - 2)}${row_num - 1}`);
-            }
-            if ((!regularL_R || regularL_R[0] === 'B') && regularL_R !== "Invalid Position") {
-                moves.push(`${String.fromCharCode(col_num + 1)}${row_num - 2}`);
-            }
-            if ((!regularL_L || regularL_L[0] === 'B') && regularL_L !== "Invalid Position") {
-                moves.push(`${String.fromCharCode(col_num - 1)}${row_num - 2}`);
-            }
-            
-        } else {
-
+          }
         }
-
+        // check for moves to the left
+        if (charCode >= 99) {
+          // check for moves to the left and up
+          if (row_num <= 6) {
+            const piece = this.board.getPiece(`${String.fromCharCode(charCode - 1)}${row_num + 2}`);
+            if (!piece || piece[0] !== this.color[0]) {
+              moves.push(`${String.fromCharCode(charCode - 1)}${row_num + 2}`);
+            }
+          }
+          // check for moves to the left and down
+          if (row_num >= 3) {
+            const piece = this.board.getPiece(`${String.fromCharCode(charCode - 1)}${row_num - 2}`);
+            if (!piece || piece[0] !== this.color[0]) {
+              moves.push(`${String.fromCharCode(charCode - 1)}${row_num - 2}`);
+            }
+          }
+          // check for moves to the left and up
+          if (row_num <= 7) {
+            const piece = this.board.getPiece(`${String.fromCharCode(charCode - 2)}${row_num + 1}`);
+            if (!piece || piece[0] !== this.color[0]) {
+              moves.push(`${String.fromCharCode(charCode - 2)}${row_num + 1}`);
+            }
+          }
+          // check for moves to the left and down
+          if (row_num >= 2) {
+            const piece = this.board.getPiece(`${String.fromCharCode(charCode - 2)}${row_num - 1}`);
+            if (!piece || piece[0] !== this.color[0]) {
+              moves.push(`${String.fromCharCode(charCode - 2)}${row_num - 1}`);
+            }
+          }
+        }
+      
         return moves;
     }
 }
@@ -279,7 +261,60 @@ class Bishop extends Piece {
     }
 
     legalMoves() {
-
+        const moves = [];
+        const row_num = parseInt(this.position[1]);
+        const charCode = this.position.charCodeAt(0);
+      
+        // check for moves to the top-right
+        for (let i = 1; i <= Math.min(8 - row_num, 104 - charCode); i++) {
+          const piece = this.board.getPiece(`${String.fromCharCode(charCode + i)}${row_num + i}`);
+          if (piece && piece[0] === this.color[0]) {
+            break;
+          } else if (piece && piece[0] !== this.color[0]) {
+            moves.push(`${String.fromCharCode(charCode + i)}${row_num + i}`);
+            break;
+          } else {
+            moves.push(`${String.fromCharCode(charCode + i)}${row_num + i}`);
+          }
+        }
+        // check for moves to the top-left
+        for (let i = 1; i <= Math.min(8 - row_num, charCode - 97); i++) {
+          const piece = this.board.getPiece(`${String.fromCharCode(charCode - i)}${row_num + i}`);
+          if (piece && piece[0] === this.color[0]) {
+            break;
+          } else if (piece && piece[0] !== this.color[0]) {
+            moves.push(`${String.fromCharCode(charCode - i)}${row_num + i}`);
+            break;
+          } else {
+            moves.push(`${String.fromCharCode(charCode - i)}${row_num + i}`);
+          }
+        }
+        // check for moves to the bottom-right
+        for (let i = 1; i <= Math.min(row_num - 1, 104 - charCode); i++) {
+          const piece = this.board.getPiece(`${String.fromCharCode(charCode + i)}${row_num - i}`);
+          if (piece && piece[0] === this.color[0]) {
+            break;
+          } else if (piece && piece[0] !== this.color[0]) {
+            moves.push(`${String.fromCharCode(charCode + i)}${row_num - i}`);
+            break;
+          } else {
+            moves.push(`${String.fromCharCode(charCode + i)}${row_num - i}`);
+          }
+        }
+        // check for moves to the bottom-left
+        for (let i = 1; i <= Math.min(row_num - 1, charCode - 97); i++) {
+          const piece = this.board.getPiece(`${String.fromCharCode(charCode - i)}${row_num - i}`);
+          if (piece && piece[0] === this.color[0]) {
+            break;
+          } else if (piece && piece[0] !== this.color[0]) {
+            moves.push(`${String.fromCharCode(charCode - i)}${row_num - i}`);
+            break;
+          } else {
+            moves.push(`${String.fromCharCode(charCode - i)}${row_num - i}`);
+          }
+        }
+      
+        return moves;
     }
 }
 
@@ -294,7 +329,108 @@ class Queen extends Piece {
     }
 
     legalMoves() {
-
+        const moves = [];
+        const row_num = parseInt(this.position[1]);
+        const charCode = this.position.charCodeAt(0);
+      
+        // check for moves to the right
+        for (let i = charCode + 1; i <= 104; i++) {
+          const piece = this.board.getPiece(`${String.fromCharCode(i)}${row_num}`);
+          if (piece && piece[0] === this.color[0]) {
+            break;
+          } else if (piece && piece[0] !== this.color[0]) {
+            moves.push(`${String.fromCharCode(i)}${row_num}`);
+            break;
+          } else {
+            moves.push(`${String.fromCharCode(i)}${row_num}`);
+          }
+        }
+        // check for moves to the left
+        for (let i = charCode - 1; i >= 97; i--) {
+          const piece = this.board.getPiece(`${String.fromCharCode(i)}${row_num}`);
+          if (piece && piece[0] === this.color[0]) {
+            break;
+          } else if (piece && piece[0] !== this.color[0]) {
+            moves.push(`${String.fromCharCode(i)}${row_num}`);
+            break;
+          } else {
+            moves.push(`${String.fromCharCode(i)}${row_num}`);
+          }
+        }
+        // check for moves to the top
+        for (let i = row_num + 1; i <= 8; i++) {
+          const piece = this.board.getPiece(`${String.fromCharCode(charCode)}${i}`);
+          if (piece && piece[0] === this.color[0]) {
+            break;
+          } else if (piece && piece[0] !== this.color[0]) {
+            moves.push(`${String.fromCharCode(charCode)}${i}`);
+            break;
+          } else {
+            moves.push(`${String.fromCharCode(charCode)}${i}`);
+          }
+        }
+        // check for moves to the bottom
+        for (let i = row_num - 1; i >= 1; i--) {
+          const piece = this.board.getPiece(`${String.fromCharCode(charCode)}${i}`);
+          if (piece && piece[0] === this.color[0]) {
+            break;
+          } else if (piece && piece[0] !== this.color[0]) {
+            moves.push(`${String.fromCharCode(charCode)}${i}`);
+            break;
+          } else {
+            moves.push(`${String.fromCharCode(charCode)}${i}`);
+          }
+        }
+        // check for moves to the top-right
+        for (let i = 1; i <= Math.min(8 - row_num, 104 - charCode); i++) {
+          const piece = this.board.getPiece(`${String.fromCharCode(charCode + i)}${row_num + i}`);
+          if (piece && piece[0] === this.color[0]) {
+            break;
+          } else if (piece && piece[0] !== this.color[0]) {
+            moves.push(`${String.fromCharCode(charCode + i)}${row_num + i}`);
+            break;
+          } else {
+            moves.push(`${String.fromCharCode(charCode + i)}${row_num + i}`);
+          }
+        }
+        // check for moves to the top-left
+        for (let i = 1; i <= Math.min(8 - row_num, charCode - 97); i++) {
+          const piece = this.board.getPiece(`${String.fromCharCode(charCode - i)}${row_num + i}`);
+          if (piece && piece[0] === this.color[0]) {
+            break;
+          } else if (piece && piece[0] !== this.color[0]) {
+            moves.push(`${String.fromCharCode(charCode - i)}${row_num + i}`);
+            break;
+          } else {
+            moves.push(`${String.fromCharCode(charCode - i)}${row_num + i}`);
+          }
+        }
+        // check for moves to the bottom-right
+        for (let i = 1; i <= Math.min(row_num - 1, 104 - charCode); i++) {
+          const piece = this.board.getPiece(`${String.fromCharCode(charCode + i)}${row_num - i}`);
+          if (piece && piece[0] === this.color[0]) {
+            break;
+          } else if (piece && piece[0] !== this.color[0]) {
+            moves.push(`${String.fromCharCode(charCode + i)}${row_num - i}`);
+            break;
+          } else {
+            moves.push(`${String.fromCharCode(charCode + i)}${row_num - i}`);
+          }
+        }
+        // check for moves to the bottom-left
+        for (let i = 1; i <= Math.min(row_num - 1, charCode - 97); i++) {
+          const piece = this.board.getPiece(`${String.fromCharCode(charCode - i)}${row_num - i}`);
+          if (piece && piece[0] === this.color[0]) {
+            break;
+          } else if (piece && piece[0] !== this.color[0]) {
+            moves.push(`${String.fromCharCode(charCode - i)}${row_num - i}`);
+            break;
+          } else {
+            moves.push(`${String.fromCharCode(charCode - i)}${row_num - i}`);
+          }
+        }
+      
+        return moves;
     }
 }
 
@@ -309,6 +445,67 @@ class King extends Piece {
     }
 
     legalMoves() {
-
+        const moves = [];
+        const row_num = parseInt(this.position[1]);
+        const charCode = this.position.charCodeAt(0);
+      
+        // check for moves to the right
+        if (charCode < 104) {
+          const piece = this.board.getPiece(`${String.fromCharCode(charCode + 1)}${row_num}`);
+          if (!piece || piece[0] !== this.color[0]) {
+            moves.push(`${String.fromCharCode(charCode + 1)}${row_num}`);
+          }
+        }
+        // check for moves to the left
+        if (charCode > 97) {
+          const piece = this.board.getPiece(`${String.fromCharCode(charCode - 1)}${row_num}`);
+          if (!piece || piece[0] !== this.color[0]) {
+            moves.push(`${String.fromCharCode(charCode - 1)}${row_num}`);
+          }
+        }
+        // check for moves to the top
+        if (row_num < 8) {
+          const piece = this.board.getPiece(`${String.fromCharCode(charCode)}${row_num + 1}`);
+          if (!piece || piece[0] !== this.color[0]) {
+            moves.push(`${String.fromCharCode(charCode)}${row_num + 1}`);
+          }
+        }
+        // check for moves to the bottom
+        if (row_num > 1) {
+          const piece = this.board.getPiece(`${String.fromCharCode(charCode)}${row_num - 1}`);
+          if (!piece || piece[0] !== this.color[0]) {
+            moves.push(`${String.fromCharCode(charCode)}${row_num - 1}`);
+          }
+        }
+        // check for moves to the top-right
+        if (charCode < 104 && row_num < 8) {
+          const piece = this.board.getPiece(`${String.fromCharCode(charCode + 1)}${row_num + 1}`);
+          if (!piece || piece[0] !== this.color[0]) {
+            moves.push(`${String.fromCharCode(charCode + 1)}${row_num + 1}`);
+          }
+        }
+        // check for moves to the top-left
+        if (charCode > 97 && row_num < 8) {
+          const piece = this.board.getPiece(`${String.fromCharCode(charCode - 1)}${row_num + 1}`);
+          if (!piece || piece[0] !== this.color[0]) {
+            moves.push(`${String.fromCharCode(charCode - 1)}${row_num + 1}`);
+          }
+        }
+        // check for moves to the bottom-right
+        if (charCode < 104 && row_num > 1) {
+          const piece = this.board.getPiece(`${String.fromCharCode(charCode + 1)}${row_num - 1}`);
+          if (!piece || piece[0] !== this.color[0]) {
+            moves.push(`${String.fromCharCode(charCode + 1)}${row_num - 1}`);
+          }
+        }
+        // check for moves to the bottom-left
+        if (charCode > 97 && row_num > 1) {
+          const piece = this.board.getPiece(`${String.fromCharCode(charCode - 1)}${row_num - 1}`);
+          if (!piece || piece[0] !== this.color[0]) {
+            moves.push(`${String.fromCharCode(charCode - 1)}${row_num - 1}`);
+          }
+        }
+      
+        return moves;
     }
 }
