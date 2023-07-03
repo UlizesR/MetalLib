@@ -114,8 +114,4 @@ class ChessBoard {
   }
 }
 
-module.exports = ChessBoard;
-
-// call to test
-const board = new ChessBoard();
-board.printBoard();
+module.exports = { ChessBoard };

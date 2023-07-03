@@ -1,7 +1,7 @@
 // board = new ChessBoard();
 
 class Piece {
-    constructor(board, color) {
+    constructor(board, color, position) {
         this.board = board;     // ChessBoard object
         this.color = color;     // "W" or "B"
         this.abr = null;        // "W_P" or "B_P"
@@ -26,8 +26,8 @@ class Piece {
 }
 
 class Pawn extends Piece {
-    constructor(board, color) {
-        super(board, color);
+    constructor(board, color, position) {
+        super(board, color, position);
         if (this.color === 'white') {
             this.abr = 'W_P';
         } else {
@@ -101,8 +101,8 @@ class Pawn extends Piece {
 }
 
 class Rook extends Piece {
-    constructor(board, color) {
-        super(board, color);
+    constructor(board, color, position) {
+        super(board, color, position);
         if (this.color === 'white') {
             this.abr = 'W_R';
         } else {
@@ -169,8 +169,8 @@ class Rook extends Piece {
 }
 
 class Knight extends Piece {
-    constructor(board, color) {
-        super(board, color);
+    constructor(board, color, position) {
+        super(board, color, position);
         if (this.color === 'white') {
             this.abr = 'W_K';
         } else {
@@ -251,8 +251,8 @@ class Knight extends Piece {
 }
 
 class Bishop extends Piece {
-    constructor(board, color) {
-        super(board, color);
+    constructor(board, color, position) {
+        super(board, color, position);
         if (this.color === 'white') {
             this.abr = 'W_B';
         } else {
@@ -319,8 +319,8 @@ class Bishop extends Piece {
 }
 
 class Queen extends Piece {
-    constructor(board, color) {
-        super(board, color);
+    constructor(board, color, position) {
+        super(board, color, position);
         if (this.color === 'white') {
             this.abr = 'W_Q';
         } else {
@@ -435,8 +435,8 @@ class Queen extends Piece {
 }
 
 class King extends Piece {
-    constructor(board, color) {
-        super(board, color);
+    constructor(board, color, position) {
+        super(board, color, position);
         if (this.color === 'white') {
             this.abr = 'W_K';
         } else {
@@ -509,3 +509,12 @@ class King extends Piece {
         return moves;
     }
 }
+
+module.exports = {
+    Pawn,
+    Rook,
+    Knight,
+    Bishop,
+    Queen,
+    King
+};
