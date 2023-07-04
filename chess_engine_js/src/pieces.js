@@ -54,7 +54,7 @@ class Pawn extends Piece {
         }
     }
 
-    getLegalMoves() {
+    legalMoves() {
         const moves = [];
         const row_num = parseInt(this.position[1]);
         const charCode = this.position.charCodeAt(0);
