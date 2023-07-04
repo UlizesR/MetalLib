@@ -5,6 +5,7 @@ class Piece {
     this.board = board;     // ChessBoard object
     this.color = color;     // "W" or "B"
     this.abr = null;        // "W_P" or "B_P"
+    this.name = null;       // "Pawn" or "Rook"
     this.position = position;   // "a1" or "h8"
   }
 
@@ -45,6 +46,7 @@ class Piece {
 class Pawn extends Piece {
     constructor(board, color, position) {
         super(board, color, position);
+        this.name = 'Pawn';
         if (this.color === 'W') {
             this.abr = 'W_P';
         } else {
@@ -120,6 +122,7 @@ class Pawn extends Piece {
 class Rook extends Piece {
     constructor(board, color, position) {
         super(board, color, position);
+        this.name = 'Rook';
         if (this.color === 'W') {
             this.abr = 'W_R';
         } else {
@@ -188,6 +191,7 @@ class Rook extends Piece {
 class Knight extends Piece {
     constructor(board, color, position) {
         super(board, color, position);
+        this.name = 'Knight';
         if (this.color === 'W') {
             this.abr = 'W_K';
         } else {
@@ -270,6 +274,7 @@ class Knight extends Piece {
 class Bishop extends Piece {
     constructor(board, color, position) {
         super(board, color, position);
+        this.name = 'Bishop';
         if (this.color === 'W') {
             this.abr = 'W_B';
         } else {
@@ -338,6 +343,7 @@ class Bishop extends Piece {
 class Queen extends Piece {
     constructor(board, color, position) {
         super(board, color, position);
+        this.name = 'Queen';
         if (this.color === 'W') {
             this.abr = 'W_Q';
         } else {
@@ -454,6 +460,7 @@ class Queen extends Piece {
 class King extends Piece {
     constructor(board, color, position) {
         super(board, color, position);
+        this.name = 'King';
         if (this.color === 'W') {
             this.abr = 'W_K';
         } else {

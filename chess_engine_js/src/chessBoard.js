@@ -22,13 +22,15 @@ class ChessBoard {
       "a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2",
       "a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1"
     ]
+
+    this.moves = []
   }
 
   /**
    * Takes the from and to Position of the form 'colrow' and moves the piece at the from position to the to position 
    * @param  {string} position
-   * @throws {Error} No piece at position
    * @throws {Error} Illegal move
+   * @returns {string} capturedPiece
    */
   movePiece(from, to) {
     // check if there is a piece at the to position
@@ -36,9 +38,24 @@ class ChessBoard {
       throw new Error("Illegal move");
     }
 
+    // Move the piece to the destination
+    const capturedPiece = this.getPiece(to);
+
+    // Add the move to the moves array
+    const move = {
+      piece: piece,
+      from: piece.position,
+      to: to,
+      capturedPiece: capturedPiece
+    };
+    this.moves.push(move);
+
     // move piece
     this.setPiece(this.getPiece(from), to);
     this.deletePiece(from);
+
+    // Return the captured piece (if any)
+    return capturedPiece;
 
   }
   
@@ -89,6 +106,17 @@ class ChessBoard {
       }
       // delete piece from board and sets to null
       this.board[position] = null;
+  }
+
+  // Get the history of all game moves
+  history() {
+    return this.moves.map(move => ({
+      piece: move.piece.constructor.name,
+      color: move.piece.color,
+      from: move.from,
+      to: move.to,
+      capturedPiece: move.capturedPiece ? move.capturedPiece.constructor.name : null
+    }));
   }
   
   printBoard() {
