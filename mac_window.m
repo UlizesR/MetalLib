@@ -1,10 +1,16 @@
 // mac_window.m
 #import "mac_window.h"
+#import "mac_error.h"
 #include <stdio.h>
 #import <Cocoa/Cocoa.h>
 
 MAC_Window* createWindow(int width, int height, const char* title) {
     MAC_Window* window = (MAC_Window*)malloc(sizeof(MAC_Window));
+    if(window == NULL) {
+        fprintf(stderr, MAC_ERROR_WINDOW_CREATION_FAILED);
+        return NULL;
+    }
+    
     window->width = width;
     window->height = height;
     window->title = title;
@@ -19,10 +25,6 @@ MAC_Window* createWindow(int width, int height, const char* title) {
     window->id = [nsWindow windowNumber];
 
     return window;
-}
-
-void runWindow() {
-    [NSApp run];
 }
 
 void closeWindow(MAC_Window* window) {

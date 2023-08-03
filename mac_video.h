@@ -10,8 +10,8 @@
 extern "C" {
 #endif
 
-typedef u_int32_t MAC_WindowID;
-typedef u_int32_t MAC_DisplayID;
+typedef uint32_t MAC_WindowID;
+typedef uint32_t MAC_DisplayID;
 
 typedef struct Video_Display {
     char name[50];  // Fixed-size array for the display name
@@ -20,7 +20,6 @@ typedef struct Video_Display {
     int height;
     double refreshRate;
 } Video_Display;
-
 
 /* 
     struct for video/graphics device information 

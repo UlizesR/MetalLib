@@ -1,17 +1,18 @@
 // main.c
 #include "mac.h"
+#include "mac_error.h"
 #include <stdio.h>
 
 int main() {
     if (MAC_Init(0) != 0) {
-        printf("Failed to initialize\n");
+        fprintf(stderr, MAC_ERROR_INIZIALIZATION_FAILED);
         return 1;
     }
 
     MAC_Window* window = createWindow(800, 600, "Test Window");
     if (window == NULL) {
-        printf("Failed to create window\n");
-        return 1;
+        fprintf(stderr, MAC_ERROR_INIZIALIZATION_FAILED);
+        return MAC_ERROR;
     }
 
     ignoreApps();
@@ -43,5 +44,5 @@ int main() {
     destroyWindow(window);
     MAC_Quit();
 
-    return 0;
+    return MAC_SUCCESS;
 }

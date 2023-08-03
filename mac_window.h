@@ -37,7 +37,6 @@ struct MAC_Window
         - Minimizable
 */
 MAC_Window* createWindow(int width, int height, const char* title);
-void runWindow();
 void closeWindow(MAC_Window* window);
 bool isWindowOpen(MAC_Window* window);
 void destroyWindow(MAC_Window* window);

@@ -1,5 +1,5 @@
 
-
+GUI
 ✔ Create Window @done(23-07-30 17:16)
 ☐ Create Custom View
     ☐ Create custom subview
@@ -10,3 +10,26 @@
 ☐ Text Fields
 ☐ Images
 ☐ Tab View
+
+Graphics
+☐ create metal view
+☐ create metal device
+☐ create metal render pipeline
+☐ render 2d graphics
+    ☐ render 2d shapes
+☐ render 3d graphics
+
+Subsystems
+☐ init subsystems
+☐ init video
+    ☐ init input
+    ☐ init graphics
+☐ init audio
+
+
+Input Handling
+✔ Handle Events @done(23-08-03 03:21)
+
+End of Project 
+☐ Make it into a framework/library
+☐ make it a brew package

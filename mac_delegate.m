@@ -31,11 +31,3 @@ void terminateDelegate() {
     [NSApp terminate:delegate];
     delegate = nil;
 }
-
-void runDelegate() {
-    if (delegate == nil) {
-        printf("Error: Delegate has not been initialized. Call initDelegate() first.\n");
-        return;
-    }
-    [NSApp run];
-}

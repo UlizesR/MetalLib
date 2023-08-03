@@ -19,9 +19,5 @@ Mac_Delegate* initDelegate();
     terminates the delegate/app
 */
 void terminateDelegate();
-/*
-    runs the delegate/app
-*/
-void runDelegate();
 
 #endif // MAC_DELGATE_H_

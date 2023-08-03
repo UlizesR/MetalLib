@@ -1,7 +1,7 @@
 // mac.m
 #import "mac.h"
-#include <stdio.h>
 #import "mac_delegate.h"
+#include <stdio.h>
 #import <Cocoa/Cocoa.h>
 
 // Global variables for Displays and Video Devices
@@ -40,7 +40,7 @@ int MAC_Init(uint32_t flags) {
     // Initialize the application delegate
     Mac_Delegate* delegate = initDelegate();
     if (delegate == NULL) {
-        printf("Error: Failed to initialize delegate.\n");
+        fprintf(stderr, MAC_ERROR_DELEGATE_INIT_FAILED);
         return -1;
     }
 
