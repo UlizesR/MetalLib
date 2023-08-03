@@ -4,6 +4,8 @@
 #import "mac_delegate.h"
 #import "mac_view.h"
 
+#import <Metal/Metal.h>
+
 Mac_Delegate *delegate;
 
 Window createWindow(int width, int height, const char *title)
@@ -26,7 +28,7 @@ Window createWindow(int width, int height, const char *title)
 
         [window center];
         [window setTitle:[NSString stringWithUTF8String:title]];
-        [window makeKeyAndOrderFront:nil];
+        [window makeKeyAndOrderFront:app];
 
         [window setDelegate:delegate];
         [app setDelegate:delegate];

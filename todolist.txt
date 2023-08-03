@@ -1,6 +1,12 @@
 
 
 ✔ Create Window @done(23-07-30 17:16)
-☐ Add Button
-☐ Add Label
-☐ Add Textbox
+☐ Create Custom View
+    ☐ Create custom subview
+    ☐ Create custom content view
+☐ Create Controllers
+☐ Buttons
+☐ Labels
+☐ Text Fields
+☐ Images
+☐ Tab View
