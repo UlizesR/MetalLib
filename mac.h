@@ -5,15 +5,10 @@
 #error "This file is only for Mac OS X"
 #endif
 
+#include "mac_window.h"
+#include "mac_video.h"
+#include "mac_init.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-
-
-#ifdef __cplusplus
-}
-#endif
+void MAC_Quit();
 
 #endif // MAC_H_

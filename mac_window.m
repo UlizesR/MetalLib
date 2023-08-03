@@ -1,45 +1,65 @@
-#import <Cocoa/Cocoa.h>
-
+// mac_window.m
 #import "mac_window.h"
 #import "mac_delegate.h"
-#import "mac_view.h"
+#import <Cocoa/Cocoa.h>
 
-#import <Metal/Metal.h>
+MAC_Window createWindow(int width, int height, const char* title) {
+    
+    MAC_Window window;
+    window.width = width;
+    window.height = height;
+    window.title = title;
+    window.parent = NULL;
+    window.children = NULL;
+    window.flags = 0;
 
-Mac_Delegate *delegate;
+    NSRect frame = NSMakeRect(0, 0, width, height);
+    NSUInteger styleMask = NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable;
+    NSWindow *nsWindow = [[NSWindow alloc] initWithContentRect:frame styleMask:styleMask backing:NSBackingStoreBuffered defer:NO];
+    [nsWindow setTitle:[NSString stringWithUTF8String:title]];
+    [nsWindow makeKeyAndOrderFront:nil];
 
-Window createWindow(int width, int height, const char *title)
-{
-    @autoreleasepool {
-        NSApplication *app = [NSApplication sharedApplication];
-        delegate = [[Mac_Delegate alloc] init];
+    window.id = (MAC_WindowID)[nsWindow windowNumber];
 
-        NSRect frame = NSMakeRect(0, 0, width, height);
-
-        NSWindow *window = [
-                [NSWindow alloc] initWithContentRect:frame
-                styleMask:NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable
-                backing:NSBackingStoreBuffered 
-                defer:NO
-            ];
-
-        Mac_View *view = [[Mac_View alloc] initWithFrame:frame];
-        [window setContentView:view];
-
-        [window center];
-        [window setTitle:[NSString stringWithUTF8String:title]];
-        [window makeKeyAndOrderFront:app];
-
-        [window setDelegate:delegate];
-        [app setDelegate:delegate];
-        return (Window)window;
-    }
+    return window;
 }
 
-void runWindow()
-{
-    @autoreleasepool {
-        NSApplication *app = [NSApplication sharedApplication];
-        [app run];
+void runWindow() {
+    printf("Running window\n");
+    runDelegate();
+}
+
+void closeWindow(MAC_Window* window) {
+    NSWindow *nsWindow = [NSApp windowWithWindowNumber:window->id];
+    [nsWindow close];
+    printf("Closing window\n");
+}
+
+void addChildWindow(MAC_Window* parent, MAC_Window* child) {
+    NSWindow *parentWindow = [NSApp windowWithWindowNumber:parent->id];
+    NSWindow *childWindow = [NSApp windowWithWindowNumber:child->id];
+    [parentWindow addChildWindow:childWindow ordered:NSWindowAbove];
+}
+
+void removeChildWindow(MAC_Window* parent, MAC_Window* child) {
+    NSWindow *parentWindow = [NSApp windowWithWindowNumber:parent->id];
+    NSWindow *childWindow = [NSApp windowWithWindowNumber:child->id];
+    [parentWindow removeChildWindow:childWindow];
+}
+
+void setWindowFlag(MAC_Window* window, uint32_t flags) {
+    NSWindow *nsWindow = [NSApp windowWithWindowNumber:window->id];
+    if (flags & MAC_WINDOW_RESIZABLE) {
+        [nsWindow setStyleMask:[nsWindow styleMask] | NSWindowStyleMaskResizable];
     }
+    if (flags & MAC_WINDOW_MINIMIZED) {
+        [nsWindow miniaturize:nil];
+    }
+    if (flags & MAC_WINDOW_MAXIMIZED) {
+        [nsWindow zoom:nil];
+    }
+    if (flags & MAC_WINDOW_FULLSCREEN) {
+        [nsWindow toggleFullScreen:nil];
+    }
+    // ... handle other flags as needed ...
 }

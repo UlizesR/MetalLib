@@ -1,20 +1,25 @@
-#include "mac_window.h"
-#include "mac_video.h"
+// main.c
+#include "mac.h"
+#include <stdio.h>
 
 int main() {
-    
-    int count;
-    Video_Display* displays = getConnectedDisplays(&count);
-    
-    printDisplayInfo(displays, count);
-    
-    
+    int displayCount;
+    Video_Display* displays = getConnectedDisplays(&displayCount);
+    printf("Connected displays:\n");
+    printDisplayInfo(displays, displayCount);
 
-    int window_width = displays[0].width;
-    int window_height = displays[0].height;
-    createWindow(window_width,window_height, "display 0 window 0");
+    int deviceCount;
+    Video_Device* devices = getConnectedDevices(&deviceCount);
+    printf("\nConnected devices:\n");
+    printDeviceInfo(devices, deviceCount);
+
+    MAC_Window window = createWindow(800, 600, "Hello World");
+    printf("\nWindow created\n");
 
     runWindow();
-    freeDisplays(displays, count);
+
+    freeDisplays(displays, displayCount);
+    releaseDevices();
+
     return 0;
 }

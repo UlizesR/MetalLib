@@ -1,20 +1,37 @@
+// Mac_delegate.m
 #import "mac_delegate.h"
-#import <spawn.h>
+
+Mac_Delegate* delegate = nil;
 
 @implementation Mac_Delegate
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     // Insert code here to initialize your application
-    NSLog(@"Hello World");
+    // This method is called when the application has finished launching
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
     // Insert code here to tear down your application
-    [NSApp terminate:self];
-}
-
-- (void)windowWillClose:(NSNotification *)notification {
-    [NSApp terminate:self];
+    // This method is called when the application is about to terminate
 }
 
 @end
+
+Mac_Delegate* initDelegate() {
+    delegate = [[Mac_Delegate alloc] init];
+    [NSApp setDelegate:delegate];
+    return delegate;
+}
+
+void terminateDelegate() {
+    [NSApp terminate:delegate];
+    delegate = nil;
+}
+
+void runDelegate() {
+    if (delegate == nil) {
+        printf("Error: Delegate has not been initialized. Call initDelegate() first.\n");
+        return;
+    }
+    [NSApp run];
+}

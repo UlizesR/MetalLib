@@ -1,11 +1,27 @@
-#import <Cocoa/Cocoa.h>
-#import "mac_view.h"
+#ifndef MAC_DELGATE_H_
+#define MAC_DELGATE_H_
 
-@interface Mac_Delegate : NSObject <NSApplicationDelegate, NSWindowDelegate>
+
+#import <Cocoa/Cocoa.h>
+
+@interface Mac_Delegate : NSObject <NSApplicationDelegate>
 
 @property (nonatomic, strong) NSWindow *window;
-@property (nonatomic, strong) Mac_View *content_view;
+@property (nonatomic, strong) NSView *content_view;
 
 @end
 
-extern Mac_Delegate* mac_delegate;
+/*
+    initializes the delegate
+*/
+Mac_Delegate* initDelegate();
+/*
+    terminates the delegate/app
+*/
+void terminateDelegate();
+/*
+    runs the delegate/app
+*/
+void runDelegate();
+
+#endif // MAC_DELGATE_H_
