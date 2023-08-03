@@ -12,7 +12,14 @@ typedef enum {
     MAC_NOEVENT = 0,
     MAC_KEYBOARDEVENT,
     MAC_MOUSEEVENT,
+    MAC_SCROLLEVENT,
 } MAC_EventType;
+
+typedef enum {
+    MAC_NOSCROLL = 0,
+    MAC_SCROLL_UP,
+    MAC_SCROLL_DOWN,
+} MAC_ScrollDirection;
 
 typedef enum {
     MAC_NOKEY = -1,
@@ -82,6 +89,8 @@ typedef struct {
     int x;
     int y;
     MAC_MouseButton button;
+    // For scroll events
+    MAC_ScrollDirection direction;
 } MAC_Event;
 
 int MAC_PollEvent(MAC_Event* event);

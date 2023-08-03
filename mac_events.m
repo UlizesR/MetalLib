@@ -39,7 +39,19 @@ int MAC_PollEvent(MAC_Event* event) {
             event->y = [nsEvent locationInWindow].y;
             event->button = MAC_BUTTON_MIDDLE;
             break;
-        // Add more cases as needed, depending on the types of events you want to handle
+        case NSEventTypeScrollWheel:
+            // Handle scroll wheel events
+            event->type = MAC_SCROLLEVENT;
+            event->x = [nsEvent locationInWindow].x;
+            event->y = [nsEvent locationInWindow].y;
+            if ([nsEvent deltaY] > 0) {
+                event->direction = MAC_SCROLL_UP;
+            } else if ([nsEvent deltaY] < 0) {
+                event->direction = MAC_SCROLL_DOWN;
+            } else {
+                event->direction = MAC_NOSCROLL;
+            }
+            break;
         default:
             event->type = MAC_NOEVENT;
             break;

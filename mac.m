@@ -30,10 +30,10 @@ void MAC_Quit() {
         g_devices = NULL;
         g_deviceCount = 0;
     }
-
+    printf("Memory has been deallocated and freed. Quitting application\n");
     // Terminate the delegate
     terminateDelegate();
-    printf("Memory has been deallocated and freed. Quitting application\n");
+    
 }
 
 int MAC_Init(uint32_t flags) {

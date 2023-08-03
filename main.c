@@ -1,6 +1,7 @@
 // main.c
 #include "mac.h"
 #include "mac_error.h"
+#include "mac_events.h"
 #include <stdio.h>
 
 int main() {
@@ -30,6 +31,9 @@ int main() {
                     break;
                 case MAC_MOUSEEVENT:
                     printf("Mouse button pressed: %d at (%d, %d)\n", event.button, event.x, event.y);
+                    break;
+                case MAC_SCROLLEVENT:
+                    printf("Mouse wheel scrolled: %d\n", event.direction);
                     break;
                 default:
                     break;
