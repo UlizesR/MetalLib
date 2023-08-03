@@ -36,10 +36,11 @@ struct MAC_Window
         - Closable
         - Minimizable
 */
-MAC_Window createWindow(int width, int height, const char* title);
+MAC_Window* createWindow(int width, int height, const char* title);
 void runWindow();
 void closeWindow(MAC_Window* window);
-
+bool isWindowOpen(MAC_Window* window);
+void destroyWindow(MAC_Window* window);
 /*
     Functions for managing window hierarchies
 */

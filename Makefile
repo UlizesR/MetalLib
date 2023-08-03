@@ -2,7 +2,7 @@
 CC = clang
 CFLAGS = -framework Cocoa -framework Metal -ObjC
 TARGET = main
-OBJS = main.c *.m
+OBJS = *.c *.m
 
 # Default rule
 all: $(TARGET)

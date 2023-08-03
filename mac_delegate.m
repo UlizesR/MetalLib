@@ -15,6 +15,10 @@ Mac_Delegate* delegate = nil;
     // This method is called when the application is about to terminate
 }
 
+- (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)sender {
+    return YES;
+}
+
 @end
 
 Mac_Delegate* initDelegate() {

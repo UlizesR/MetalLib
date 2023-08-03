@@ -8,7 +8,12 @@
 #include "mac_window.h"
 #include "mac_video.h"
 #include "mac_init.h"
+#include "mac_events.h"
+#include "mac_error.h"
 
+// set global variables for Displays and Video Devices
+
+void ignoreApps();
 void MAC_Quit();
 
 #endif // MAC_H_

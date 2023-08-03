@@ -1,38 +1,44 @@
 // mac_window.m
 #import "mac_window.h"
-#import "mac_delegate.h"
+#include <stdio.h>
 #import <Cocoa/Cocoa.h>
 
-MAC_Window createWindow(int width, int height, const char* title) {
-    
-    MAC_Window window;
-    window.width = width;
-    window.height = height;
-    window.title = title;
-    window.parent = NULL;
-    window.children = NULL;
-    window.flags = 0;
+MAC_Window* createWindow(int width, int height, const char* title) {
+    MAC_Window* window = (MAC_Window*)malloc(sizeof(MAC_Window));
+    window->width = width;
+    window->height = height;
+    window->title = title;
 
     NSRect frame = NSMakeRect(0, 0, width, height);
-    NSUInteger styleMask = NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable;
-    NSWindow *nsWindow = [[NSWindow alloc] initWithContentRect:frame styleMask:styleMask backing:NSBackingStoreBuffered defer:NO];
+    NSWindow *nsWindow = [[NSWindow alloc] initWithContentRect:frame
+                                                      styleMask:NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable
+                                                        backing:NSBackingStoreBuffered
+                                                          defer:NO];
     [nsWindow setTitle:[NSString stringWithUTF8String:title]];
     [nsWindow makeKeyAndOrderFront:nil];
-
-    window.id = (MAC_WindowID)[nsWindow windowNumber];
+    window->id = [nsWindow windowNumber];
 
     return window;
 }
 
 void runWindow() {
-    printf("Running window\n");
-    runDelegate();
+    [NSApp run];
 }
 
 void closeWindow(MAC_Window* window) {
     NSWindow *nsWindow = [NSApp windowWithWindowNumber:window->id];
     [nsWindow close];
-    printf("Closing window\n");
+}
+
+bool isWindowOpen(MAC_Window* window) {
+    NSWindow *nsWindow = [NSApp windowWithWindowNumber:window->id];
+    return nsWindow && [nsWindow isVisible];
+}
+
+void destroyWindow(MAC_Window* window) {
+    closeWindow(window);
+    free(window);
+    printf("Window has been deallocated and freed.\n");
 }
 
 void addChildWindow(MAC_Window* parent, MAC_Window* child) {
@@ -47,7 +53,7 @@ void removeChildWindow(MAC_Window* parent, MAC_Window* child) {
     [parentWindow removeChildWindow:childWindow];
 }
 
-void setWindowFlag(MAC_Window* window, uint32_t flags) {
+void setWindowFlag(MAC_Window* window, u_int32_t flags) {
     NSWindow *nsWindow = [NSApp windowWithWindowNumber:window->id];
     if (flags & MAC_WINDOW_RESIZABLE) {
         [nsWindow setStyleMask:[nsWindow styleMask] | NSWindowStyleMaskResizable];
@@ -61,5 +67,4 @@ void setWindowFlag(MAC_Window* window, uint32_t flags) {
     if (flags & MAC_WINDOW_FULLSCREEN) {
         [nsWindow toggleFullScreen:nil];
     }
-    // ... handle other flags as needed ...
 }

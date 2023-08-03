@@ -2,7 +2,6 @@
 #include "mac_video.h"
 #import <Cocoa/Cocoa.h>
 #import <Metal/Metal.h>
-#include <stdio.h>
 
 // Global variable to hold a strong reference to the Metal devices
 static NSArray<id<MTLDevice>>* g_devices = nil;
@@ -27,7 +26,7 @@ Video_Display* getConnectedDisplays(int* count) {
         snprintf(displays[i].name, sizeof(displays[i].name), "Display %d", i);
         displays[i].width = width;
         displays[i].height = height;
-        displays[i].refreshRate = 60.0;  // Default to 60Hz, you might need additional APIs to get the actual refresh rate
+        displays[i].refreshRate = 60.0;  // Default to 60Hz, 
     }
     
     return displays;
@@ -44,7 +43,6 @@ Video_Device* getConnectedDevices(int* count) {
         
         videoDevices[i].device = (__bridge void*)device;
         videoDevices[i].name = [[device name] UTF8String];
-        // ... add other device information as needed 
     }
     
     return videoDevices;
@@ -63,7 +61,6 @@ void printDeviceInfo(Video_Device* devices, int count) {
     for (int i = 0; i < count; i++) {
         printf("Device %d:\n", i);
         printf("Name: %s\n", devices[i].name);
-        // ... print other device information as needed 
         printf("\n");
     }
 }

@@ -3,23 +3,45 @@
 #include <stdio.h>
 
 int main() {
-    int displayCount;
-    Video_Display* displays = getConnectedDisplays(&displayCount);
-    printf("Connected displays:\n");
-    printDisplayInfo(displays, displayCount);
+    if (MAC_Init(0) != 0) {
+        printf("Failed to initialize\n");
+        return 1;
+    }
 
-    int deviceCount;
-    Video_Device* devices = getConnectedDevices(&deviceCount);
-    printf("\nConnected devices:\n");
-    printDeviceInfo(devices, deviceCount);
+    MAC_Window* window = createWindow(800, 600, "Test Window");
+    if (window == NULL) {
+        printf("Failed to create window\n");
+        return 1;
+    }
 
-    MAC_Window window = createWindow(800, 600, "Hello World");
-    printf("\nWindow created\n");
+    ignoreApps();
 
-    runWindow();
+    MAC_Event event;
+    bool running = true;
+    while (running) {
+        while (MAC_PollEvent(&event)) {
+            switch (event.type) {
+                case MAC_KEYBOARDEVENT:
+                    printf("Key pressed: %d\n", event.keycode);
+                    if (event.keycode == MAC_KEY_ESCAPE) {
+                        running = false;
+                    }
+                    break;
+                case MAC_MOUSEEVENT:
+                    printf("Mouse button pressed: %d at (%d, %d)\n", event.button, event.x, event.y);
+                    break;
+                default:
+                    break;
+            }
+        }
+        // Check if the window is still open
+        if (!isWindowOpen(window)) {
+            running = false;
+        }
+    }
 
-    freeDisplays(displays, displayCount);
-    releaseDevices();
+    destroyWindow(window);
+    MAC_Quit();
 
     return 0;
 }
