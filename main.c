@@ -1,6 +1,5 @@
 // main.c
-#include "mac.h"
-#include "mac_window.h"
+#include <MAC/mac.h>
 #include <stdbool.h>
 #include <stdio.h>
 
