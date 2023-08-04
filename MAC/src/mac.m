@@ -1,5 +1,5 @@
 // mac.m
-#import "../include/MAC/mac.h"
+#import "mac.h"
 #import "mac_delegate.h"
 #include <stdio.h>
 #include <stdint.h>
