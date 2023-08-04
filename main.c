@@ -1,51 +1,56 @@
 // main.c
 #include "mac.h"
-#include "mac_error.h"
-#include "mac_events.h"
+#include "mac_window.h"
+#include <stdbool.h>
 #include <stdio.h>
 
-int main() {
-    if (MAC_Init(0) != 0) {
-        fprintf(stderr, MAC_ERROR_INIZIALIZATION_FAILED);
+int main(int argc, const char * argv[]) {
+    // Initialize the application
+    if(MAC_Init(0) != 0) {
+        fprintf(stderr, "Failed to initialize the application\n");
         return 1;
     }
 
-    MAC_Window* window = createWindow(800, 600, "Test Window");
-    if (window == NULL) {
-        fprintf(stderr, MAC_ERROR_INIZIALIZATION_FAILED);
-        return MAC_ERROR;
-    }
+    // Create a window
+    MAC_Window* mainWindow = createWindow(800, 600, "Main Window");
 
-    ignoreApps();
+    // Add a content view to the window with a blue background
+    Mac_View* contentView = addContentView(mainWindow, MAC_COLOR_BLUE);
 
-    MAC_Event event;
+    // Add a subview to the content view with a red background
+    Mac_View* subView = addSubView(mainWindow, 200, 200, 100, 100, MAC_COLOR_RED);
+
+    // Main loop
     bool running = true;
+    MAC_Event event;
     while (running) {
+        runWindow();
         while (MAC_PollEvent(&event)) {
             switch (event.type) {
                 case MAC_KEYBOARDEVENT:
-                    printf("Key pressed: %d\n", event.keycode);
                     if (event.keycode == MAC_KEY_ESCAPE) {
                         running = false;
                     }
                     break;
                 case MAC_MOUSEEVENT:
-                    printf("Mouse button pressed: %d at (%d, %d)\n", event.button, event.x, event.y);
+                    if (event.button == MAC_BUTTON_LEFT) {
+                        printf("Left mouse button pressed at (%d, %d)\n", event.x, event.y);
+                    }
                     break;
-                case MAC_SCROLLEVENT:
-                    printf("Mouse wheel scrolled: %d\n", event.direction);
-                    break;
+                case MAC_NOEVENT:
                 default:
                     break;
             }
         }
-        // Check if the window is still open
-        if (!isWindowOpen(window)) {
+        if(!isWindowOpen(mainWindow)) {
             running = false;
         }
     }
 
-    destroyWindow(window);
+    // Cleanup
+    destroyView(subView);
+    destroyView(contentView);
+    destroyWindow(mainWindow);
     MAC_Quit();
 
     return MAC_SUCCESS;

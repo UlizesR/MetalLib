@@ -3,6 +3,14 @@
 
 #include "mac_video.h"
 
+#ifdef __OBJC__
+#import <Cocoa/Cocoa.h>
+
+@interface Mac_WindowDelegate : NSObject <NSWindowDelegate>
+@property (nonatomic, strong) NSView *contentView;
+@end
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -28,7 +36,9 @@ struct MAC_Window
     MAC_Window *parent;
     MAC_Window *children;
     uint32_t flags;
+    void *delegate;
 };
+
 
 /*
     Functions for creating and managing windows
@@ -40,6 +50,7 @@ MAC_Window* createWindow(int width, int height, const char* title);
 void closeWindow(MAC_Window* window);
 bool isWindowOpen(MAC_Window* window);
 void destroyWindow(MAC_Window* window);
+void runWindow();
 /*
     Functions for managing window hierarchies
 */
@@ -49,7 +60,7 @@ void removeChildWindow(MAC_Window* parent, MAC_Window* child);
 /*
     Functions for managing window flags
 */
-void setWindowFlag(MAC_Window* window, u_int32_t flags);
+void setWindowFlag(MAC_Window* window, uint32_t flags);
 
 #ifdef __cplusplus
 }

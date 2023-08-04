@@ -10,6 +10,8 @@
 #include "mac_init.h"
 #include "mac_events.h"
 #include "mac_error.h"
+#include "mac_pixels.h"
+#include "mac_view.h"
 
 void ignoreApps();
 void MAC_Quit();

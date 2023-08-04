@@ -1,6 +1,7 @@
 // mac_window.m
 #import "mac_window.h"
 #import "mac_error.h"
+#import "mac_delegate.h"
 #include <stdio.h>
 #import <Cocoa/Cocoa.h>
 
@@ -55,7 +56,7 @@ void removeChildWindow(MAC_Window* parent, MAC_Window* child) {
     [parentWindow removeChildWindow:childWindow];
 }
 
-void setWindowFlag(MAC_Window* window, u_int32_t flags) {
+void setWindowFlag(MAC_Window* window, uint32_t flags) {
     NSWindow *nsWindow = [NSApp windowWithWindowNumber:window->id];
     if (flags & MAC_WINDOW_RESIZABLE) {
         [nsWindow setStyleMask:[nsWindow styleMask] | NSWindowStyleMaskResizable];
@@ -69,4 +70,8 @@ void setWindowFlag(MAC_Window* window, u_int32_t flags) {
     if (flags & MAC_WINDOW_FULLSCREEN) {
         [nsWindow toggleFullScreen:nil];
     }
+}
+
+void runWindow() {
+    runDelegate();
 }

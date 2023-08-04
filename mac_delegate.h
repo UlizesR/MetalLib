@@ -1,7 +1,6 @@
 #ifndef MAC_DELGATE_H_
 #define MAC_DELGATE_H_
 
-
 #import <Cocoa/Cocoa.h>
 
 @interface Mac_Delegate : NSObject <NSApplicationDelegate>
@@ -19,5 +18,6 @@ Mac_Delegate* initDelegate();
     terminates the delegate/app
 */
 void terminateDelegate();
+void runDelegate();
 
 #endif // MAC_DELGATE_H_
