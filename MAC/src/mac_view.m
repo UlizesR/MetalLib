@@ -1,6 +1,6 @@
 // mac_view.m
-#import "mac_view.h"
-#import "mac_window.h"
+#import "MAC/mac_view.h"
+#import "MAC/mac_window.h"
 
 
 

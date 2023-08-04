@@ -1,7 +1,7 @@
 // mac_window.m
-#import "mac_window.h"
-#import "mac_error.h"
-#import "mac_delegate.h"
+#import "MAC/mac_window.h"
+#import "MAC/mac_error.h"
+#import "MAC/mac_delegate.h"
 #include <stdio.h>
 #import <Cocoa/Cocoa.h>
 

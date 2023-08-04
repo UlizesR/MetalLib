@@ -17,6 +17,7 @@ set(SOURCES
     MAC/src/mac_events.m
     MAC/src/mac_pixels.m
     MAC/src/mac_error.c
+    MAC/src/mac_gui.m
 )
 
 # Create the library
@@ -30,6 +31,6 @@ install(TARGETS MAC
         ARCHIVE DESTINATION /opt/homebrew/lib)
 
 # Set the install location for the header files
-install(DIRECTORY MAC/include/
+install(DIRECTORY MAC/include/MAC/
         DESTINATION /opt/homebrew/include/MAC
         FILES_MATCHING PATTERN "*.h")

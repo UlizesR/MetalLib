@@ -1,5 +1,5 @@
 // Mac_delegate.m
-#import "mac_delegate.h"
+#import "MAC/mac_delegate.h"
 
 Mac_Delegate* delegate = nil;
 
