@@ -17,14 +17,12 @@ int main(int argc, const char * argv[]) {
     // Add a content view to the window with a blue background
     Mac_View* contentView = addContentView(mainWindow, MAC_COLOR_BLUE);
 
-    // Add a subview to the content view with a red background
-    Mac_View* subView = addSubView(mainWindow, 200, 200, 100, 100, MAC_COLOR_RED);
-
+    ignoreApps();
+    
     // Main loop
     bool running = true;
     MAC_Event event;
     while (running) {
-        runWindow();
         while (MAC_PollEvent(&event)) {
             switch (event.type) {
                 case MAC_KEYBOARDEVENT:
@@ -48,8 +46,6 @@ int main(int argc, const char * argv[]) {
     }
 
     // Cleanup
-    destroyView(subView);
-    destroyView(contentView);
     destroyWindow(mainWindow);
     MAC_Quit();
 

@@ -1,7 +1,6 @@
 #ifndef MAC_WINDOW_H_
 #define MAC_WINDOW_H_
 
-#include "mac_video.h"
 
 #ifdef __OBJC__
 #import <Cocoa/Cocoa.h>
@@ -11,11 +10,15 @@
 @end
 #endif
 
+#include <stdint.h>
+#include <stdbool.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 typedef struct MAC_Window MAC_Window;
+typedef uint32_t MAC_WindowID;
 
 typedef enum
 {

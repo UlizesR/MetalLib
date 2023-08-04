@@ -5,6 +5,11 @@
 #include <stdio.h>
 #import <Cocoa/Cocoa.h>
 
+@implementation Mac_WindowDelegate
+// methods implementation here
+@end
+
+
 MAC_Window* createWindow(int width, int height, const char* title) {
     MAC_Window* window = (MAC_Window*)malloc(sizeof(MAC_Window));
     if(window == NULL) {
@@ -22,6 +27,17 @@ MAC_Window* createWindow(int width, int height, const char* title) {
                                                         backing:NSBackingStoreBuffered
                                                           defer:NO];
     [nsWindow setTitle:[NSString stringWithUTF8String:title]];
+    
+    // Create a new instance of the window delegate for this window
+    Mac_WindowDelegate* delegate = [[Mac_WindowDelegate alloc] init];
+    nsWindow.delegate = delegate;
+    window->delegate = (__bridge void *)delegate;
+    
+    // Set the content view for the window
+    NSView *contentView = [[NSView alloc] initWithFrame:frame];
+    delegate.contentView = contentView;
+    [nsWindow setContentView:contentView];
+
     [nsWindow makeKeyAndOrderFront:nil];
     window->id = [nsWindow windowNumber];
 

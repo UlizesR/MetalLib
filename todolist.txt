@@ -1,9 +1,9 @@
 
 GUI
 ✔ Create Window @done(23-07-30 17:16)
-☐ Create Custom View
-    ☐ Create custom subview
-    ☐ Create custom content view
+✔ Create Custom View @done(23-08-03 21:48)
+    ✔ Create custom subview @done(23-08-03 21:47)
+    ✔ Create custom content view @done(23-08-03 21:47)
 ☐ Create Controllers
 ☐ Buttons
 ☐ Labels

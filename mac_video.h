@@ -10,7 +10,6 @@
 extern "C" {
 #endif
 
-typedef uint32_t MAC_WindowID;
 typedef uint32_t MAC_DisplayID;
 
 typedef struct Video_Display {

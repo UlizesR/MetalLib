@@ -2,6 +2,7 @@
 #import "mac.h"
 #import "mac_delegate.h"
 #include <stdio.h>
+#include <stdint.h>
 #import <Cocoa/Cocoa.h>
 
 // Global variables for Displays and Video Devices

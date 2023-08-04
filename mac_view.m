@@ -13,9 +13,10 @@
 
 @end
 
-Mac_View* addSubView(MAC_Window* parent, int width, int height, int x, int y, MAC_Color background_color) {
+Mac_View* addSubView(Mac_View* parent, int width, int height, int x, int y, MAC_Color background_color) {
     Mac_View* view = (Mac_View*)malloc(sizeof(Mac_View));
-    view->window_parent = parent;
+    view->parent_view = parent;
+    view->window_parent = parent->window_parent;
     view->width = width;
     view->height = height;
     view->x = x;
@@ -28,14 +29,21 @@ Mac_View* addSubView(MAC_Window* parent, int width, int height, int x, int y, MA
     [nsView setWantsLayer:YES];
     [nsView.layer setBackgroundColor:CGColorCreateGenericRGB(background_color.r, background_color.g, background_color.b, background_color.a)];
     
-    Mac_WindowDelegate* delegate = (__bridge Mac_WindowDelegate*)parent->delegate;
-    [delegate.contentView addSubview:nsView];
+    NSView* parentNSView = nil;
+    if (parent->is_root) {
+        Mac_WindowDelegate* delegate = (__bridge Mac_WindowDelegate*)parent->window_parent->delegate;
+        parentNSView = delegate.contentView;
+    } else {
+        parentNSView = (__bridge NSView*)parent->parent_view;
+    }
+    [parentNSView addSubview:nsView];
 
     return view;
 }
 
 Mac_View* addContentView(MAC_Window* parent, MAC_Color background_color) {
     Mac_View* view = (Mac_View*)malloc(sizeof(Mac_View));
+    view->parent_view = NULL;
     view->window_parent = parent;
     view->width = parent->width;
     view->height = parent->height;
@@ -54,14 +62,4 @@ Mac_View* addContentView(MAC_Window* parent, MAC_Color background_color) {
     [nsView setNeedsDisplay:YES];
 
     return view;
-}
-
-void destroyView(Mac_View* view) {
-    Mac_WindowDelegate* delegate = (__bridge Mac_WindowDelegate*)view->window_parent->delegate;
-    for (NSView* subview in delegate.contentView.subviews) {
-        if ([subview isKindOfClass:[Mac_NSView class]]) {
-            [subview removeFromSuperview];
-        }
-    }
-    free(view);
 }
