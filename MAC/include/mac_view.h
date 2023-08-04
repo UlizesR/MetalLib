@@ -28,8 +28,15 @@ struct Mac_View
     bool is_metal_view;
 };
 
+#define MAX_VIEWS 1000 // You can adjust this value based on your needs
+extern Mac_View* g_views[MAX_VIEWS];
+extern int g_viewCount;
+
+
 Mac_View* addSubView(Mac_View* parent, int width, int height, int x, int y, MAC_Color background_color);
 Mac_View* addContentView(MAC_Window* parent, MAC_Color background_color);
+void destroyViews(Mac_View* views[], int count);
+void destroyView(Mac_View* view);
 
 #ifdef __cplusplus
 }

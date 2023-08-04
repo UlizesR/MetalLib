@@ -31,10 +31,15 @@ void MAC_Quit() {
         g_devices = NULL;
         g_deviceCount = 0;
     }
+
+    // Clean up Views
+    destroyViews(g_views, g_viewCount);
+    g_viewCount = 0;
+
     printf("Memory has been deallocated and freed. Quitting application\n");
+    
     // Terminate the delegate
     terminateDelegate();
-    
 }
 
 int MAC_Init(uint32_t flags) {

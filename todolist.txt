@@ -31,5 +31,5 @@ Input Handling
 ✔ Handle Events @done(23-08-03 03:21)
 
 End of Project 
-☐ Make it into a framework/library
+✔ Make it into a framework/library @done(23-08-03 22:42)
 ☐ make it a brew package

@@ -39,5 +39,5 @@ install(TARGETS MAC
 
 # Set the install location for the header files
 install(DIRECTORY MAC/include/
-        DESTINATION /opt/homebrew/include/mac_api
+        DESTINATION /opt/homebrew/include
         FILES_MATCHING PATTERN "*.h")

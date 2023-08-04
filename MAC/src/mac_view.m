@@ -2,6 +2,12 @@
 #import "mac_view.h"
 #import "mac_window.h"
 
+
+
+Mac_View* g_views[MAX_VIEWS];
+int g_viewCount = 0;
+
+
 @implementation Mac_NSView
 
 - (void)drawRect:(NSRect)dirtyRect {
@@ -38,6 +44,10 @@ Mac_View* addSubView(Mac_View* parent, int width, int height, int x, int y, MAC_
     }
     [parentNSView addSubview:nsView];
 
+    if (g_viewCount < MAX_VIEWS) {
+        g_views[g_viewCount++] = view;
+    }
+
     return view;
 }
 
@@ -61,5 +71,25 @@ Mac_View* addContentView(MAC_Window* parent, MAC_Color background_color) {
     [delegate.contentView addSubview:nsView];
     [nsView setNeedsDisplay:YES];
 
+    if (g_viewCount < MAX_VIEWS) {
+        g_views[g_viewCount++] = view;
+    }
+
     return view;
+}
+
+void destroyView(Mac_View* view) {
+    Mac_WindowDelegate* delegate = (__bridge Mac_WindowDelegate*)view->window_parent->delegate;
+    for (NSView* subview in delegate.contentView.subviews) {
+        if ([subview isKindOfClass:[Mac_NSView class]]) {
+            [subview removeFromSuperview];
+        }
+    }
+    free(view);
+}
+
+void destroyViews(Mac_View* views[], int count) {
+    for (int i = 0; i < count; i++) {
+        destroyView(views[i]);
+    }
 }

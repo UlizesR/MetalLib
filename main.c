@@ -16,6 +16,9 @@ int main(int argc, const char * argv[]) {
     // Add a content view to the window with a blue background
     Mac_View* contentView = addContentView(mainWindow, MAC_COLOR_BLUE);
 
+    // add a subview to the content view with a red background
+    Mac_View* subView = addSubView(contentView, 200, 400, 100, 100, MAC_COLOR_RED);
+
     ignoreApps();
     
     // Main loop
