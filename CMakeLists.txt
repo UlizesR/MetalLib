@@ -16,6 +16,7 @@ set(SOURCES
     MAC/src/mac.m
     MAC/src/mac_events.m
     MAC/src/mac_pixels.m
+    MAC/src/mac_error.c
 )
 
 # Create the library
@@ -24,20 +25,11 @@ add_library(MAC STATIC ${SOURCES})
 # Link the necessary frameworks
 target_link_libraries(MAC "-framework Cocoa" "-framework Metal")
 
-# Create the executable
-add_executable(main main.c)
-
-# Link the library to the executable
-target_link_libraries(main MAC)
-
-# Make sure the compiler can find the MAC headers
-target_include_directories(main PRIVATE MAC/include)
-
 # Set the install location for the library
 install(TARGETS MAC
         ARCHIVE DESTINATION /opt/homebrew/lib)
 
 # Set the install location for the header files
 install(DIRECTORY MAC/include/
-        DESTINATION /opt/homebrew/include
+        DESTINATION /opt/homebrew/include/MAC
         FILES_MATCHING PATTERN "*.h")

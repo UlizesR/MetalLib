@@ -1,4 +1,5 @@
 // main.c
+#include "mac_error.h"
 #include <MAC/mac.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -6,7 +7,7 @@
 int main(int argc, const char * argv[]) {
     // Initialize the application
     if(MAC_Init(0) != 0) {
-        fprintf(stderr, "Failed to initialize the application\n");
+        mac_printError(MAC_ERROR_INIZIALIZATION_FAILED);
         return 1;
     }
 

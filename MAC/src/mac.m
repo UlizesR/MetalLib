@@ -46,7 +46,7 @@ int MAC_Init(uint32_t flags) {
     // Initialize the application delegate
     Mac_Delegate* delegate = initDelegate();
     if (delegate == NULL) {
-        fprintf(stderr, MAC_ERROR_DELEGATE_INIT_FAILED);
+        mac_printError(MAC_ERROR_DELEGATE_INIT_FAILED);
         return -1;
     }
 

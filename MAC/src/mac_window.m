@@ -13,7 +13,7 @@
 MAC_Window* createWindow(int width, int height, const char* title) {
     MAC_Window* window = (MAC_Window*)malloc(sizeof(MAC_Window));
     if(window == NULL) {
-        fprintf(stderr, MAC_ERROR_WINDOW_CREATION_FAILED);
+        mac_printError(MAC_ERROR_WINDOW_CREATION_FAILED);
         return NULL;
     }
     
