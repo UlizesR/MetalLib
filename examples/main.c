@@ -1,5 +1,4 @@
 // main.c
-#include "mac_error.h"
 #include <MAC/mac.h>
 #include <stdbool.h>
 #include <stdio.h>

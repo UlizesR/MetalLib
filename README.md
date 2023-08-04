@@ -25,12 +25,13 @@ No usage of non in built libraries or frameworks so far
     
 ## How to Use
 
-I have set up a library that can be downloaded yet. I will fix this.
+You will need to download the library using CMake or Homebrew
+(I need to package the libray into a Homebrew Formula)
 
-#### ONCE ITS A LIBRARY
+The style of the code is very similar to SDL2. 
+So if you are familiar with SDL2 you will be able to use this library.
 
-The same way you would go about using SDL2
-using what is currently capable of.
+#### Code Example
 
 1. include <MAC/mac.h> into your main.c file
 
@@ -57,17 +58,13 @@ int main() {
 
 ```C
     MAC_Window* window = createWindow(800, 600, "Test Window");
-        if (window == NULL) {
-            fprintf(stderr, MAC_ERROR_INIZIALIZATION_FAILED);
-            return MAC_ERROR;
-        }
+    if (window == NULL) {
+        fprintf(stderr, MAC_ERROR_INIZIALIZATION_FAILED);
+        return MAC_ERROR;
+    }
 ```
 
-for now until i fix this issue
-if you are doing event listners <br/>
-might do this differently depending if its an app or game.
-
-4. ignore all apps and be the active app
+4. ignore all apps and be the active app (if you are doing input handling)
 
 ```C
     ignoreApps();
