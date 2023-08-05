@@ -6,10 +6,30 @@ GUI
     ✔ Create custom content view @done(23-08-03 21:47)
 ☐ Create Controllers
 ☐ Buttons
+    ✔ Render a button @done(23-08-04 23:57)
+    ☐ Add Button styles
+        ☐ Default (Style Text)
+        ☐ Rounded
+        ☐ Bezel 
+        ☐ Square
+        ☐ Inline
+        ☐ Link
+        ☐ Image
+        ☐ Textured
+        ☐ Square 
+    ☐ Add Button Types
+        ☐ Push Button
+        ☐ Toggle 
+        ☐ Radio
+        ☐ Switch
+        ☐ Checkbox
 ☐ Labels
 ☐ Text Fields
 ☐ Images
 ☐ Tab View
+
+Tools
+☐ Create a command line tool to generate .app directory
 
 Graphics
 ☐ create metal view

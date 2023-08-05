@@ -1,4 +1,5 @@
 #include "MAC/mac_gui.h"
+#include "MAC/mac_pixels.h"
 #include <MAC/mac.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -14,12 +15,11 @@ int main(int argc, const char * argv[]) {
     MAC_Window* mainWindow = createWindow(800, 600, "Main Window");
 
     // Add a content view to the window with a blue background
-    Mac_View* contentView = addContentView(mainWindow, MAC_COLOR_BLUE);
+    Mac_View* contentView = addContentView(mainWindow, MAC_COLOR_GREEN_2);
 
     // add a subview to the content view with a red background
     // Mac_View* subView = addSubView(contentView, 200, 400, 100, 100, MAC_COLOR_RED);
     
-    Mac_Button* button = createButton(contentView, 100, 50, 150, 150, "button");
     
     // Main loop
     bool running = true;
@@ -32,7 +32,6 @@ int main(int argc, const char * argv[]) {
     }
 
     // Cleanup
-    destroyButton(button);
     destroyWindow(mainWindow);
     MAC_Quit();
 
