@@ -2,10 +2,11 @@
 #ifndef MAC_VIEW_H_
 #define MAC_VIEW_H_
 
+#include "mac_window.h"
+#include "mac_pixels.h"
+
 #ifdef __OBJC__
 #import <Cocoa/Cocoa.h>
-#import "mac_window.h"
-#import "mac_pixels.h"
 
 @interface Mac_NSView : NSView
 @end
@@ -26,6 +27,7 @@ struct Mac_View
     MAC_Color background_color;
     bool is_root;
     bool is_metal_view;
+    void* _this;
 };
 
 #define MAX_VIEWS 1000 // You can adjust this value based on your needs

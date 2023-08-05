@@ -1,4 +1,4 @@
-// main.c
+#include "MAC/mac_gui.h"
 #include <MAC/mac.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -17,37 +17,22 @@ int main(int argc, const char * argv[]) {
     Mac_View* contentView = addContentView(mainWindow, MAC_COLOR_BLUE);
 
     // add a subview to the content view with a red background
-    Mac_View* subView = addSubView(contentView, 200, 400, 100, 100, MAC_COLOR_RED);
-
-    ignoreApps();
+    // Mac_View* subView = addSubView(contentView, 200, 400, 100, 100, MAC_COLOR_RED);
+    
+    Mac_Button* button = createButton(contentView, 100, 50, 150, 150, "button");
     
     // Main loop
     bool running = true;
     MAC_Event event;
     while (running) {
-        while (MAC_PollEvent(&event)) {
-            switch (event.type) {
-                case MAC_KEYBOARDEVENT:
-                    if (event.keycode == MAC_KEY_ESCAPE) {
-                        running = false;
-                    }
-                    break;
-                case MAC_MOUSEEVENT:
-                    if (event.button == MAC_BUTTON_LEFT) {
-                        printf("Left mouse button pressed at (%d, %d)\n", event.x, event.y);
-                    }
-                    break;
-                case MAC_NOEVENT:
-                default:
-                    break;
-            }
-        }
+        runWindow();
         if(!isWindowOpen(mainWindow)) {
             running = false;
         }
     }
 
     // Cleanup
+    destroyButton(button);
     destroyWindow(mainWindow);
     MAC_Quit();
 

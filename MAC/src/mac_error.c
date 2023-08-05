@@ -43,6 +43,9 @@ void mac_printError(MAC_Error error) {
         case MAC_ERROR_NO_METAL_DEVICE_FOUND:
             fprintf(stderr, "No Metal device found.\n");
             break;
+        case MAC_ERROR_BUTTON_CREATION_FAILED:
+            fprintf(stderr, "Button creation failed.\n");
+            break;
         default:
             fprintf(stderr, "Unknown error occurred.\n");
             break;

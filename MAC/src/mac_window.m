@@ -41,6 +41,9 @@ MAC_Window* createWindow(int width, int height, const char* title) {
     [nsWindow makeKeyAndOrderFront:nil];
     window->id = [nsWindow windowNumber];
 
+    [NSApp activateIgnoringOtherApps:YES];
+    [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
+
     return window;
 }
 

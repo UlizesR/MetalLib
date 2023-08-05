@@ -5,11 +5,13 @@
 #include <stdint.h>
 #import <Cocoa/Cocoa.h>
 
-// Global variables for Displays and Video Devices
+// Global variables for Displays and Video Devices and Views
 Video_Display* g_displays = NULL;
 int g_displayCount = 0;
 Video_Device* g_devices = NULL;
 int g_deviceCount = 0;
+Mac_View* g_views[MAX_VIEWS];
+int g_viewCount = 0;
 
 void ignoreApps()
 {

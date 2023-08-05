@@ -65,14 +65,15 @@ typedef struct Mac_Button {
     int width, height;
     int x, y;
     const char* title;
-    Mac_Button_Style_Flags style;
-    Mac_Button_Type_Flags type;
+    uint32_t style;
+    uint32_t type;
     Mac_View* parent_view;
     void* delegate;
 } Mac_Button;
 
 
-Mac_Button* createButton(int width, int height, int x, int y, const char* title, uint32_t style, uint32_t type, Mac_View* parent_view);
+
+Mac_Button* createButton(Mac_View* parent_view, int width, int height, int x, int y, const char* title);
 void destroyButton(Mac_Button* button);
 
 #ifdef __cplusplus

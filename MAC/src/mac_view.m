@@ -2,12 +2,6 @@
 #import "MAC/mac_view.h"
 #import "MAC/mac_window.h"
 
-
-
-Mac_View* g_views[MAX_VIEWS];
-int g_viewCount = 0;
-
-
 @implementation Mac_NSView
 
 - (void)drawRect:(NSRect)dirtyRect {
@@ -34,7 +28,10 @@ Mac_View* addSubView(Mac_View* parent, int width, int height, int x, int y, MAC_
     Mac_NSView* nsView = [[Mac_NSView alloc] initWithFrame:NSMakeRect(x, y, width, height)];
     [nsView setWantsLayer:YES];
     [nsView.layer setBackgroundColor:CGColorCreateGenericRGB(background_color.r, background_color.g, background_color.b, background_color.a)];
-    
+
+    // Assign the Mac_NSView instance to the _this member of the Mac_View struct
+    view->_this = (__bridge void *)(nsView);
+
     NSView* parentNSView = nil;
     if (parent->is_root) {
         Mac_WindowDelegate* delegate = (__bridge Mac_WindowDelegate*)parent->window_parent->delegate;
@@ -66,7 +63,10 @@ Mac_View* addContentView(MAC_Window* parent, MAC_Color background_color) {
     Mac_NSView* nsView = [[Mac_NSView alloc] initWithFrame:NSMakeRect(0, 0, view->width, view->height)];
     [nsView setWantsLayer:YES];
     [nsView.layer setBackgroundColor:CGColorCreateGenericRGB(background_color.r, background_color.g, background_color.b, background_color.a)];
-    
+
+    // Assign the Mac_NSView instance to the _this member of the Mac_View struct
+    view->_this = (__bridge void *)(nsView);
+
     Mac_WindowDelegate* delegate = (__bridge Mac_WindowDelegate*)parent->delegate;
     [delegate.contentView addSubview:nsView];
     [nsView setNeedsDisplay:YES];
