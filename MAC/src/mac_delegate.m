@@ -9,16 +9,12 @@ Mac_Delegate* delegate = nil;
     if (delegate == nil) {
         return;
     }
-    // Insert code here to initialize your application
-    // This method is called when the application has finished launching
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
     if (delegate == nil) {
         return;
     }
-    // Insert code here to tear down your application
-    // This method is called when the application is about to terminate
 }
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)sender {

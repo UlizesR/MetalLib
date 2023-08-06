@@ -49,7 +49,7 @@ int MAC_Init(UInt32 flags) {
     Mac_Delegate* delegate = initDelegate();
     if (delegate == NULL) {
         mac_printError(MAC_ERROR_DELEGATE_INIT_FAILED);
-        return -1;
+        return MAC_ERROR;
     }
 
     // Initialize video subsystem

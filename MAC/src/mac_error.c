@@ -46,6 +46,30 @@ void mac_printError(MAC_Error error) {
         case MAC_ERROR_BUTTON_CREATION_FAILED:
             fprintf(stderr, "Button creation failed.\n");
             break;
+        case MAC_ERROR_BUTTON_NOT_FOUND:
+            fprintf(stderr, "Button not found.\n");
+            break;
+        case MAC_ERROR_BUTTON_MEMORY_ALLOCATION_FAILED:
+            fprintf(stderr, "Memory allocation for button failed.\n");
+            break;
+        case MAC_ERROR_LABEL_CREATION_FAILED:
+            fprintf(stderr, "Label creation failed.\n");
+            break;
+        case MAC_ERROR_LABEL_NOT_FOUND:
+            fprintf(stderr, "Label not found.\n");
+            break;
+        case MAC_ERROR_LABEL_MEMORY_ALLOCATION_FAILED:
+            fprintf(stderr, "Memory allocation for label failed.\n");
+            break;
+        case MAC_ERROR_IMAGE_CREATION_FAILED:
+            fprintf(stderr, "Image creation failed.\n");
+            break;
+        case MAC_ERROR_IMAGE_NOT_FOUND:
+            fprintf(stderr, "Image not found.\n");
+            break;
+        case MAC_ERROR_IMAGE_MEMORY_ALLOCATION_FAILED:  
+            fprintf(stderr, "Memory allocation for image failed.\n");
+            break;
         default:
             fprintf(stderr, "Unknown error occurred.\n");
             break;
