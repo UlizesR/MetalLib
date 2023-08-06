@@ -1,5 +1,6 @@
 #include "MAC/mac_button.h"
 #include "MAC/mac_error.h"
+#include <MacTypes.h>
 #include <stdio.h>
 #ifdef __OBJC__
 
@@ -44,7 +45,82 @@
 }
 
 @end
+
+@implementation CenteredButtonCell
+
+- (NSRect)titleRectForBounds:(NSRect)theRect {
+    NSRect titleFrame = [super titleRectForBounds:theRect];
+    NSAttributedString *attrTitle = [self attributedTitle];
+    NSSize titleSize = [attrTitle size];
+    titleFrame.origin.y = (theRect.size.height - titleSize.height) / 2.0;
+    return titleFrame;
+}
+
+@end
 #endif
+
+Mac_Button* mac_button_rs(MProperties properties, MImage image, MTitle title, UInt32 type, int font_size, bool isBordered, bool bordered_when_hovered, Mac_View* parent_view, ButtonAction action)
+{
+    Mac_Button* button = (Mac_Button*)malloc(sizeof(Mac_Button));
+    if(button == NULL) {
+        mac_printError(MAC_ERROR_BUTTON_MEMORY_ALLOCATION_FAILED);
+        return NULL;
+    }
+
+    button->properties = properties;
+    button->title = title;
+    button->image = image;
+    button->parent_view = parent_view;
+    button->action = action;
+
+    if (font_size > properties.dimensions.height) {
+        mac_printError(MAC_ERROR_BUTTON_FONT_SMALLER_THAN_HEIGHT);
+        return NULL;
+    }
+
+    NSString* bTitle = [NSString stringWithUTF8String:title];
+    NSImage* bImage = [[NSImage alloc] initWithContentsOfFile:[NSString stringWithUTF8String:image]];
+
+    NSRect frame = NSMakeRect(properties.position.x, properties.position.y, properties.dimensions.width, properties.dimensions.height);
+    NSMac_Button* nsButton = [[NSMac_Button alloc] initWithFrame:frame];
+    if (bTitle)
+    {
+        [nsButton setFont:[NSFont systemFontOfSize:font_size]];
+        [nsButton setTitle:bTitle];
+        [nsButton setAlignment:NSTextAlignmentCenter];
+    }
+    [nsButton setBezelStyle:NSBezelStyleRegularSquare];
+    [nsButton setButtonType:type];
+
+    if (isBordered) {
+        [nsButton setBordered:YES];
+    } else {
+        [nsButton setBordered:NO];
+    }
+    if (bordered_when_hovered) {
+        [nsButton setShowsBorderOnlyWhileMouseInside:YES];
+    } else {
+        [nsButton setShowsBorderOnlyWhileMouseInside:NO];
+    }
+    if (bImage) {
+        [nsButton setImage:bImage];
+        [nsButton setImageScaling:NSImageScaleProportionallyDown];
+        [nsButton setImagePosition:NSImageLeft];
+    }
+
+    [nsButton setEnabled:YES];
+    nsButton.tag = (NSInteger)button; // Set the tag property
+    button->tag = (int)nsButton.tag;
+    [nsButton setTarget:nsButton];
+    [nsButton setAction:@selector(onClick:)];
+
+    NSView* nsView = (__bridge NSView *)(button->parent_view->_this);
+
+    [nsView addSubview:nsButton];
+
+    return button;
+}
+
 
 Mac_Button* mac_button_spb_tita(MProperties properties, MTitle title, MImage image, Mac_View* parent_view, ButtonAction action)
 {

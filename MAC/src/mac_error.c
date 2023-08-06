@@ -52,6 +52,9 @@ void mac_printError(MAC_Error error) {
         case MAC_ERROR_BUTTON_MEMORY_ALLOCATION_FAILED:
             fprintf(stderr, "Memory allocation for button failed.\n");
             break;
+        case MAC_ERROR_BUTTON_FONT_SMALLER_THAN_HEIGHT:
+            fprintf(stderr, "Button font is smaller than height.\n");
+            break;
         case MAC_ERROR_LABEL_CREATION_FAILED:
             fprintf(stderr, "Label creation failed.\n");
             break;

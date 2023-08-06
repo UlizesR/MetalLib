@@ -10,7 +10,8 @@
 #import <Cocoa/Cocoa.h>
 
 @interface NSMac_Button : NSButton
-
+@end
+@interface CenteredButtonCell : NSButtonCell
 @end
 #endif
 
@@ -101,6 +102,21 @@ struct Mac_Button {
 };
 
 /*!
+    Creates a button with the MAC_BUTTON_STYLE_REGULAR_SQUARE style
+    its dimensions are base on the font size and the title length
+    @param position The position of the button.
+    @param title The title of the button.
+    @param image The image of the button.
+    @param type The type of the button.
+    @param font_size The font size of the button's title.
+    @param isBordered Whether the button is bordered.
+    @param bordered_when_hovered Whether the button is bordered when hovered.
+    @param parent_view The parent view of the button.
+    @param action The action of the button.
+*/
+Mac_Button* mac_button_rs(MProperties properties, MImage image, MTitle title,  UInt32 type, int font_size, bool isBordered, bool bordered_when_hovered, Mac_View* parent_view, ButtonAction action);
+
+/*!
     Creates a standard push button with a title and image.
     @param dimensions The dimensions of the button.
     @param title The title of the button.
@@ -110,6 +126,7 @@ struct Mac_Button {
     @return A pointer to the button.
 */
 Mac_Button* mac_button_spb_tita(MProperties properties, MTitle title, MImage image, Mac_View* parent_view, ButtonAction action);
+
 /*!
     Creates a standard push button with the provided title.
     @param dimensions The dimensions of the button.
@@ -119,6 +136,7 @@ Mac_Button* mac_button_spb_tita(MProperties properties, MTitle title, MImage ima
     @return A pointer to the button.
 */
 Mac_Button* mac_button_spb_tta(MProperties properties, MTitle title, Mac_View* parent_view, ButtonAction action);
+
 /*!
     Creates a standard push button with the provided image.
     @param dimensions The dimensions of the button.

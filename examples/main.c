@@ -1,4 +1,4 @@
-#include "MAC/mac_gui.h"
+#include "MAC/mac_button.h"
 #include <MAC/mac.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -22,10 +22,14 @@ int main(int argc, const char * argv[]) {
 
     // add a subview to the content view with a red background
     // Mac_View* subView = addSubView(contentView, 200, 400, 100, 100, MAC_COLOR_RED);
+
+    MProperties p = {
+        .position = { 200, 400 },
+        .dimensions = { 500, 50 },
+    };
     
     // add a button to the content view
-    MDimensions d = {100, 50, 100, 500};
-    Mac_Button* button = mac_button_srb_tta(d, "btn.jpg", contentView, myButtonAction);
+    Mac_Button* button = mac_button_rs(p, "car.png", "car", MAC_BUTTON_TYPE_RADIO, 40, true, false, contentView, myButtonAction);
     
     // Main loop
     bool running = true;
