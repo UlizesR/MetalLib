@@ -3,6 +3,7 @@
 
 
 #include <stdint.h>
+#include <MacTypes.h>
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -22,7 +23,7 @@ typedef enum {
 //     MAC_INIT_VIDEO | MAC_INIT_AUDIO | MAC_INIT_TIMER | MAC_INIT_EVENTS | MAC_INIT_JOYSTICK | MAC_INIT_HAPTIC | MAC_INIT_GAMECONTROLLER \
 // )
 
-extern int MAC_Init(uint32_t flags);
+extern int MAC_Init(UInt32 flags);
 
 #ifdef __cplusplus
 }

@@ -4,13 +4,13 @@
 
 #include <stdint.h>
 #include <objc/objc.h>
-
+#include <MacTypes.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef uint32_t MAC_DisplayID;
+typedef UInt32 MAC_DisplayID;
 
 typedef struct Video_Display {
     char name[50];  // Fixed-size array for the display name

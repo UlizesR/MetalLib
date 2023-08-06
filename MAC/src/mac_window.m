@@ -75,7 +75,7 @@ void removeChildWindow(MAC_Window* parent, MAC_Window* child) {
     [parentWindow removeChildWindow:childWindow];
 }
 
-void setWindowFlag(MAC_Window* window, uint32_t flags) {
+void setWindowFlag(MAC_Window* window, UInt32 flags) {
     NSWindow *nsWindow = [NSApp windowWithWindowNumber:window->id];
     if (flags & MAC_WINDOW_RESIZABLE) {
         [nsWindow setStyleMask:[nsWindow styleMask] | NSWindowStyleMaskResizable];

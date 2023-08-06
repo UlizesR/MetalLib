@@ -44,7 +44,7 @@ void MAC_Quit() {
     terminateDelegate();
 }
 
-int MAC_Init(uint32_t flags) {
+int MAC_Init(UInt32 flags) {
     // Initialize the application delegate
     Mac_Delegate* delegate = initDelegate();
     if (delegate == NULL) {

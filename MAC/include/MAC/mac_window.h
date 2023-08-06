@@ -12,13 +12,14 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <MacTypes.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 typedef struct MAC_Window MAC_Window;
-typedef uint32_t MAC_WindowID;
+typedef UInt32 MAC_WindowID;
 
 typedef enum
 {
@@ -38,7 +39,7 @@ struct MAC_Window
     MAC_WindowID id;
     MAC_Window *parent;
     MAC_Window *children;
-    uint32_t flags;
+    UInt32 flags;
     void *delegate;
 };
 
@@ -63,7 +64,7 @@ void removeChildWindow(MAC_Window* parent, MAC_Window* child);
 /*
     Functions for managing window flags
 */
-void setWindowFlag(MAC_Window* window, uint32_t flags);
+void setWindowFlag(MAC_Window* window, UInt32 flags);
 
 #ifdef __cplusplus
 }
