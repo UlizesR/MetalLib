@@ -1,4 +1,5 @@
 #include "MAC/mac_gui.h"
+#include "MAC/mac_error.h"
 #include <stdio.h>
 #ifdef __OBJC__
 
@@ -49,6 +50,7 @@ Mac_Button* mac_button_spb_tita(MDimensions dimensions, MTitle title, MImage ima
 {
     Mac_Button* button = (Mac_Button*)malloc(sizeof(Mac_Button));
     if(button == NULL) {
+        mac_printError(MAC_ERROR_BUTTON_MEMORY_ALLOCATION_FAILED);
         return NULL;
     }
 
@@ -78,6 +80,7 @@ Mac_Button* mac_button_spb_tta(MDimensions dimensions, MTitle title, Mac_View* p
 {
     Mac_Button* button = (Mac_Button*)malloc(sizeof(Mac_Button));
     if(button == NULL) {
+        mac_printError(MAC_ERROR_BUTTON_MEMORY_ALLOCATION_FAILED);
         return NULL;
     }
 
@@ -107,6 +110,7 @@ Mac_Button* mac_button_spb_ita(MDimensions dimensions, MImage image, Mac_View* p
 {
     Mac_Button* button = (Mac_Button*)malloc(sizeof(Mac_Button));
     if(button == NULL) {
+        mac_printError(MAC_ERROR_BUTTON_MEMORY_ALLOCATION_FAILED);
         return NULL;
     }
 
@@ -139,6 +143,7 @@ Mac_Button* mac_button_scb_tta(MDimensions dimensions, MTitle title, Mac_View* p
 {
     Mac_Button* button = (Mac_Button*)malloc(sizeof(Mac_Button));
     if(button == NULL) {
+        mac_printError(MAC_ERROR_BUTTON_MEMORY_ALLOCATION_FAILED);
         return NULL;
     }
 
@@ -168,6 +173,7 @@ Mac_Button* mac_button_srb_tta(MDimensions dimensions, MTitle title, Mac_View* p
 {
     Mac_Button* button = (Mac_Button*)malloc(sizeof(Mac_Button));
     if(button == NULL) {
+        mac_printError(MAC_ERROR_BUTTON_MEMORY_ALLOCATION_FAILED);
         return NULL;
     }
 
@@ -192,6 +198,8 @@ Mac_Button* mac_button_srb_tta(MDimensions dimensions, MTitle title, Mac_View* p
 
     return button;
 }
+
+
 void destroyButton(Mac_Button* button) {
     if (button != NULL) {
         free(button);
