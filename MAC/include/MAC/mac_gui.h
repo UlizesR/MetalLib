@@ -2,12 +2,15 @@
 #define MAC_GUI_H_
 
 #include "mac_view.h"
+#include "mac_internals.h"
 #include <stdint.h>
+#include <stdbool.h>
 
 #ifdef __OBJC__
 #import <Cocoa/Cocoa.h>
 
 @interface NSMac_Button : NSButton
+
 @end
 #endif
 
@@ -76,29 +79,55 @@ typedef enum
     MAC_BUTTON_TYPE_MULTI_LEVEL_ACCELERATOR    = 9,
 } Mac_Button_Type_Flags;
 
+typedef struct Mac_Button Mac_Button;
 
-typedef struct Mac_Button {
-    int width, height;
-    int x, y;
-    const char* title;
-    uint32_t style;
-    uint32_t type;
+/*
+    Function pointer for the button action
+    takes a pointer to the button that was clicked
+
+*/
+typedef void (*ButtonAction)(Mac_Button*);
+
+/*
+    This is the struct that holds all the information for the button
+*/
+struct Mac_Button {
+    MDimensions dimensions;
+    MTitle title;
     Mac_View* parent_view;
-} Mac_Button;
+    ButtonAction action;
+    int tag;
+    MImage image;
+};
 
-void createButton(Mac_Button* button);
-
-// Mac_Button* add_momentary_light_button(int width, int height, int x, int y, const char* title, Mac_View* parent_view);
-// Mac_Button* add_push_on_push_off_button(int width, int height, int x, int y, const char* title, Mac_View* parent_view);
-// Mac_Button* add_toggle_button(int width, int height, int x, int y, const char* title, Mac_View* parent_view);
-// Mac_Button* add_switch_button(int width, int height, int x, int y, const char* title, Mac_View* parent_view);
-// Mac_Button* add_radio_button(int width, int height, int x, int y, const char* title, Mac_View* parent_view);
-// Mac_Button* add_momentary_change_button(int width, int height, int x, int y, const char* title, Mac_View* parent_view);
-// Mac_Button* add_on_off_button(int width, int height, int x, int y, const char* title, Mac_View* parent_view);
-// Mac_Button* add_momentary_push_in_button(int width, int height, int x, int y, const char* title, Mac_View* parent_view);
-// Mac_Button* add_accelerator_button(int width, int height, int x, int y, const char* title, Mac_View* parent_view);
-// Mac_Button* add_multi_level_accelerator_button(int width, int height, int x, int y, const char* title, Mac_View* parent_view);
-
+/*!
+    Creates a standard push button with a title and image.
+    @param dimensions The dimensions of the button.
+    @param title The title of the button.
+    @param image The image of the button.
+    @param parent_view The parent view of the button.
+    @param action The action of the button.
+    @return A pointer to the button.
+*/
+Mac_Button* mac_button_spb_tita(MDimensions dimensions, MTitle title, MImage image, Mac_View* parent_view, ButtonAction action);
+/*!
+    Creates a standard push button with the provided title.
+    @param dimensions The dimensions of the button.
+    @param title The title of the button.
+    @param parent_view The parent view of the button.
+    @param action The action of the button.
+    @return A pointer to the button.
+*/
+Mac_Button* mac_button_spb_tta(MDimensions dimensions, MTitle title, Mac_View* parent_view, ButtonAction action);
+/*!
+    Creates a standard push button with the provided image.
+    @param dimensions The dimensions of the button.
+    @param image The image of the button.
+    @param parent_view The parent view of the button.
+    @param action The action of the button.
+    @return A pointer to the button.
+*/
+Mac_Button* mac_button_spb_ita(MDimensions dimensions, MImage image, Mac_View* parent_view, ButtonAction action);
 void destroyButton(Mac_Button* button);
 
 #ifdef __cplusplus
