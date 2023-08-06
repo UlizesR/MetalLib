@@ -17,7 +17,7 @@ set(SOURCES
     MAC/src/mac_events.m
     MAC/src/mac_pixels.m
     MAC/src/mac_error.c
-    MAC/src/mac_gui.m
+    MAC/src/Gui/mac_button.m
 )
 
 # Create the library

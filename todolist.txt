@@ -7,26 +7,33 @@ GUI
 ☐ Create Controllers
 ☐ Buttons
     ✔ Render a button @done(23-08-04 23:57)
-    ☐ Add Button styles
-        ☐ Default (Style Text)
-        ☐ Rounded
-        ☐ Bezel 
-        ☐ Square
-        ☐ Inline
-        ☐ Link
-        ☐ Image
-        ☐ Textured
-        ☐ Square 
+    ✔ Add Button styles @done(23-08-05 18:30)
+        ✔ Default (Style Text) @done(23-08-05 18:30)
+        ✔ Rounded @done(23-08-05 18:30)
+        ✔ Bezel @done(23-08-05 18:30)
+        ✔ Square @done(23-08-05 18:30)
+        ✔ Inline @done(23-08-05 18:30)
+        ✔ Link @done(23-08-05 18:30)
+        ✔ Image @done(23-08-05 18:30)
+        ✔ Textured @done(23-08-05 18:30)
+        ✔ Square @done(23-08-05 18:30)
     ☐ Add Button Types
         ☐ Push Button
         ☐ Toggle 
         ☐ Radio
         ☐ Switch
         ☐ Checkbox
+☐ Sliders
 ☐ Labels
 ☐ Text Fields
 ☐ Images
 ☐ Tab View
+
+Serial Ports
+☐ Create Serial Port
+☐ Create Serial Port Manager
+☐ Read Serial Port
+☐ Write Serial Port
 
 Tools
 ☐ Create a command line tool to generate .app directory
