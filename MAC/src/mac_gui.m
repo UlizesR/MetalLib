@@ -30,6 +30,18 @@
     return button;
 }
 
+- (instancetype)button_scb_tta:(NSString*)title 
+{
+    NSMac_Button* button = [NSMac_Button checkboxWithTitle:title target:self action:@selector(onClick:)];
+    return button;
+}
+
+- (instancetype)button_srb_tta:(NSString*)title 
+{
+    NSMac_Button* button = [NSMac_Button radioButtonWithTitle:title target:self action:@selector(onClick:)];
+    return button;
+}
+
 @end
 #endif
 
@@ -123,6 +135,63 @@ Mac_Button* mac_button_spb_ita(MDimensions dimensions, MImage image, Mac_View* p
     return button;
 }
 
+Mac_Button* mac_button_scb_tta(MDimensions dimensions, MTitle title, Mac_View* parent_view, ButtonAction action)
+{
+    Mac_Button* button = (Mac_Button*)malloc(sizeof(Mac_Button));
+    if(button == NULL) {
+        return NULL;
+    }
+
+    button->dimensions = dimensions;
+    button->title = title;
+    button->image = NULL;
+    button->parent_view = parent_view;
+    button->action = action;
+
+    NSString* bTitle = [NSString stringWithUTF8String:title];
+
+    NSMac_Button* nsButton = [[NSMac_Button alloc] init];
+    nsButton = [nsButton button_scb_tta:bTitle]; // Call the method on the instance
+
+    [nsButton setFrame: NSMakeRect(dimensions.x, dimensions.y, 0, 0)];
+    nsButton.tag = (NSInteger)button; // Set the tag property
+    [nsButton setEnabled:YES];
+    [nsButton sizeToFit];
+
+    NSView* nsView = (__bridge NSView *)(button->parent_view->_this);
+    [nsView addSubview:nsButton];
+
+    return button;
+}
+
+Mac_Button* mac_button_srb_tta(MDimensions dimensions, MTitle title, Mac_View* parent_view, ButtonAction action)
+{
+    Mac_Button* button = (Mac_Button*)malloc(sizeof(Mac_Button));
+    if(button == NULL) {
+        return NULL;
+    }
+
+    button->dimensions = dimensions;
+    button->title = title;
+    button->image = NULL;
+    button->parent_view = parent_view;
+    button->action = action;
+
+    NSString* bTitle = [NSString stringWithUTF8String:title];
+
+    NSMac_Button* nsButton = [[NSMac_Button alloc] init];
+    nsButton = [nsButton button_srb_tta:bTitle]; // Call the method on the instance
+
+    [nsButton setFrame: NSMakeRect(dimensions.x, dimensions.y, 0, 0)];
+    nsButton.tag = (NSInteger)button; // Set the tag property
+    [nsButton setEnabled:YES];
+    [nsButton sizeToFit];
+
+    NSView* nsView = (__bridge NSView *)(button->parent_view->_this);
+    [nsView addSubview:nsButton];
+
+    return button;
+}
 void destroyButton(Mac_Button* button) {
     if (button != NULL) {
         free(button);

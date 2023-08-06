@@ -128,6 +128,27 @@ Mac_Button* mac_button_spb_tta(MDimensions dimensions, MTitle title, Mac_View* p
     @return A pointer to the button.
 */
 Mac_Button* mac_button_spb_ita(MDimensions dimensions, MImage image, Mac_View* parent_view, ButtonAction action);
+
+/*!
+    Creates a standard checkbox with the provided title.
+    @param dimensions The dimensions of the checkbox.
+    @param title The localized title string that is displayed alongside the checkbox.
+    @param parent_view The parent view of the checkbox.
+    @param action The action message sent by the control.
+    @return An initialized button object.
+ */
+Mac_Button* mac_button_scb_tta(MDimensions dimensions, MTitle title, Mac_View* parent_view, ButtonAction action);
+
+/*!
+    Creates a standard radio with the provided image.
+    @param dimensions The dimensions of the radio.
+    @param title The localized title string that is displayed alongside the radio.
+    @param parent_view The parent view of the radio.
+    @param action The action message sent by the control.
+    @return An initialized button object.
+*/
+Mac_Button* mac_button_srb_tta(MDimensions dimensions, MTitle title, Mac_View* parent_view, ButtonAction action);
+
 void destroyButton(Mac_Button* button);
 
 #ifdef __cplusplus

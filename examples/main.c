@@ -25,7 +25,7 @@ int main(int argc, const char * argv[]) {
     
     // add a button to the content view
     MDimensions d = {100, 50, 100, 500};
-    Mac_Button* button = mac_button_spb_ita(d, "btn.jpg", contentView, myButtonAction);
+    Mac_Button* button = mac_button_srb_tta(d, "btn.jpg", contentView, myButtonAction);
     
     // Main loop
     bool running = true;
