@@ -92,7 +92,7 @@ typedef void (*ButtonAction)(Mac_Button*);
     This is the struct that holds all the information for the button
 */
 struct Mac_Button {
-    MDimensions dimensions;
+    MProperties properties;
     MTitle title;
     Mac_View* parent_view;
     ButtonAction action;
@@ -109,7 +109,7 @@ struct Mac_Button {
     @param action The action of the button.
     @return A pointer to the button.
 */
-Mac_Button* mac_button_spb_tita(MDimensions dimensions, MTitle title, MImage image, Mac_View* parent_view, ButtonAction action);
+Mac_Button* mac_button_spb_tita(MProperties properties, MTitle title, MImage image, Mac_View* parent_view, ButtonAction action);
 /*!
     Creates a standard push button with the provided title.
     @param dimensions The dimensions of the button.
@@ -118,7 +118,7 @@ Mac_Button* mac_button_spb_tita(MDimensions dimensions, MTitle title, MImage ima
     @param action The action of the button.
     @return A pointer to the button.
 */
-Mac_Button* mac_button_spb_tta(MDimensions dimensions, MTitle title, Mac_View* parent_view, ButtonAction action);
+Mac_Button* mac_button_spb_tta(MProperties properties, MTitle title, Mac_View* parent_view, ButtonAction action);
 /*!
     Creates a standard push button with the provided image.
     @param dimensions The dimensions of the button.
@@ -127,7 +127,7 @@ Mac_Button* mac_button_spb_tta(MDimensions dimensions, MTitle title, Mac_View* p
     @param action The action of the button.
     @return A pointer to the button.
 */
-Mac_Button* mac_button_spb_ita(MDimensions dimensions, MImage image, Mac_View* parent_view, ButtonAction action);
+Mac_Button* mac_button_spb_ita(MProperties properties, MImage image, Mac_View* parent_view, ButtonAction action);
 
 /*!
     Creates a standard checkbox with the provided title.
@@ -137,7 +137,7 @@ Mac_Button* mac_button_spb_ita(MDimensions dimensions, MImage image, Mac_View* p
     @param action The action message sent by the control.
     @return An initialized button object.
  */
-Mac_Button* mac_button_scb_tta(MDimensions dimensions, MTitle title, Mac_View* parent_view, ButtonAction action);
+Mac_Button* mac_button_scb_tta(MProperties properties, MTitle title, Mac_View* parent_view, ButtonAction action);
 
 /*!
     Creates a standard radio with the provided image.
@@ -147,7 +147,7 @@ Mac_Button* mac_button_scb_tta(MDimensions dimensions, MTitle title, Mac_View* p
     @param action The action message sent by the control.
     @return An initialized button object.
 */
-Mac_Button* mac_button_srb_tta(MDimensions dimensions, MTitle title, Mac_View* parent_view, ButtonAction action);
+Mac_Button* mac_button_srb_tta(MProperties properties, MTitle title, Mac_View* parent_view, ButtonAction action);
 
 void destroyButton(Mac_Button* button);
 

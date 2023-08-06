@@ -14,9 +14,19 @@ typedef struct MDimensions
 {
     int width;
     int height;
+} MDimensions;
+
+typedef struct MPosition
+{
     int x;
     int y;
-} MDimensions;
+} MPosition;
+
+typedef struct MProperties
+{
+    MPosition position;
+    MDimensions dimensions;
+} MProperties;
 
 typedef const char* MTitle;
 typedef const char* MImage;
