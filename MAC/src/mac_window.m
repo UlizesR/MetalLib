@@ -38,6 +38,8 @@ Mac_Window* createWindow(int width, int height, bool is_main_window, MTitle titl
     [nsWindow setContentView:nsView];
     [nsWindow setViewsNeedDisplay:YES];
 
+    setWindowFlag(window, flags);
+
     [nsWindow makeKeyAndOrderFront:nil];
     window->id = [nsWindow windowNumber];
 
