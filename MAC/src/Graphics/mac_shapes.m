@@ -75,8 +75,64 @@ Mac_Rect* mac_rect(MFPoint origin, MSize size, Mac_Color color) {
     rect->color = color;
     rect->base.id = shapeID++;
     rect->base.shape_type = MAC_SHAPE_RECT;
+
+    // Calculate the other points based on the origin and size
+    rect->p_tr = (MFPoint){ origin.x + size.width, origin.y + size.height };
+    rect->p_tl = (MFPoint){ origin.x, origin.y + size.height };
+    rect->p_br = (MFPoint){ origin.x + size.width, origin.y };
+
     return rect;
 }
+
+
+void mac_draw_triangle(Mac_Triangle* triangle, float line_width, Mac_View* parent_view) {
+    Mac_Line* side1 = mac_line(triangle->p1, triangle->p2, line_width, triangle->color);
+    Mac_Line* side2 = mac_line(triangle->p2, triangle->p3, line_width, triangle->color);
+    Mac_Line* side3 = mac_line(triangle->p3, triangle->p1, line_width, triangle->color);
+
+    mac_draw_line(parent_view, side1);
+    mac_draw_line(parent_view, side2);
+    mac_draw_line(parent_view, side3);
+
+    free(side1);
+    free(side2);
+    free(side3);
+}
+
+void mac_fill_triangle(Mac_Triangle* triangle, Mac_View* parent_view) {
+    Mac_NSView* nsView = (__bridge Mac_NSView*)parent_view->_this;
+
+    CGMutablePathRef path = CGPathCreateMutable();
+    CGPathMoveToPoint(path, NULL, triangle->p1.x, triangle->p1.y);
+    CGPathAddLineToPoint(path, NULL, triangle->p2.x, triangle->p2.y);
+    CGPathAddLineToPoint(path, NULL, triangle->p3.x, triangle->p3.y);
+    CGPathCloseSubpath(path);
+
+    DrawableShape* shape = [[DrawableShape alloc] init];
+    shape.path = path;
+    shape.color = triangle->color;
+    shape.filled = YES;
+    shape.id = triangle->base.id;
+
+    if (!nsView.shapes) {
+        nsView.shapes = [NSMutableArray array];
+    }
+    [nsView.shapes addObject:shape];
+
+    [nsView setNeedsDisplay:YES];
+}
+
+Mac_Triangle* mac_triangle(MFPoint p1, MFPoint p2, MFPoint p3, Mac_Color color) {
+    Mac_Triangle* triangle = (Mac_Triangle*)malloc(sizeof(Mac_Triangle));
+    triangle->p1 = p1;
+    triangle->p2 = p2;
+    triangle->p3 = p3;
+    triangle->color = color;
+    triangle->base.id = shapeID++;
+    triangle->base.shape_type = MAC_SHAPE_TRIANGLE;
+    return triangle;
+}
+
 
 void mac_remove_shape(int shape_id, Mac_View* parent_view) {
     updateView(parent_view, shape_id);

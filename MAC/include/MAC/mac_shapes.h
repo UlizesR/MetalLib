@@ -14,12 +14,12 @@ extern "C" {
 #endif
 
 typedef enum {
-    MAC_SHAPE_LINE = 0,
-    MAC_SHAPE_RECT = 1,
-    MAC_SHAPE_CIRCLE = 2,
-    MAC_SHAPE_ELLIPSE = 3,
-    MAC_SHAPE_TRIANGLE = 4,
-    MAC_SHAPE_POLYGON = 5,
+    MAC_SHAPE_LINE      = 0,
+    MAC_SHAPE_RECT      = 1,
+    MAC_SHAPE_CIRCLE    = 2,
+    MAC_SHAPE_ELLIPSE   = 3,
+    MAC_SHAPE_TRIANGLE  = 4,
+    MAC_SHAPE_POLYGON   = 5,
 } Mac_ShapeType;
 
 typedef struct {
@@ -30,8 +30,8 @@ typedef struct {
 
 typedef struct {
     Mac_Shape base;
-    MFPoint origin;
     MSize size;
+    MFPoint p_tr, p_tl, p_br, origin;
     Mac_Color color;
 } Mac_Rect;
 
@@ -42,6 +42,16 @@ typedef struct {
     float line_width;
     Mac_Color color;
 } Mac_Line;
+
+typedef struct {
+    Mac_Shape base;
+    MFPoint p1;
+    MFPoint p2;
+    MFPoint p3;
+    MSize size;
+    Mac_Color color;
+} Mac_Triangle;
+
 
 
 /*!
@@ -90,8 +100,33 @@ void mac_fill_rect(Mac_Rect* rect, Mac_View* parent_view);
 */
 Mac_Rect* mac_rect(MFPoint origin, MSize size, Mac_Color color);
 
+/*
+    draws a wireframe (not filled) triangle with the given parameters
+    @param triangle: the triangle to draw
+    @param line_width: the width of the triangle's lines
+    @param parent_view: the view to draw the triangle on
+*/
+void mac_draw_triangle(Mac_Triangle* triangle, float line_width, Mac_View* parent_view);
+
 /*!
-    adds the given rectangle to the given view
+    draws a filled triangle with the given parameters
+    @param triangle: the triangle to fill
+    @param parent_view: the view to fill the triangle on
+*/
+void mac_fill_triangle(Mac_Triangle* triangle, Mac_View* parent_view);
+
+/*!
+    creates a triangle with the given parameters
+    @param p1: the first point of the triangle
+    @param p2: the second point of the triangle
+    @param p3: the third point of the triangle
+    @param color: the color of the triangle
+    @return: a pointer to the created triangle
+*/
+Mac_Triangle* mac_triangle(MFPoint p1, MFPoint p2, MFPoint p3, Mac_Color color);
+
+/*!
+    removes a given shape from the given view
     @param shape_id: the id of the rectangle
     @param parent_view: the view to add the rectangle to
 */

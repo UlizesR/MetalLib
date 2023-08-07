@@ -123,7 +123,7 @@ Mac_View* addSubView(Mac_View* parent, int width, int height, int x, int y, Mac_
     // Assign the Mac_NSView instance to the _this member of the Mac_View struct
     view->_this = (__bridge void *)(nsView);
 
-    NSView* parentNSView = nil;
+    NSView* parentNSView;
     if (parent->is_root) {
         Mac_WindowDelegate* delegate = (__bridge Mac_WindowDelegate*)parent->window_parent->delegate;
         parentNSView = delegate.content_view;
@@ -157,10 +157,6 @@ Mac_View* addContentView(Mac_Window* parent, Mac_Color background_color) {
 
     // Assign the Mac_NSView instance to the _this member of the Mac_View struct
     view->_this = (__bridge void *)(nsView);
-
-    // Mac_WindowDelegate* delegate = (__bridge Mac_WindowDelegate*)parent->delegate;
-    // [delegate.content_view addSubview:nsView];
-    // [nsView setNeedsDisplay:YES];
 
     if (g_viewCount < MAX_VIEWS) {
         g_views[g_viewCount++] = view;

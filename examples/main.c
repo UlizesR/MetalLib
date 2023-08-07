@@ -1,14 +1,7 @@
+#include "MAC/mac_shapes.h"
 #include <MAC/mac.h>
 #include <stdbool.h>
 #include <stdio.h>
-
-void myButtonAction(Mac_Button* button) {
-    printf("Button clicked: %s\n", button->title);
-}
-
-void mySliderAction(Mac_Slider* slider) {
-    printf("Slider value changed: %f\n", slider->value);
-}
 
 int main(int argc, const char * argv[]) {
     // Initialize the application
@@ -28,7 +21,11 @@ int main(int argc, const char * argv[]) {
 
     Mac_Rect *rect2 = mac_rect((MFPoint){100, 100}, (MSize){50, 50}, MAC_COLOR_RED);
 
-    mac_fill_rect(rect2, mainWindow->content_view);
+    mac_draw_rect(rect2, 2.0, mainWindow->content_view);
+
+    Mac_Triangle* triangle = mac_triangle((MFPoint){200, 200}, (MFPoint){450, 550}, (MFPoint){200, 550}, MAC_COLOR_RED);
+
+    mac_draw_triangle(triangle, 2.0, mainWindow->content_view);
 
     // Main loop
     bool running = true;
@@ -69,6 +66,7 @@ int main(int argc, const char * argv[]) {
     }
 
     // Cleanup
+    destroy_shape((Mac_Shape*)triangle);
     destroy_shape((Mac_Shape*)rect2);
     destroy_shape((Mac_Shape*)rect1);
     destroyWindow(mainWindow);

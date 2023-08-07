@@ -2,7 +2,6 @@
 #define mac_internals_h_
 
 #include <MacTypes.h>
-#include "mac_pixels.h"
 
 #ifdef __OBJC__
 #endif
