@@ -28,6 +28,7 @@ Mac_Window* createWindow(int width, int height, bool is_main_window, MTitle titl
                                                       styleMask:NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable
                                                         backing:NSBackingStoreBuffered
                                                           defer:NO];
+    setWindowFlags(window, flags);
     [nsWindow setTitle:[NSString stringWithUTF8String:title]];
     
     window->content_view = addContentView(window, background_color);
@@ -36,8 +37,6 @@ Mac_Window* createWindow(int width, int height, bool is_main_window, MTitle titl
     Mac_NSView* nsView = (__bridge Mac_NSView*)window->content_view->_this;
     [nsWindow setContentView:nsView];
     [nsWindow setViewsNeedDisplay:YES];
-
-    setWindowFlag(window, flags);
 
     [nsWindow makeKeyAndOrderFront:nil];
     window->id = [nsWindow windowNumber];
@@ -77,7 +76,7 @@ void removeChildWindow(Mac_Window* parent, Mac_Window* child) {
     [parentWindow removeChildWindow:childWindow];
 }
 
-void setWindowFlag(Mac_Window* window, UInt32 flags) {
+void setWindowFlags(Mac_Window* window, UInt32 flags) {
     NSWindow *nsWindow = [NSApp windowWithWindowNumber:window->id];
     if (flags & MAC_WINDOW_RESIZABLE) {
         [nsWindow setStyleMask:[nsWindow styleMask] | NSWindowStyleMaskResizable];

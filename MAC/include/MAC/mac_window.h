@@ -66,7 +66,7 @@ void removeChildWindow(Mac_Window* parent, Mac_Window* child);
 /*
     Functions for managing window flags
 */
-void setWindowFlag(Mac_Window* window, UInt32 flags);
+void setWindowFlags(Mac_Window* window, UInt32 flags);
 
 #ifdef __cplusplus
 }
