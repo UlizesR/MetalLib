@@ -1,5 +1,4 @@
-#include "MACA/mac_shapes.h"
-#include <MAC/mac.h>
+#include <MACA/maca.h>
 #include <stdbool.h>
 #include <stdio.h>
 

@@ -34,5 +34,5 @@ install(TARGETS MACA
 
 # Set the install location for the header files
 install(DIRECTORY MACA/include/MACA/
-        DESTINATION /opt/homebrew/include/MAC
+        DESTINATION /opt/homebrew/include/MACA
         FILES_MATCHING PATTERN "*.h")
