@@ -1,6 +1,6 @@
-#include "MAC/mac_button.h"
-#include "MAC/mac_view.h"
-#include "MAC/mac_error.h"
+#include "MACA/mac_button.h"
+#include "MACA/mac_view.h"
+#include "MACA/mac_error.h"
 #include <MacTypes.h>
 #include <stdio.h>
 #ifdef __OBJC__

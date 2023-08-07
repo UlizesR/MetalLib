@@ -1,5 +1,5 @@
-#import "MAC/mac_slider.h"
-#import "MAC/mac_view.h"
+#import "MACA/mac_slider.h"
+#import "MACA/mac_view.h"
 
 @implementation NSMac_Slider
 

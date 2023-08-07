@@ -48,6 +48,7 @@ Graphics
         ✔ render lines @done(23-08-07 03:06)
         ✔ render circles @done(23-08-07 03:06)
         ✔ render rectangles @done(23-08-07 03:06)
+        ☐ render ellipses
         ☐ render polygons
         ✔ render triangles @done(23-08-07 03:06)
 ☐ render text

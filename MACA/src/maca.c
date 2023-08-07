@@ -1,6 +1,6 @@
 // mac.m
-#import "MAC/mac.h"
-#import "MAC/mac_delegate.h"
+#import "MACA/maca.h"
+#import "MACA/mac_delegate.h"
 #include <stdio.h>
 #include <stdint.h>
 

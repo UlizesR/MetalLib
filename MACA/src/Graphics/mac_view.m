@@ -1,6 +1,6 @@
 // mac_view.m
-#import "MAC/mac_view.h"
-#import "MAC/mac_window.h"
+#import "MACA/mac_view.h"
+#import "MACA/mac_window.h"
 
 extern int shapeID;
 

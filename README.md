@@ -1,4 +1,4 @@
-# Mac API
+# Mac API (MACA)
 
 ## About
 
@@ -35,10 +35,10 @@ So if you are familiar with SDL2 you will be able to use this library.
 
 How to make a window
 
-1. include <MAC/mac.h> into your main.c file
+1. include <MACA/maca.h> into your main.c file
 
 ```C
-#include <MAC/mac.h>
+#include <MACA/maca.h>
 ```
 
 2. create your main function and initialize MAC

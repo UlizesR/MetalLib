@@ -1,5 +1,5 @@
-#ifndef MAC_WINDOW_H_
-#define MAC_WINDOW_H_
+#ifndef mac_window_h_
+#define mac_window_h_
 
 
 #include "mac_internals.h"
@@ -72,4 +72,4 @@ void setWindowFlags(Mac_Window* window, UInt32 flags);
 }
 #endif
 
-#endif // MAC_WINDOW_H_
+#endif // mac_window_h_

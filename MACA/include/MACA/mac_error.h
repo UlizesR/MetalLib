@@ -1,5 +1,5 @@
-#ifndef MAC_ERROR_H_
-#define MAC_ERROR_H_
+#ifndef mac_error_h_
+#define mac_error_h_
 
 
 #ifdef __cplusplus
@@ -49,4 +49,4 @@ void mac_printError(MAC_Error error);
 }
 #endif
 
-#endif // MAC_ERROR_H_
+#endif // mac_error_h_

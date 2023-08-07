@@ -1,5 +1,5 @@
-#ifndef MAC_DELGATE_H_
-#define MAC_DELGATE_H_
+#ifndef mac_delegate_h_
+#define mac_delegate_h_
 
 #ifdef __OBJC__
 #import <Cocoa/Cocoa.h>
@@ -33,4 +33,4 @@ int checkDelegateInit();
 }
 #endif
 
-#endif // MAC_DELGATE_H_
+#endif // mac_delegate_h_

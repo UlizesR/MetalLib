@@ -1,5 +1,5 @@
-#ifndef MAC_GUI_H_
-#define MAC_GUI_H_
+#ifndef mac_gui_h_
+#define mac_gui_h_
 
 #include "mac_internals.h"
 #include <stdint.h>
@@ -179,4 +179,4 @@ void destroyButton(Mac_Button* button);
 }
 #endif
 
-#endif // MAC_GUI_H_
+#endif // mac_gui_h_

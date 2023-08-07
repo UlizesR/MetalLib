@@ -1,5 +1,5 @@
-#ifndef MAC_VIEW_H_
-#define MAC_VIEW_H_
+#ifndef mac_view_h_
+#define mac_view_h_
 
 #include "mac_internals.h"
 #include "mac_pixels.h"
@@ -60,4 +60,4 @@ void destroyView(Mac_View* view);
 }
 #endif
 
-#endif // MAC_VIEW_H_
+#endif // mac_view_h_

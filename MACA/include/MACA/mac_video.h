@@ -1,5 +1,5 @@
-#ifndef MAC_VIDEO_H_
-#define MAC_VIDEO_H_
+#ifndef mac_video_h_
+#define mac_video_h_
 
 
 #include <stdint.h>
@@ -49,4 +49,4 @@ void freeDisplays(Video_Display* displays, int count);
 #endif
 
 
-#endif  // MAC_VIDEO_H_
+#endif  // mac_video_h_

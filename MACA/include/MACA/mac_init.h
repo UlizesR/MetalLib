@@ -1,5 +1,5 @@
-#ifndef MAC_INIT_H_
-#define MAC_INIT_H_
+#ifndef mac_init_h_
+#define mac_init_h_
 
 
 #include <stdint.h>
@@ -29,4 +29,4 @@ extern int MAC_Init(UInt32 flags);
 }
 #endif
 
-#endif // MAC_INIT_H_
+#endif // mac_init_h_

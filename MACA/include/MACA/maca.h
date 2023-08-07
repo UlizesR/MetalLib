@@ -1,5 +1,5 @@
-#ifndef MAC_H_
-#define MAC_H_
+#ifndef maca_h_
+#define maca_h_
 
 #ifndef __APPLE__
 #error "This file is only for Mac OS X"
@@ -19,4 +19,4 @@
 
 void MAC_Quit();
 
-#endif // MAC_H_
+#endif // maca_h_

@@ -1,9 +1,9 @@
-#include "MAC/mac_view.h"
+#include "MACA/mac_view.h"
 #include <AppKit/AppKit.h>
 #import <Cocoa/Cocoa.h>
 #import <CoreGraphics/CoreGraphics.h>
 
-#import "MAC/mac_shapes.h"
+#import "MACA/mac_shapes.h"
 
 int shapeID = 1;
 

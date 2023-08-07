@@ -1,6 +1,6 @@
 // Mac_delegate.m
-#import "MAC/mac_delegate.h"
-#import "MAC/mac_error.h"
+#import "MACA/mac_delegate.h"
+#import "MACA/mac_error.h"
 
 Mac_Delegate* delegate = nil;
 

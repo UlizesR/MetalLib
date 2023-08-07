@@ -1,5 +1,5 @@
 // mac_events.m
-#import "MAC/mac_events.h"
+#import "MACA/mac_events.h"
 #import <Cocoa/Cocoa.h>
 
 int MAC_PollEvent(MAC_Event* event) {
