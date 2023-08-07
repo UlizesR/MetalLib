@@ -1,4 +1,3 @@
-#include "MAC/mac_shapes.h"
 #include <MAC/mac.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -24,9 +23,7 @@ int main(int argc, const char * argv[]) {
     // Add a content view to the window with a blue background
     Mac_View* contentView = addContentView(mainWindow, MAC_COLOR_GREEN_2);
 
-    // mac_draw_line(contentView, (Mac_FPoint){100, 10}, (Mac_FPoint){500, 500}, 4.0, MAC_COLOR_RED);
-
-    Mac_Rect *rect = mac_rect((Mac_FPoint){100, 100}, (MSize){200, 300}, MAC_COLOR_RED);
+    Mac_Rect *rect = mac_rect((Mac_FPoint){10, 10}, (MSize){50, 50}, MAC_COLOR_RED);
 
     mac_fill_rect(rect, contentView);
 
@@ -34,7 +31,39 @@ int main(int argc, const char * argv[]) {
     bool running = true;
     MAC_Event event;
     while (running) {
-        runWindow();
+        while (MAC_PollEvent(&event))
+        {
+            if (event.type == MAC_KEYBOARDEVENT) {
+                if (event.keycode == MAC_KEY_D)
+                {
+                    printf("D pressed\n");
+                    rect->origin.x += 10;
+                    updateView(contentView); // Update the view to reflect the changes
+                    mac_fill_rect(rect, contentView); // Redraw the rectangle
+                }
+                if (event.keycode == MAC_KEY_A)
+                {
+                    printf("A pressed\n");
+                    rect->origin.x -= 10;
+                    updateView(contentView); // Update the view to reflect the changes
+                    mac_fill_rect(rect, contentView); // Redraw the rectangle
+                }
+                if (event.keycode == MAC_KEY_W)
+                {
+                    printf("W pressed\n");
+                    rect->origin.y += 10;
+                    updateView(contentView); // Update the view to reflect the changes
+                    mac_fill_rect(rect, contentView); // Redraw the rectangle
+                }
+                if (event.keycode == MAC_KEY_S)
+                {
+                    printf("S pressed\n");
+                    rect->origin.y -= 10;
+                    updateView(contentView); // Update the view to reflect the changes
+                    mac_fill_rect(rect, contentView); // Redraw the rectangle
+                }
+            }
+        }
         if(!isWindowOpen(mainWindow)) {
             running = false;
         }

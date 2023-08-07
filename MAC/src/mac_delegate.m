@@ -5,6 +5,7 @@ Mac_Delegate* delegate = nil;
 
 @implementation Mac_Delegate
 
+
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     if (delegate == nil) {
         return;

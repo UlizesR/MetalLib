@@ -38,11 +38,10 @@ void mac_fill_rect(Mac_Rect* rect, Mac_View* parent_view) {
     }
     [nsView.shapes addObject:shape];
 
-    // CGPathRelease(path);
+    // Removed the CGPathRelease(path) as it's managed by the DrawableShape object now.
 
     [nsView setNeedsDisplay:YES];
 }
-
 
 Mac_Rect* mac_rect(Mac_FPoint origin, MSize size, Mac_Color color) {
     Mac_Rect* rect = (Mac_Rect*)malloc(sizeof(Mac_Rect));

@@ -17,6 +17,7 @@ int MAC_PollEvent(MAC_Event* event) {
             // Handle key down events
             event->type = MAC_KEYBOARDEVENT;
             event->keycode = (MAC_KeyCode)[nsEvent keyCode];
+            return 1;
             break;
         case NSEventTypeLeftMouseDown:
             // Handle left mouse button down events
@@ -53,10 +54,11 @@ int MAC_PollEvent(MAC_Event* event) {
             }
             break;
         default:
+            // For all other events, send them back to the application
+            
             event->type = MAC_NOEVENT;
             break;
     }
-
     [NSApp sendEvent:nsEvent];
     return 1;
 }

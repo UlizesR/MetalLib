@@ -6,7 +6,8 @@
 #import <Cocoa/Cocoa.h>
 
 @implementation Mac_WindowDelegate
-// methods implementation here
+
+
 @end
 
 
@@ -41,8 +42,8 @@ Mac_Window* createWindow(int width, int height, const char* title) {
     [nsWindow makeKeyAndOrderFront:nil];
     window->id = [nsWindow windowNumber];
 
-    [NSApp activateIgnoringOtherApps:YES];
     [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
+    [NSApp activateIgnoringOtherApps:YES];
 
     return window;
 }
@@ -54,8 +55,9 @@ void closeWindow(Mac_Window* window) {
 
 bool isWindowOpen(Mac_Window* window) {
     NSWindow *nsWindow = [NSApp windowWithWindowNumber:window->id];
-    return nsWindow && [nsWindow isVisible];
+    return nsWindow && ([nsWindow isVisible] || [nsWindow isMiniaturized]);
 }
+
 
 void destroyWindow(Mac_Window* window) {
     closeWindow(window);

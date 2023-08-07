@@ -16,6 +16,18 @@
     return self;
 }
 
+- (void)updateLineWithInitPos:(Mac_FPoint)init_pos endPos:(Mac_FPoint)end_pos {
+    CGMutablePathRef newPath = CGPathCreateMutable();
+    CGPathMoveToPoint(newPath, NULL, init_pos.x, init_pos.y);
+    CGPathAddLineToPoint(newPath, NULL, end_pos.x, end_pos.y);
+
+    if (_path) {
+        CGPathRelease(_path);
+    }
+
+    _path = newPath;
+}
+
 - (void)dealloc {
     [super dealloc];
     if (_path) {
@@ -26,6 +38,15 @@
 @end
 
 @implementation Mac_NSView
+
+- (instancetype)initWithFrame:(NSRect)frameRect {
+    self = [super initWithFrame:frameRect];
+    if (self) {
+        _shapes = [NSMutableArray array];
+        _drawingCommands = [NSMutableArray array];
+    }
+    return self;
+}
 
 - (void)setLineWithInitPos:(Mac_FPoint)init_pos endPos:(Mac_FPoint)end_pos lineWidth:(float)line_width color:(Mac_Color)color {
     CGMutablePathRef path = CGPathCreateMutable();
@@ -38,34 +59,44 @@
     shape.lineWidth = line_width;
     shape.filled = NO;
 
-    if (!self.shapes) {
-        self.shapes = [NSMutableArray array];
-    }
     [self.shapes addObject:shape];
-    // Removed CGPathRelease(path);
+
+    DrawingCommand command = {init_pos, end_pos, line_width, color};
+    [self.drawingCommands addObject:[NSValue valueWithBytes:&command objCType:@encode(DrawingCommand)]];
 
     [self setNeedsDisplay:YES];
 }
 
+- (void)updateView {
+    [self.shapes removeAllObjects];
+    for (NSValue* value in self.drawingCommands) {
+        DrawingCommand command;
+        [value getValue:&command];
+        [self setLineWithInitPos:command.init_pos endPos:command.end_pos lineWidth:command.line_width color:command.color];
+    }
+    [self setNeedsDisplay:YES];
+}
 
 - (void)drawRect:(NSRect)dirtyRect {
     [super drawRect:dirtyRect];
 
-    NSGraphicsContext* context = [NSGraphicsContext currentContext];
-    CGContextRef cgContext = [context CGContext];
+    CGContextRef context = [[NSGraphicsContext currentContext] CGContext];
+    CGContextSetShouldAntialias(context, YES);
 
     for (DrawableShape* shape in self.shapes) {
-        CGContextAddPath(cgContext, shape.path);
+        CGContextSetLineWidth(context, shape.lineWidth);
+        CGContextSetRGBStrokeColor(context, shape.color.r, shape.color.g, shape.color.b, shape.color.a);
         if (shape.filled) {
-            CGContextSetRGBFillColor(cgContext, shape.color.r, shape.color.g, shape.color.b, shape.color.a);
-            CGContextFillPath(cgContext);
+            CGContextSetRGBFillColor(context, shape.color.r, shape.color.g, shape.color.b, shape.color.a);
+            CGContextAddPath(context, shape.path);
+            CGContextFillPath(context);
         } else {
-            CGContextSetRGBStrokeColor(cgContext, shape.color.r, shape.color.g, shape.color.b, shape.color.a);
-            CGContextSetLineWidth(cgContext, shape.lineWidth);
-            CGContextStrokePath(cgContext);
+            CGContextAddPath(context, shape.path);
+            CGContextStrokePath(context);
         }
     }
 }
+
 
 @end
 
@@ -133,6 +164,12 @@ Mac_View* addContentView(Mac_Window* parent, Mac_Color background_color) {
 
     return view;
 }
+
+void updateView(Mac_View* view) {
+    Mac_NSView* nsView = (__bridge Mac_NSView*)view->_this;
+    [nsView updateView];
+}
+
 
 void destroyView(Mac_View* view) {
     Mac_WindowDelegate* delegate = (__bridge Mac_WindowDelegate*)view->window_parent->delegate;
