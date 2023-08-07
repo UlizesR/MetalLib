@@ -14,6 +14,7 @@
 #include "mac_view.h"
 #include "mac_button.h"
 #include "mac_internals.h"
+#include "mac_slider.h"
 
 void ignoreApps();
 void MAC_Quit();

@@ -18,6 +18,7 @@ set(SOURCES
     MAC/src/mac_pixels.m
     MAC/src/mac_error.c
     MAC/src/Gui/mac_button.m
+    MAC/src/Gui/mac_slider.m
 )
 
 # Create the library

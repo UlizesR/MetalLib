@@ -103,7 +103,7 @@ struct Mac_Button {
 
 /*!
     Creates a button with the MAC_BUTTON_STYLE_REGULAR_SQUARE style
-    its dimensions are base on the font size and the title length
+    its size are base on the font size and the title length
     @param position The position of the button.
     @param title The title of the button.
     @param image The image of the button.
@@ -118,7 +118,7 @@ Mac_Button* mac_button_rs(MProperties properties, MImage image, MTitle title,  U
 
 /*!
     Creates a standard push button with a title and image.
-    @param dimensions The dimensions of the button.
+    @param size The size of the button.
     @param title The title of the button.
     @param image The image of the button.
     @param parent_view The parent view of the button.
@@ -129,7 +129,7 @@ Mac_Button* mac_button_spb_tita(MProperties properties, MTitle title, MImage ima
 
 /*!
     Creates a standard push button with the provided title.
-    @param dimensions The dimensions of the button.
+    @param size The size of the button.
     @param title The title of the button.
     @param parent_view The parent view of the button.
     @param action The action of the button.
@@ -139,7 +139,7 @@ Mac_Button* mac_button_spb_tta(MProperties properties, MTitle title, Mac_View* p
 
 /*!
     Creates a standard push button with the provided image.
-    @param dimensions The dimensions of the button.
+    @param size The size of the button.
     @param image The image of the button.
     @param parent_view The parent view of the button.
     @param action The action of the button.
@@ -149,7 +149,7 @@ Mac_Button* mac_button_spb_ita(MProperties properties, MImage image, Mac_View* p
 
 /*!
     Creates a standard checkbox with the provided title.
-    @param dimensions The dimensions of the checkbox.
+    @param size The size of the checkbox.
     @param title The localized title string that is displayed alongside the checkbox.
     @param parent_view The parent view of the checkbox.
     @param action The action message sent by the control.
@@ -159,7 +159,7 @@ Mac_Button* mac_button_scb_tta(MProperties properties, MTitle title, Mac_View* p
 
 /*!
     Creates a standard radio with the provided image.
-    @param dimensions The dimensions of the radio.
+    @param size The size of the radio.
     @param title The localized title string that is displayed alongside the radio.
     @param parent_view The parent view of the radio.
     @param action The action message sent by the control.

@@ -73,7 +73,7 @@ Mac_Button* mac_button_rs(MProperties properties, MImage image, MTitle title, UI
     button->parent_view = parent_view;
     button->action = action;
 
-    if (font_size > properties.dimensions.height) {
+    if (font_size > properties.size.height) {
         mac_printError(MAC_ERROR_BUTTON_FONT_SMALLER_THAN_HEIGHT);
         return NULL;
     }
@@ -81,7 +81,7 @@ Mac_Button* mac_button_rs(MProperties properties, MImage image, MTitle title, UI
     NSString* bTitle = [NSString stringWithUTF8String:title];
     NSImage* bImage = [[NSImage alloc] initWithContentsOfFile:[NSString stringWithUTF8String:image]];
 
-    NSRect frame = NSMakeRect(properties.position.x, properties.position.y, properties.dimensions.width, properties.dimensions.height);
+    NSRect frame = NSMakeRect(properties.position.x, properties.position.y, properties.size.width, properties.size.height);
     NSMac_Button* nsButton = [[NSMac_Button alloc] initWithFrame:frame];
     if (bTitle)
     {
@@ -142,7 +142,7 @@ Mac_Button* mac_button_spb_tita(MProperties properties, MTitle title, MImage ima
     NSMac_Button* nsButton = [[NSMac_Button alloc] init];
     nsButton = [nsButton button_spb_tita:bTitle image:bImage]; // Call the method on the instance
     
-    [nsButton setFrame: NSMakeRect(properties.position.x, properties.position.y, properties.dimensions.width, properties.dimensions.height)];
+    [nsButton setFrame: NSMakeRect(properties.position.x, properties.position.y, properties.size.width, properties.size.height)];
     nsButton.tag = (NSInteger)button; // Set the tag property
 
     NSView* nsView = (__bridge NSView *)(button->parent_view->_this);
@@ -203,7 +203,7 @@ Mac_Button* mac_button_spb_ita(MProperties properties, MImage image, Mac_View* p
     nsButton = [nsButton button_spb_ita:bImage]; // Call the method on the instance
     printf("button created\n");
 
-    [nsButton setFrame: NSMakeRect(properties.position.x, properties.position.y, properties.dimensions.width, properties.dimensions.height)];
+    [nsButton setFrame: NSMakeRect(properties.position.x, properties.position.y, properties.size.width, properties.size.height)];
     nsButton.tag = (NSInteger)button; // Set the tag property
     [nsButton setEnabled:YES];
     [nsButton sizeToFit];

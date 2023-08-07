@@ -10,11 +10,11 @@
 extern "C" {
 #endif
 
-typedef struct MDimensions
+typedef struct MSize
 {
     int width;
     int height;
-} MDimensions;
+} MSize;
 
 typedef struct MPosition
 {
@@ -25,11 +25,13 @@ typedef struct MPosition
 typedef struct MProperties
 {
     MPosition position;
-    MDimensions dimensions;
+    MSize size;
 } MProperties;
 
 typedef const char* MTitle;
 typedef const char* MImage;
+
+typedef void (*Action)(void*);
 
 #ifdef __cplusplus
 }

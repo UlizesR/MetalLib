@@ -1,10 +1,15 @@
 #include "MAC/mac_button.h"
+#include "MAC/mac_slider.h"
 #include <MAC/mac.h>
 #include <stdbool.h>
 #include <stdio.h>
 
 void myButtonAction(Mac_Button* button) {
     printf("Button clicked: %s\n", button->title);
+}
+
+void mySliderAction(Mac_Slider* slider) {
+    printf("Slider value changed: %f\n", slider->value);
 }
 
 int main(int argc, const char * argv[]) {
@@ -25,12 +30,19 @@ int main(int argc, const char * argv[]) {
 
     MProperties p = {
         .position = { 200, 400 },
-        .dimensions = { 500, 50 },
+        .size = { 150, 50 },
     };
     
     // add a button to the content view
     Mac_Button* button = mac_button_rs(p, "car.png", "car", MAC_BUTTON_TYPE_RADIO, 40, true, false, contentView, myButtonAction);
     
+    MProperties p1 = {
+        .position = { 200, 200 },
+        .size = { 150, 50 },
+    };
+    
+    // add a slider
+    Mac_Slider* slider = mac_slider(p1, 0, 100, 5.0, contentView, mySliderAction);
     // Main loop
     bool running = true;
     MAC_Event event;
