@@ -24,7 +24,7 @@ GUI
         ☐ Radio
         ☐ Switch
         ☐ Checkbox
-☐ Sliders
+✔ Sliders @done(23-08-07 03:06)
 ☐ Labels
 ☐ Text Fields
 ☐ Images
@@ -45,6 +45,12 @@ Graphics
 ☐ create metal render pipeline
 ☐ render 2d graphics
     ☐ render 2d shapes
+        ✔ render lines @done(23-08-07 03:06)
+        ✔ render circles @done(23-08-07 03:06)
+        ✔ render rectangles @done(23-08-07 03:06)
+        ☐ render polygons
+        ✔ render triangles @done(23-08-07 03:06)
+☐ render text
 ☐ render 3d graphics
 
 Subsystems

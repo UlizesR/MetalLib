@@ -52,7 +52,12 @@ typedef struct {
     Mac_Color color;
 } Mac_Triangle;
 
-
+typedef struct {
+    Mac_Shape base;
+    MFPoint origin;
+    float radius;
+    Mac_Color color;
+} Mac_Circle;
 
 /*!
     draws a line with the given parameters
@@ -124,6 +129,30 @@ void mac_fill_triangle(Mac_Triangle* triangle, Mac_View* parent_view);
     @return: a pointer to the created triangle
 */
 Mac_Triangle* mac_triangle(MFPoint p1, MFPoint p2, MFPoint p3, Mac_Color color);
+
+/*!
+    draws a wireframe (not filled) circle with the given parameters
+    @param circle: the circle to draw
+    @param line_width: the width of the circle's lines
+    @param parent_view: the view to draw the circle on
+*/
+void mac_draw_circle(Mac_Circle* circle, float line_width, Mac_View* parent_view);
+
+/*!
+    draws a filled circle with the given parameters
+    @param circle: the circle to fill
+    @param parent_view: the view to fill the circle on
+*/
+void mac_fill_circle(Mac_Circle* circle, Mac_View* parent_view);
+
+/*!
+    creates a circle with the given parameters
+    @param origin: the origin of the circle
+    @param radius: the radius of the circle
+    @param color: the color of the circle
+    @return: a pointer to the created circle
+*/
+Mac_Circle* mac_circle(MFPoint origin, float radius, Mac_Color color);
 
 /*!
     removes a given shape from the given view

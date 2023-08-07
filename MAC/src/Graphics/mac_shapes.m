@@ -133,6 +133,58 @@ Mac_Triangle* mac_triangle(MFPoint p1, MFPoint p2, MFPoint p3, Mac_Color color) 
     return triangle;
 }
 
+void mac_draw_circle(Mac_Circle* circle, float line_width, Mac_View* parent_view) {
+    Mac_NSView* nsView = (__bridge Mac_NSView*)parent_view->_this;
+
+    CGMutablePathRef path = CGPathCreateMutable();
+    CGPathAddEllipseInRect(path, NULL, CGRectMake(circle->origin.x - circle->radius, circle->origin.y - circle->radius, 2 * circle->radius, 2 * circle->radius));
+
+    DrawableShape* shape = [[DrawableShape alloc] init];
+    shape.path = path;
+    shape.color = circle->color;
+    shape.lineWidth = line_width;
+    shape.filled = NO;
+    shape.id = circle->base.id;
+
+    if (!nsView.shapes) {
+        nsView.shapes = [NSMutableArray array];
+    }
+    [nsView.shapes addObject:shape];
+
+    [nsView setNeedsDisplay:YES];
+}
+
+void mac_fill_circle(Mac_Circle* circle, Mac_View* parent_view) {
+    Mac_NSView* nsView = (__bridge Mac_NSView*)parent_view->_this;
+
+    CGMutablePathRef path = CGPathCreateMutable();
+    CGPathAddEllipseInRect(path, NULL, CGRectMake(circle->origin.x - circle->radius, circle->origin.y - circle->radius, 2 * circle->radius, 2 * circle->radius));
+
+    DrawableShape* shape = [[DrawableShape alloc] init];
+    shape.path = path;
+    shape.color = circle->color;
+    shape.filled = YES;
+    shape.id = circle->base.id;
+
+    if (!nsView.shapes) {
+        nsView.shapes = [NSMutableArray array];
+    }
+    [nsView.shapes addObject:shape];
+
+    [nsView setNeedsDisplay:YES];
+}
+
+Mac_Circle* mac_circle(MFPoint origin, float radius, Mac_Color color) {
+    Mac_Circle* circle = (Mac_Circle*)malloc(sizeof(Mac_Circle));
+    circle->origin = origin;
+    circle->radius = radius;
+    circle->color = color;
+    circle->base.id = shapeID++;
+    circle->base.shape_type = MAC_SHAPE_CIRCLE;
+    return circle;
+}
+
+
 
 void mac_remove_shape(int shape_id, Mac_View* parent_view) {
     updateView(parent_view, shape_id);

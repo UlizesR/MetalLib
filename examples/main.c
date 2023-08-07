@@ -27,6 +27,10 @@ int main(int argc, const char * argv[]) {
 
     mac_draw_triangle(triangle, 2.0, mainWindow->content_view);
 
+    Mac_Circle* circle = mac_circle((MFPoint){400, 400}, 50, MAC_COLOR_RED);
+
+    mac_fill_circle(circle, mainWindow->content_view);
+
     // Main loop
     bool running = true;
     MAC_Event event;
@@ -66,6 +70,7 @@ int main(int argc, const char * argv[]) {
     }
 
     // Cleanup
+    destroy_shape((Mac_Shape*)circle);
     destroy_shape((Mac_Shape*)triangle);
     destroy_shape((Mac_Shape*)rect2);
     destroy_shape((Mac_Shape*)rect1);
