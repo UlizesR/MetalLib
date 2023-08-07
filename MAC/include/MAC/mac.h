@@ -18,7 +18,6 @@
 #include "mac_colors.h"
 #include "mac_shapes.h"
 
-void ignoreApps();
 void MAC_Quit();
 
 #endif // MAC_H_

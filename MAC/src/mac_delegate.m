@@ -1,5 +1,6 @@
 // Mac_delegate.m
 #import "MAC/mac_delegate.h"
+#import "MAC/mac_error.h"
 
 Mac_Delegate* delegate = nil;
 
@@ -52,4 +53,13 @@ void runDelegate() {
     if (event) {
         [NSApp sendEvent:event];
     }
+}
+
+int checkDelegateInit()
+{
+    Mac_Delegate* delegate = initDelegate();
+    if (delegate == NULL) {
+        return MAC_ERROR;
+    }
+    return MAC_SUCCESS;
 }

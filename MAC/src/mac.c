@@ -3,7 +3,6 @@
 #import "MAC/mac_delegate.h"
 #include <stdio.h>
 #include <stdint.h>
-#import <Cocoa/Cocoa.h>
 
 // Global variables for Displays and Video Devices and Views
 Video_Display* g_displays = NULL;
@@ -13,12 +12,6 @@ int g_deviceCount = 0;
 Mac_View* g_views[MAX_VIEWS];
 int g_viewCount = 0;
 
-void ignoreApps()
-{
-    [NSApp activateIgnoringOtherApps:YES];
-    [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
-
-}
 
 void MAC_Quit() {
     // Clean up Displays
@@ -46,8 +39,8 @@ void MAC_Quit() {
 
 int MAC_Init(UInt32 flags) {
     // Initialize the application delegate
-    Mac_Delegate* delegate = initDelegate();
-    if (delegate == NULL) {
+    if(checkDelegateInit() != 0)
+    {
         mac_printError(MAC_ERROR_DELEGATE_INIT_FAILED);
         return MAC_ERROR;
     }

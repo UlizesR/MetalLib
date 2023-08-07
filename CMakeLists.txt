@@ -12,7 +12,7 @@ set(SOURCES
     MAC/src/mac_window.m
     MAC/src/mac_video.m
     MAC/src/mac_delegate.m
-    MAC/src/mac.m
+    MAC/src/mac.c
     MAC/src/mac_events.m
     MAC/src/mac_pixels.m
     MAC/src/mac_error.c
