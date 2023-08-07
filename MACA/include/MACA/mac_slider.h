@@ -2,7 +2,6 @@
 #define mac_slider_h_
 
 #include "mac_internals.h"
-#include "mac_view.h"
 
 #ifdef __OBJC__
 #import <Cocoa/Cocoa.h> 

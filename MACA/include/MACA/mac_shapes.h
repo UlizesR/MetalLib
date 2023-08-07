@@ -20,6 +20,7 @@ typedef enum {
     MAC_SHAPE_ELLIPSE   = 3,
     MAC_SHAPE_TRIANGLE  = 4,
     MAC_SHAPE_POLYGON   = 5,
+    MAC_SHAPE_POINT     = 6,
 } Mac_ShapeType;
 
 typedef struct {
@@ -30,10 +31,10 @@ typedef struct {
 
 typedef struct {
     Mac_Shape base;
-    MSize size;
-    MFPoint p_tr, p_tl, p_br, origin;
+    MFPoint position;
     Mac_Color color;
-} Mac_Rect;
+} Mac_Point;
+
 
 typedef struct {
     Mac_Shape base;
@@ -42,6 +43,13 @@ typedef struct {
     float line_width;
     Mac_Color color;
 } Mac_Line;
+
+typedef struct {
+    Mac_Shape base;
+    MSize size;
+    MFPoint p_tr, p_tl, p_br, origin;
+    Mac_Color color;
+} Mac_Rect;
 
 typedef struct {
     Mac_Shape base;
@@ -58,6 +66,22 @@ typedef struct {
     float radius;
     Mac_Color color;
 } Mac_Circle;
+
+/*!
+    draws a point with the given parameters
+    @param parent_view: the view to draw the point on
+    @param point: the point to draw
+*/
+void mac_draw_point(Mac_View* parent_view, Mac_Point* point);
+
+/*!
+    creates a point with the given parameters
+    @param x: the x position of the point
+    @param y: the y position of the point
+    @param color: the color of the point
+    @return: a pointer to the created point
+*/
+Mac_Point* mac_point(float x, float y, Mac_Color color);
 
 /*!
     draws a line with the given parameters

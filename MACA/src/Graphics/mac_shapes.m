@@ -7,6 +7,26 @@
 
 int shapeID = 1;
 
+void mac_draw_point(Mac_View* parent_view, Mac_Point* point) {
+    Mac_NSView* nsView = (__bridge Mac_NSView*)parent_view->_this;
+
+    CGContextRef context = [[NSGraphicsContext currentContext] CGContext];
+    CGContextSetRGBFillColor(context, point->color.r, point->color.g, point->color.b, point->color.a);
+    CGContextFillRect(context, CGRectMake(point->position.x, point->position.y, 1, 1));
+
+    [nsView setNeedsDisplay:YES];
+}
+
+Mac_Point* mac_point(float x, float y, Mac_Color color) {
+    Mac_Point* point = (Mac_Point*)malloc(sizeof(Mac_Point));
+    point->position.x = x;
+    point->position.y = y;
+    point->color = color;
+    point->base.id = shapeID++; // Assuming shapeID is a global variable for unique shape IDs
+    point->base.shape_type = MAC_SHAPE_POINT; // Assuming MAC_SHAPE_POINT is defined as a unique value for points
+    return point;
+}
+
 void mac_draw_line(Mac_View* parent_view, Mac_Line* line) {
     Mac_NSView* nsView = (__bridge Mac_NSView*)parent_view->_this;
     [nsView setLineWithInitPos:line->init_pos endPos:line->end_pos lineWidth:line->line_width shapeID:line->base.id color:line->color];
