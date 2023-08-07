@@ -11,8 +11,9 @@
 
 @end
 
-/*
+/*!
     initializes the delegate
+    @return the delegate
 */
 Mac_Delegate* initDelegate();
 /*
@@ -25,8 +26,20 @@ Mac_Delegate* initDelegate();
 extern "C" {
 #endif
 
+/*
+    terminates the delegate
+*/
 void terminateDelegate();
+
+/*!
+    runs loop for the app
+*/
 void runDelegate();
+
+/*!
+    checks if the delegate is initialized
+    @return 1 if initialized, 0 if not
+*/
 int checkDelegateInit();
 
 #ifdef __cplusplus

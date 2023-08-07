@@ -23,6 +23,11 @@ typedef enum {
 //     MAC_INIT_VIDEO | MAC_INIT_AUDIO | MAC_INIT_TIMER | MAC_INIT_EVENTS | MAC_INIT_JOYSTICK | MAC_INIT_HAPTIC | MAC_INIT_GAMECONTROLLER \
 // )
 
+/*!
+    Initializes the MACA library.
+    @param flags: the flags to initialize the library with
+    @return: 0 on success, -1 on failure
+*/
 extern int MAC_Init(UInt32 flags);
 
 #ifdef __cplusplus

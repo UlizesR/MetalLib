@@ -43,6 +43,10 @@ typedef enum
     MAC_ERROR_IMAGE_MEMORY_ALLOCATION_FAILED,
 } MAC_Error;
 
+/*!
+    Prints the error to the console.
+    @param error: the error to print
+*/
 void mac_printError(MAC_Error error);
 
 #ifdef __cplusplus

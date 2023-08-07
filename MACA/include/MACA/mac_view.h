@@ -50,10 +50,44 @@ struct Mac_View
 extern Mac_View* g_views[MAX_VIEWS];
 extern int g_viewCount;
 
+/*!
+    Creates a sub view with the given parameters.
+    @param parent: the parent view
+    @param width: the width of the view
+    @param height: the height of the view
+    @param x: the x position of the view
+    @param y: the y position of the view
+    @param background_color: the background color of the view
+    @return: the created view
+*/
 Mac_View* addSubView(Mac_View* parent, int width, int height, int x, int y, Mac_Color background_color);
+
+/*!
+    Creates a given window's content view with the given parameters.
+    @param parent: the parent window of the view
+    @param background_color: the background color of the view
+    @return: the created view
+*/
 Mac_View* addContentView(Mac_Window* parent, Mac_Color background_color);
+
+/*!
+    Updates the view with the given parameters.
+    @param view: the view to update
+    @param shape_id: the id of the shape to update
+*/
 void updateView(Mac_View* view, int shape_id);
+
+/*! 
+    Destroys the given views.
+    @param views: the views to be destroyed
+    @param count: the number of views
+*/
 void destroyViews(Mac_View* views[], int count);
+
+/*!
+    Destroys the given view.
+    @param view: the view to be destroyed
+*/
 void destroyView(Mac_View* view);
 
 #ifdef __cplusplus

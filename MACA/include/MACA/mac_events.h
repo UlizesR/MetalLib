@@ -93,6 +93,11 @@ typedef struct {
     MAC_ScrollDirection direction;
 } MAC_Event;
 
+/*!
+    Polls the event queue for events
+    @param event: the event to poll
+    @return: 0 on success, -1 on failure
+*/
 int MAC_PollEvent(MAC_Event* event);
 
 #ifdef __cplusplus

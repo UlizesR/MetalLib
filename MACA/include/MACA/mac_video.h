@@ -37,11 +37,41 @@ typedef enum
     MAC_SYSTEM_THEME_DARK
 } MAC_SystemTheme;
 
+/*!
+    Return the current video/graphics devices available
+    @param count: the number of devices available
+    @return: the devices available
+*/
 Video_Device* getConnectedDevices(int* count);
+
+/*!
+    Prints the information for the given devices
+    @param devices: the devices to print information for
+    @param count: the number of devices
+*/
 void printDeviceInfo(Video_Device* devices, int count);
+/*
+    Release the devices
+*/
 void releaseDevices();
+
+/*!
+    Return the current video/graphics displays available
+    @param count: the number of displays available
+    @return: the displays available
+*/
 Video_Display* getConnectedDisplays(int* count);
+
+/*!
+    Prints the information for the given displays
+    @param displays: the displays to print information for
+    @param count: the number of displays
+*/
 void printDisplayInfo(Video_Display* displays, int count);
+
+/*!
+    Release the displays
+*/
 void freeDisplays(Video_Display* displays, int count);
 
 #ifdef __cplusplus
