@@ -15,7 +15,6 @@
 #include "mac_button.h"
 #include "mac_internals.h"
 #include "mac_slider.h"
-#include "mac_colors.h"
 #include "mac_shapes.h"
 
 void MAC_Quit();

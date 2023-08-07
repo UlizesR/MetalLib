@@ -2,15 +2,14 @@
 #define MAC_VIEW_H_
 
 #include "mac_internals.h"
-#include "mac_window.h"
 #include "mac_pixels.h"
 
 #ifdef __OBJC__
 #import <Cocoa/Cocoa.h>
 
 typedef struct {
-    Mac_FPoint init_pos;
-    Mac_FPoint end_pos;
+    MFPoint init_pos;
+    MFPoint end_pos;
     float line_width;
     Mac_Color color;
 } DrawingCommand;
@@ -21,13 +20,13 @@ typedef struct {
 @property (nonatomic) float lineWidth;
 @property (nonatomic) BOOL filled;
 @property (nonatomic) int id;
-- (void)updateLineWithInitPos:(Mac_FPoint)init_pos endPos:(Mac_FPoint)end_pos;
+- (void)updateLineWithInitPos:(MFPoint)init_pos endPos:(MFPoint)end_pos;
 @end
 
 @interface Mac_NSView : NSView
 @property (nonatomic, strong) NSMutableArray<DrawableShape*>* shapes;
 @property (nonatomic, strong) NSMutableArray<NSValue*>* drawingCommands;
-- (void)setLineWithInitPos:(Mac_FPoint)init_pos endPos:(Mac_FPoint)end_pos lineWidth:(float)line_width shapeID:(int)id color:(Mac_Color)color;
+- (void)setLineWithInitPos:(MFPoint)init_pos endPos:(MFPoint)end_pos lineWidth:(float)line_width shapeID:(int)id color:(Mac_Color)color;
 @end
 #endif
 
@@ -35,14 +34,12 @@ typedef struct {
 extern "C" {
 #endif
 
-typedef struct Mac_View Mac_View;
-
 struct Mac_View
 {
     Mac_View *parent_view;
     Mac_Window *window_parent;
-    int width, height;
-    int x, y;
+    MSize size;
+    MPoint position;
     Mac_Color background_color;
     bool is_root;
     bool is_metal_view;

@@ -17,27 +17,19 @@ int main(int argc, const char * argv[]) {
         return 1;
     }
 
-    // Create a window
-    Mac_Window* mainWindow = createWindow(800, 600, "Main Window");
+
+    Mac_Window* mainWindow = createWindow(800, 600, true, "Main Window", MAC_COLOR_BLACK, 0);
 
     // Add a content view to the window with a blue background
-    Mac_View* contentView = addContentView(mainWindow, MAC_COLOR_GREEN_2);
 
-    Mac_Rect *rect1 = mac_rect((Mac_FPoint){10, 10}, (MSize){50, 50}, MAC_COLOR_RED);
+    Mac_Rect *rect1 = mac_rect((MFPoint){10, 10}, (MSize){50, 50}, MAC_COLOR_RED);
 
-    mac_fill_rect(rect1, contentView);
+    mac_fill_rect(rect1, mainWindow->content_view);
 
-    Mac_Rect *rect2 = mac_rect((Mac_FPoint){100, 100}, (MSize){50, 50}, MAC_COLOR_RED);
+    Mac_Rect *rect2 = mac_rect((MFPoint){100, 100}, (MSize){50, 50}, MAC_COLOR_RED);
 
-    mac_fill_rect(rect2, contentView);
+    mac_fill_rect(rect2, mainWindow->content_view);
 
-    MProperties p = {
-        .position = {100, 500},
-        .size = {100, 50},
-    };
-
-    Mac_Slider* Slider = mac_slider(p, 0, 100, 5, contentView, mySliderAction);
-    
     // Main loop
     bool running = true;
     MAC_Event event;
@@ -48,26 +40,26 @@ int main(int argc, const char * argv[]) {
                 if (event.keycode == MAC_KEY_D)
                 {
                     rect1->origin.x += 10;
-                    mac_remove_shape(rect1->base.id, contentView);
-                    mac_fill_rect(rect1, contentView); // Redraw the rectangle
+                    mac_remove_shape(rect1->base.id, mainWindow->content_view);
+                    mac_fill_rect(rect1, mainWindow->content_view); // Redraw the rectangle
                 }
                 if (event.keycode == MAC_KEY_A)
                 {
                     rect1->origin.x -= 10;
-                    mac_remove_shape(rect1->base.id, contentView);
-                    mac_fill_rect(rect1, contentView); // Redraw the rectangle
+                    mac_remove_shape(rect1->base.id, mainWindow->content_view);
+                    mac_fill_rect(rect1, mainWindow->content_view); // Redraw the rectangle
                 }
                 if (event.keycode == MAC_KEY_W)
                 {
                     rect1->origin.y += 10;
-                    mac_remove_shape(rect1->base.id, contentView);
-                    mac_fill_rect(rect1, contentView); // Redraw the rectangle
+                    mac_remove_shape(rect1->base.id, mainWindow->content_view);
+                    mac_fill_rect(rect1, mainWindow->content_view); // Redraw the rectangle
                 }
                 if (event.keycode == MAC_KEY_S)
                 {
                     rect1->origin.y -= 10;
-                    mac_remove_shape(rect1->base.id, contentView);
-                    mac_fill_rect(rect1, contentView); // Redraw the rectangle
+                    mac_remove_shape(rect1->base.id, mainWindow->content_view);
+                    mac_fill_rect(rect1, mainWindow->content_view); // Redraw the rectangle
                 }
             }
         }
@@ -77,7 +69,6 @@ int main(int argc, const char * argv[]) {
     }
 
     // Cleanup
-    destroy_slider(Slider);
     destroy_shape((Mac_Shape*)rect2);
     destroy_shape((Mac_Shape*)rect1);
     destroyWindow(mainWindow);

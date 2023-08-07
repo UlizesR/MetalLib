@@ -20,7 +20,8 @@ typedef void (*SliderAction)(Mac_Slider*);
 
 struct Mac_Slider
 {
-    MProperties properties;
+    MSize size;
+    MPoint position;
     float value;
     float minValue;
     float maxValue;
@@ -29,7 +30,7 @@ struct Mac_Slider
     Mac_View *parent_view;
 };
 
-Mac_Slider* mac_slider(MProperties properties, float minValue, float maxValue, float increment, Mac_View* parent_view, SliderAction action);
+Mac_Slider* mac_slider(MSize size, MPoint position, float minValue, float maxValue, float increment, Mac_View* parent_view, SliderAction action);
 void destroy_slider(Mac_Slider* slider);
 
 #ifdef __cplusplus

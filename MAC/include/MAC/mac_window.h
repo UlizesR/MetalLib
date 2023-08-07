@@ -2,11 +2,14 @@
 #define MAC_WINDOW_H_
 
 
+#include "mac_internals.h"
+#include "mac_pixels.h"
+
 #ifdef __OBJC__
 #import <Cocoa/Cocoa.h>
 
 @interface Mac_WindowDelegate : NSObject <NSWindowDelegate>
-@property (nonatomic, strong) NSView *contentView;
+@property (nonatomic, strong) NSView *content_view;
 @end
 #endif
 
@@ -18,8 +21,7 @@
 extern "C" {
 #endif
 
-typedef struct Mac_Window Mac_Window;
-typedef UInt32 Mac_WindowID;
+
 
 typedef enum
 {
@@ -30,19 +32,19 @@ typedef enum
     MAC_WINDOW_METAL = 0x00000010,
 } Mac_WindowFlags;
 
-
 struct Mac_Window
 {
-    int width;
-    int height;
-    const char* title;
+    MSize size;
+    MTitle title;
     Mac_WindowID id;
     Mac_Window *parent;
     Mac_Window *children;
+    Mac_View *content_view;
+    Mac_Color background_color;
     UInt32 flags;
+    bool is_main_window;
     void *delegate;
 };
-
 
 /*
     Functions for creating and managing windows
@@ -50,7 +52,7 @@ struct Mac_Window
         - Closable
         - Minimizable
 */
-Mac_Window* createWindow(int width, int height, const char* title);
+Mac_Window* createWindow(int width, int height, bool is_main_window, MTitle title, Mac_Color background_color, UInt32 flags);
 void closeWindow(Mac_Window* window);
 bool isWindowOpen(Mac_Window* window);
 void destroyWindow(Mac_Window* window);

@@ -80,5 +80,5 @@ int MAC_Init(UInt32 flags) {
         // Add events initialization code here
     }
 
-    return 0;
+    return MAC_SUCCESS;
 }

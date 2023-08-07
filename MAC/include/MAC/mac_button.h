@@ -1,7 +1,6 @@
 #ifndef MAC_GUI_H_
 #define MAC_GUI_H_
 
-#include "mac_view.h"
 #include "mac_internals.h"
 #include <stdint.h>
 #include <stdbool.h>
@@ -93,7 +92,8 @@ typedef void (*ButtonAction)(Mac_Button*);
     This is the struct that holds all the information for the button
 */
 struct Mac_Button {
-    MProperties properties;
+    MSize size;
+    MPoint position;
     MTitle title;
     Mac_View* parent_view;
     ButtonAction action;
@@ -104,6 +104,7 @@ struct Mac_Button {
 /*!
     Creates a button with the MAC_BUTTON_STYLE_REGULAR_SQUARE style
     its size are base on the font size and the title length
+    @param size The size of the button.
     @param position The position of the button.
     @param title The title of the button.
     @param image The image of the button.
@@ -114,58 +115,63 @@ struct Mac_Button {
     @param parent_view The parent view of the button.
     @param action The action of the button.
 */
-Mac_Button* mac_button_rs(MProperties properties, MImage image, MTitle title,  UInt32 type, int font_size, bool isBordered, bool bordered_when_hovered, Mac_View* parent_view, ButtonAction action);
+Mac_Button* mac_button_rs(MSize size, MPoint position, MImage image, MTitle title,  UInt32 type, int font_size, bool isBordered, bool bordered_when_hovered, Mac_View* parent_view, ButtonAction action);
 
 /*!
     Creates a standard push button with a title and image.
     @param size The size of the button.
+    @param position The position of the button.
     @param title The title of the button.
     @param image The image of the button.
     @param parent_view The parent view of the button.
     @param action The action of the button.
     @return A pointer to the button.
 */
-Mac_Button* mac_button_spb_tita(MProperties properties, MTitle title, MImage image, Mac_View* parent_view, ButtonAction action);
+Mac_Button* mac_button_spb_tita(MSize size, MPoint position, MTitle title, MImage image, Mac_View* parent_view, ButtonAction action);
 
 /*!
     Creates a standard push button with the provided title.
     @param size The size of the button.
+    @param position The position of the button.
     @param title The title of the button.
     @param parent_view The parent view of the button.
     @param action The action of the button.
     @return A pointer to the button.
 */
-Mac_Button* mac_button_spb_tta(MProperties properties, MTitle title, Mac_View* parent_view, ButtonAction action);
+Mac_Button* mac_button_spb_tta(MSize size, MPoint position, MTitle title, Mac_View* parent_view, ButtonAction action);
 
 /*!
     Creates a standard push button with the provided image.
     @param size The size of the button.
+    @param position The position of the button.
     @param image The image of the button.
     @param parent_view The parent view of the button.
     @param action The action of the button.
     @return A pointer to the button.
 */
-Mac_Button* mac_button_spb_ita(MProperties properties, MImage image, Mac_View* parent_view, ButtonAction action);
+Mac_Button* mac_button_spb_ita(MSize size, MPoint position, MImage image, Mac_View* parent_view, ButtonAction action);
 
 /*!
     Creates a standard checkbox with the provided title.
     @param size The size of the checkbox.
+    @param position The position of the checkbox.
     @param title The localized title string that is displayed alongside the checkbox.
     @param parent_view The parent view of the checkbox.
     @param action The action message sent by the control.
     @return An initialized button object.
  */
-Mac_Button* mac_button_scb_tta(MProperties properties, MTitle title, Mac_View* parent_view, ButtonAction action);
+Mac_Button* mac_button_scb_tta(MSize size, MPoint position, MTitle title, Mac_View* parent_view, ButtonAction action);
 
 /*!
     Creates a standard radio with the provided image.
     @param size The size of the radio.
+    @param position The position of the radio.
     @param title The localized title string that is displayed alongside the radio.
     @param parent_view The parent view of the radio.
     @param action The action message sent by the control.
     @return An initialized button object.
 */
-Mac_Button* mac_button_srb_tta(MProperties properties, MTitle title, Mac_View* parent_view, ButtonAction action);
+Mac_Button* mac_button_srb_tta(MSize size, MPoint position, MTitle title, Mac_View* parent_view, ButtonAction action);
 
 void destroyButton(Mac_Button* button);
 

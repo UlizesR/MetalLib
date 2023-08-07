@@ -1,4 +1,5 @@
 #import "MAC/mac_slider.h"
+#import "MAC/mac_view.h"
 
 @implementation NSMac_Slider
 
@@ -11,20 +12,21 @@
 
 @end
 
-Mac_Slider* mac_slider(MProperties properties, float minValue, float maxValue, float increment, Mac_View* parent_view, SliderAction action) {
+Mac_Slider* mac_slider(MSize size, MPoint position, float minValue, float maxValue, float increment, Mac_View* parent_view, SliderAction action) {
     Mac_Slider* slider = (Mac_Slider*)malloc(sizeof(Mac_Slider));
     if(slider == NULL) {
         return NULL;
     }
 
-    slider->properties = properties;
+    slider->size = size;
+    slider->position = position;
     slider->minValue = minValue;
     slider->maxValue = maxValue;
     slider->increment = increment;
     slider->parent_view = parent_view;
     slider->action = action;
 
-    NSMac_Slider* nsSlider = [[NSMac_Slider alloc] initWithFrame:NSMakeRect(properties.position.x, properties.position.y, properties.size.width, properties.size.height)];
+    NSMac_Slider* nsSlider = [[NSMac_Slider alloc] initWithFrame:NSMakeRect(position.x, position.y, size.width, size.height)];
     // [nsSlider setTrackFillColor:[NSColor redColor]];
 
     [nsSlider setMinValue:minValue];

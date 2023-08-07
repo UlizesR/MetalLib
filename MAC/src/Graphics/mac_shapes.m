@@ -12,7 +12,7 @@ void mac_draw_line(Mac_View* parent_view, Mac_Line* line) {
     [nsView setLineWithInitPos:line->init_pos endPos:line->end_pos lineWidth:line->line_width shapeID:line->base.id color:line->color];
 }
 
-Mac_Line* mac_line(Mac_FPoint init_pos, Mac_FPoint end_pos, float line_width, Mac_Color color) {
+Mac_Line* mac_line(MFPoint init_pos, MFPoint end_pos, float line_width, Mac_Color color) {
     Mac_Line* line = (Mac_Line*)malloc(sizeof(Mac_Line));
     line->init_pos = init_pos;
     line->end_pos = end_pos;
@@ -24,10 +24,10 @@ Mac_Line* mac_line(Mac_FPoint init_pos, Mac_FPoint end_pos, float line_width, Ma
 }
 
 void mac_draw_rect(Mac_Rect* rect, float line_width, Mac_View* parent_view) {
-    Mac_FPoint bottomLeft = rect->origin;
-    Mac_FPoint bottomRight = { rect->origin.x + rect->size.width, rect->origin.y };
-    Mac_FPoint topLeft = { rect->origin.x, rect->origin.y + rect->size.height };
-    Mac_FPoint topRight = { rect->origin.x + rect->size.width, rect->origin.y + rect->size.height };
+    MFPoint bottomLeft = rect->origin;
+    MFPoint bottomRight = { rect->origin.x + rect->size.width, rect->origin.y };
+    MFPoint topLeft = { rect->origin.x, rect->origin.y + rect->size.height };
+    MFPoint topRight = { rect->origin.x + rect->size.width, rect->origin.y + rect->size.height };
 
     Mac_Line* bottomSide = mac_line(bottomLeft, bottomRight, line_width, rect->color);
     Mac_Line* rightSide = mac_line(bottomRight, topRight, line_width, rect->color);
@@ -68,7 +68,7 @@ void mac_fill_rect(Mac_Rect* rect, Mac_View* parent_view) {
     [nsView setNeedsDisplay:YES];
 }
 
-Mac_Rect* mac_rect(Mac_FPoint origin, MSize size, Mac_Color color) {
+Mac_Rect* mac_rect(MFPoint origin, MSize size, Mac_Color color) {
     Mac_Rect* rect = (Mac_Rect*)malloc(sizeof(Mac_Rect));
     rect->origin = origin;
     rect->size = size;

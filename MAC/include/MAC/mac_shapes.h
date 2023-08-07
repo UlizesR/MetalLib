@@ -3,7 +3,6 @@
 
 #include "mac_pixels.h"
 #include "mac_internals.h"
-#include "mac_view.h"
 #include <stdbool.h>
 
 #ifdef __OBJC__
@@ -31,15 +30,15 @@ typedef struct {
 
 typedef struct {
     Mac_Shape base;
-    Mac_FPoint origin;
+    MFPoint origin;
     MSize size;
     Mac_Color color;
 } Mac_Rect;
 
 typedef struct {
     Mac_Shape base;
-    Mac_FPoint init_pos;
-    Mac_FPoint end_pos;
+    MFPoint init_pos;
+    MFPoint end_pos;
     float line_width;
     Mac_Color color;
 } Mac_Line;
@@ -64,7 +63,7 @@ void mac_draw_line(Mac_View* parent_view, Mac_Line* line);
     @param color: the color of the line
     @return: a pointer to the created line
 */
-Mac_Line* mac_line(Mac_FPoint init_pos, Mac_FPoint end_pos, float line_width, Mac_Color color);
+Mac_Line* mac_line(MFPoint init_pos, MFPoint end_pos, float line_width, Mac_Color color);
 
 
 /*!
@@ -89,7 +88,7 @@ void mac_fill_rect(Mac_Rect* rect, Mac_View* parent_view);
     @param color: the color of the rectangle
     @return: a pointer to the created rectangle
 */
-Mac_Rect* mac_rect(Mac_FPoint origin, MSize size, Mac_Color color);
+Mac_Rect* mac_rect(MFPoint origin, MSize size, Mac_Color color);
 
 /*!
     adds the given rectangle to the given view

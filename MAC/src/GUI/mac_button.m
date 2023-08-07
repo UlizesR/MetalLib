@@ -1,4 +1,5 @@
 #include "MAC/mac_button.h"
+#include "MAC/mac_view.h"
 #include "MAC/mac_error.h"
 #include <MacTypes.h>
 #include <stdio.h>
@@ -59,7 +60,7 @@
 @end
 #endif
 
-Mac_Button* mac_button_rs(MProperties properties, MImage image, MTitle title, UInt32 type, int font_size, bool isBordered, bool bordered_when_hovered, Mac_View* parent_view, ButtonAction action)
+Mac_Button* mac_button_rs(MSize size, MPoint position, MImage image, MTitle title,  UInt32 type, int font_size, bool isBordered, bool bordered_when_hovered, Mac_View* parent_view, ButtonAction action)
 {
     Mac_Button* button = (Mac_Button*)malloc(sizeof(Mac_Button));
     if(button == NULL) {
@@ -67,13 +68,14 @@ Mac_Button* mac_button_rs(MProperties properties, MImage image, MTitle title, UI
         return NULL;
     }
 
-    button->properties = properties;
+    button->size = size;
+    button->position = position;
     button->title = title;
     button->image = image;
     button->parent_view = parent_view;
     button->action = action;
 
-    if (font_size > properties.size.height) {
+    if (font_size > size.height) {
         mac_printError(MAC_ERROR_BUTTON_FONT_SMALLER_THAN_HEIGHT);
         return NULL;
     }
@@ -81,7 +83,7 @@ Mac_Button* mac_button_rs(MProperties properties, MImage image, MTitle title, UI
     NSString* bTitle = [NSString stringWithUTF8String:title];
     NSImage* bImage = [[NSImage alloc] initWithContentsOfFile:[NSString stringWithUTF8String:image]];
 
-    NSRect frame = NSMakeRect(properties.position.x, properties.position.y, properties.size.width, properties.size.height);
+    NSRect frame = NSMakeRect(position.x, position.y, size.width, size.height);
     NSMac_Button* nsButton = [[NSMac_Button alloc] initWithFrame:frame];
     if (bTitle)
     {
@@ -122,7 +124,7 @@ Mac_Button* mac_button_rs(MProperties properties, MImage image, MTitle title, UI
 }
 
 
-Mac_Button* mac_button_spb_tita(MProperties properties, MTitle title, MImage image, Mac_View* parent_view, ButtonAction action)
+Mac_Button* mac_button_spb_tita(MSize size, MPoint position, MTitle title, MImage image, Mac_View* parent_view, ButtonAction action)
 {
     Mac_Button* button = (Mac_Button*)malloc(sizeof(Mac_Button));
     if(button == NULL) {
@@ -130,7 +132,8 @@ Mac_Button* mac_button_spb_tita(MProperties properties, MTitle title, MImage ima
         return NULL;
     }
 
-    button->properties = properties;
+    button->size = size;
+    button->position = position;
     button->title = title;
     button->image = image;
     button->parent_view = parent_view;
@@ -142,7 +145,7 @@ Mac_Button* mac_button_spb_tita(MProperties properties, MTitle title, MImage ima
     NSMac_Button* nsButton = [[NSMac_Button alloc] init];
     nsButton = [nsButton button_spb_tita:bTitle image:bImage]; // Call the method on the instance
     
-    [nsButton setFrame: NSMakeRect(properties.position.x, properties.position.y, properties.size.width, properties.size.height)];
+    [nsButton setFrame: NSMakeRect(position.x, position.y, size.width, size.height)];
     nsButton.tag = (NSInteger)button; // Set the tag property
 
     NSView* nsView = (__bridge NSView *)(button->parent_view->_this);
@@ -152,7 +155,7 @@ Mac_Button* mac_button_spb_tita(MProperties properties, MTitle title, MImage ima
     return button;
 }
 
-Mac_Button* mac_button_spb_tta(MProperties properties, MTitle title, Mac_View* parent_view, ButtonAction action)
+Mac_Button* mac_button_spb_tta(MSize size, MPoint position, MTitle title, Mac_View* parent_view, ButtonAction action)
 {
     Mac_Button* button = (Mac_Button*)malloc(sizeof(Mac_Button));
     if(button == NULL) {
@@ -160,7 +163,8 @@ Mac_Button* mac_button_spb_tta(MProperties properties, MTitle title, Mac_View* p
         return NULL;
     }
 
-    button->properties = properties;
+    button->size = size;
+    button->position = position;
     button->title = title;
     button->image = NULL;
     button->parent_view = parent_view;
@@ -171,7 +175,7 @@ Mac_Button* mac_button_spb_tta(MProperties properties, MTitle title, Mac_View* p
     NSMac_Button* nsButton = [[NSMac_Button alloc] init];
     nsButton = [nsButton button_spb_tta:bTitle]; // Call the method on the instance
 
-    [nsButton setFrame: NSMakeRect(properties.position.x, properties.position.y, 0, 0)];
+    [nsButton setFrame: NSMakeRect(position.x, position.y, 0, 0)];
     nsButton.tag = (NSInteger)button; // Set the tag property
     [nsButton setEnabled:YES];
     [nsButton sizeToFit];
@@ -181,8 +185,7 @@ Mac_Button* mac_button_spb_tta(MProperties properties, MTitle title, Mac_View* p
 
     return button;
 }
-
-Mac_Button* mac_button_spb_ita(MProperties properties, MImage image, Mac_View* parent_view, ButtonAction action)
+Mac_Button* mac_button_spb_ita(MSize size, MPoint position, MImage image, Mac_View* parent_view, ButtonAction action)
 {
     Mac_Button* button = (Mac_Button*)malloc(sizeof(Mac_Button));
     if(button == NULL) {
@@ -190,7 +193,8 @@ Mac_Button* mac_button_spb_ita(MProperties properties, MImage image, Mac_View* p
         return NULL;
     }
 
-    button->properties = properties;
+    button->size = size;
+    button->position = position;
     button->title = NULL;
     button->image = image;
     button->parent_view = parent_view;
@@ -203,7 +207,7 @@ Mac_Button* mac_button_spb_ita(MProperties properties, MImage image, Mac_View* p
     nsButton = [nsButton button_spb_ita:bImage]; // Call the method on the instance
     printf("button created\n");
 
-    [nsButton setFrame: NSMakeRect(properties.position.x, properties.position.y, properties.size.width, properties.size.height)];
+    [nsButton setFrame: NSMakeRect(position.x, position.y, size.width, size.height)];
     nsButton.tag = (NSInteger)button; // Set the tag property
     [nsButton setEnabled:YES];
     [nsButton sizeToFit];
@@ -215,7 +219,7 @@ Mac_Button* mac_button_spb_ita(MProperties properties, MImage image, Mac_View* p
     return button;
 }
 
-Mac_Button* mac_button_scb_tta(MProperties properties, MTitle title, Mac_View* parent_view, ButtonAction action)
+Mac_Button* mac_button_scb_tta(MSize size, MPoint position, MTitle title, Mac_View* parent_view, ButtonAction action)
 {
     Mac_Button* button = (Mac_Button*)malloc(sizeof(Mac_Button));
     if(button == NULL) {
@@ -223,7 +227,8 @@ Mac_Button* mac_button_scb_tta(MProperties properties, MTitle title, Mac_View* p
         return NULL;
     }
 
-    button->properties = properties;
+    button->size = size;
+    button->position = position;
     button->title = title;
     button->image = NULL;
     button->parent_view = parent_view;
@@ -234,7 +239,7 @@ Mac_Button* mac_button_scb_tta(MProperties properties, MTitle title, Mac_View* p
     NSMac_Button* nsButton = [[NSMac_Button alloc] init];
     nsButton = [nsButton button_scb_tta:bTitle]; // Call the method on the instance
 
-    [nsButton setFrame: NSMakeRect(properties.position.x, properties.position.y, 0, 0)];
+    [nsButton setFrame: NSMakeRect(position.x, position.y, 0, 0)];
     nsButton.tag = (NSInteger)button; // Set the tag property
     [nsButton setEnabled:YES];
     [nsButton sizeToFit];
@@ -245,7 +250,7 @@ Mac_Button* mac_button_scb_tta(MProperties properties, MTitle title, Mac_View* p
     return button;
 }
 
-Mac_Button* mac_button_srb_tta(MProperties properties, MTitle title, Mac_View* parent_view, ButtonAction action)
+Mac_Button* mac_button_srb_tta(MSize size, MPoint position, MTitle title, Mac_View* parent_view, ButtonAction action)
 {
     Mac_Button* button = (Mac_Button*)malloc(sizeof(Mac_Button));
     if(button == NULL) {
@@ -253,7 +258,8 @@ Mac_Button* mac_button_srb_tta(MProperties properties, MTitle title, Mac_View* p
         return NULL;
     }
 
-    button->properties = properties;
+    button->size = size;
+    button->position = position;
     button->title = title;
     button->image = NULL;
     button->parent_view = parent_view;
@@ -264,7 +270,7 @@ Mac_Button* mac_button_srb_tta(MProperties properties, MTitle title, Mac_View* p
     NSMac_Button* nsButton = [[NSMac_Button alloc] init];
     nsButton = [nsButton button_srb_tta:bTitle]; // Call the method on the instance
 
-    [nsButton setFrame: NSMakeRect(properties.position.x, properties.position.y, 0, 0)];
+    [nsButton setFrame: NSMakeRect(position.x, position.y, 0, 0)];
     nsButton.tag = (NSInteger)button; // Set the tag property
     [nsButton setEnabled:YES];
     [nsButton sizeToFit];

@@ -1,7 +1,8 @@
-#ifndef MAC_INTERNALS_H_
-#define MAC_INTERNALS_H_
+#ifndef mac_internals_h_
+#define mac_internals_h_
 
 #include <MacTypes.h>
+#include "mac_pixels.h"
 
 #ifdef __OBJC__
 #endif
@@ -16,25 +17,30 @@ typedef struct MSize
     int height;
 } MSize;
 
-typedef struct MPosition
+typedef struct 
 {
     int x;
     int y;
-} MPosition;
+} MPoint;
 
-typedef struct MProperties
+typedef struct 
 {
-    MPosition position;
-    MSize size;
-} MProperties;
+    float x;
+    float y;
+} MFPoint;
+
 
 typedef const char* MTitle;
 typedef const char* MImage;
 
-typedef void (*Action)(void*);
+typedef struct Mac_View Mac_View;
+typedef struct Mac_Window Mac_Window;
+
+typedef UInt32 Mac_WindowID;
+
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // MAC_INTERNALS_H_
+#endif // mac_internals_h_
