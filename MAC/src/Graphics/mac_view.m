@@ -2,18 +2,74 @@
 #import "MAC/mac_view.h"
 #import "MAC/mac_window.h"
 
-@implementation Mac_NSView
 
-- (void)drawRect:(NSRect)dirtyRect {
-    [super drawRect:dirtyRect];
-    
-    // Drawing code here.
-    // You can add custom drawing code for this view here.
+@implementation DrawableShape
+
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        _path = NULL;
+        _color = (Mac_Color){0, 0, 0, 1}; // Default to black color
+        _lineWidth = 1.0;
+        _filled = NO;
+    }
+    return self;
+}
+
+- (void)dealloc {
+    [super dealloc];
+    if (_path) {
+        CGPathRelease(_path);
+    }
 }
 
 @end
 
-Mac_View* addSubView(Mac_View* parent, int width, int height, int x, int y, MAC_Color background_color) {
+@implementation Mac_NSView
+
+- (void)setLineWithInitPos:(Mac_FPoint)init_pos endPos:(Mac_FPoint)end_pos lineWidth:(float)line_width color:(Mac_Color)color {
+    CGMutablePathRef path = CGPathCreateMutable();
+    CGPathMoveToPoint(path, NULL, init_pos.x, init_pos.y);
+    CGPathAddLineToPoint(path, NULL, end_pos.x, end_pos.y);
+
+    DrawableShape* shape = [[DrawableShape alloc] init];
+    shape.path = path;
+    shape.color = color;
+    shape.lineWidth = line_width;
+    shape.filled = NO;
+
+    if (!self.shapes) {
+        self.shapes = [NSMutableArray array];
+    }
+    [self.shapes addObject:shape];
+    // Removed CGPathRelease(path);
+
+    [self setNeedsDisplay:YES];
+}
+
+
+- (void)drawRect:(NSRect)dirtyRect {
+    [super drawRect:dirtyRect];
+
+    NSGraphicsContext* context = [NSGraphicsContext currentContext];
+    CGContextRef cgContext = [context CGContext];
+
+    for (DrawableShape* shape in self.shapes) {
+        CGContextAddPath(cgContext, shape.path);
+        if (shape.filled) {
+            CGContextSetRGBFillColor(cgContext, shape.color.r, shape.color.g, shape.color.b, shape.color.a);
+            CGContextFillPath(cgContext);
+        } else {
+            CGContextSetRGBStrokeColor(cgContext, shape.color.r, shape.color.g, shape.color.b, shape.color.a);
+            CGContextSetLineWidth(cgContext, shape.lineWidth);
+            CGContextStrokePath(cgContext);
+        }
+    }
+}
+
+@end
+
+Mac_View* addSubView(Mac_View* parent, int width, int height, int x, int y, Mac_Color background_color) {
     Mac_View* view = (Mac_View*)malloc(sizeof(Mac_View));
     view->parent_view = parent;
     view->window_parent = parent->window_parent;
@@ -48,7 +104,7 @@ Mac_View* addSubView(Mac_View* parent, int width, int height, int x, int y, MAC_
     return view;
 }
 
-Mac_View* addContentView(MAC_Window* parent, MAC_Color background_color) {
+Mac_View* addContentView(Mac_Window* parent, Mac_Color background_color) {
     Mac_View* view = (Mac_View*)malloc(sizeof(Mac_View));
     view->parent_view = NULL;
     view->window_parent = parent;

@@ -10,13 +10,14 @@ include_directories(MAC/include)
 # Create a variable with the sources
 set(SOURCES
     MAC/src/mac_window.m
-    MAC/src/mac_view.m
-    MAC/src/mac_delegate.m
     MAC/src/mac_video.m
+    MAC/src/mac_delegate.m
     MAC/src/mac.m
     MAC/src/mac_events.m
     MAC/src/mac_pixels.m
     MAC/src/mac_error.c
+    MAC/src/Graphics/mac_view.m
+    MAC/src/Graphics/mac_shapes.m
     MAC/src/Gui/mac_button.m
     MAC/src/Gui/mac_slider.m
 )

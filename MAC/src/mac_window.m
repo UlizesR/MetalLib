@@ -10,8 +10,8 @@
 @end
 
 
-MAC_Window* createWindow(int width, int height, const char* title) {
-    MAC_Window* window = (MAC_Window*)malloc(sizeof(MAC_Window));
+Mac_Window* createWindow(int width, int height, const char* title) {
+    Mac_Window* window = (Mac_Window*)malloc(sizeof(Mac_Window));
     if(window == NULL) {
         mac_printError(MAC_ERROR_WINDOW_CREATION_FAILED);
         return NULL;
@@ -47,35 +47,35 @@ MAC_Window* createWindow(int width, int height, const char* title) {
     return window;
 }
 
-void closeWindow(MAC_Window* window) {
+void closeWindow(Mac_Window* window) {
     NSWindow *nsWindow = [NSApp windowWithWindowNumber:window->id];
     [nsWindow close];
 }
 
-bool isWindowOpen(MAC_Window* window) {
+bool isWindowOpen(Mac_Window* window) {
     NSWindow *nsWindow = [NSApp windowWithWindowNumber:window->id];
     return nsWindow && [nsWindow isVisible];
 }
 
-void destroyWindow(MAC_Window* window) {
+void destroyWindow(Mac_Window* window) {
     closeWindow(window);
     free(window);
     printf("Window has been deallocated and freed.\n");
 }
 
-void addChildWindow(MAC_Window* parent, MAC_Window* child) {
+void addChildWindow(Mac_Window* parent, Mac_Window* child) {
     NSWindow *parentWindow = [NSApp windowWithWindowNumber:parent->id];
     NSWindow *childWindow = [NSApp windowWithWindowNumber:child->id];
     [parentWindow addChildWindow:childWindow ordered:NSWindowAbove];
 }
 
-void removeChildWindow(MAC_Window* parent, MAC_Window* child) {
+void removeChildWindow(Mac_Window* parent, Mac_Window* child) {
     NSWindow *parentWindow = [NSApp windowWithWindowNumber:parent->id];
     NSWindow *childWindow = [NSApp windowWithWindowNumber:child->id];
     [parentWindow removeChildWindow:childWindow];
 }
 
-void setWindowFlag(MAC_Window* window, UInt32 flags) {
+void setWindowFlag(Mac_Window* window, UInt32 flags) {
     NSWindow *nsWindow = [NSApp windowWithWindowNumber:window->id];
     if (flags & MAC_WINDOW_RESIZABLE) {
         [nsWindow setStyleMask:[nsWindow styleMask] | NSWindowStyleMaskResizable];

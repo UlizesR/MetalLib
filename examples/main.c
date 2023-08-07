@@ -1,5 +1,4 @@
-#include "MAC/mac_button.h"
-#include "MAC/mac_slider.h"
+#include "MAC/mac_shapes.h"
 #include <MAC/mac.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -20,29 +19,17 @@ int main(int argc, const char * argv[]) {
     }
 
     // Create a window
-    MAC_Window* mainWindow = createWindow(800, 600, "Main Window");
+    Mac_Window* mainWindow = createWindow(800, 600, "Main Window");
 
     // Add a content view to the window with a blue background
     Mac_View* contentView = addContentView(mainWindow, MAC_COLOR_GREEN_2);
 
-    // add a subview to the content view with a red background
-    // Mac_View* subView = addSubView(contentView, 200, 400, 100, 100, MAC_COLOR_RED);
+    // mac_draw_line(contentView, (Mac_FPoint){100, 10}, (Mac_FPoint){500, 500}, 4.0, MAC_COLOR_RED);
 
-    MProperties p = {
-        .position = { 200, 400 },
-        .size = { 150, 50 },
-    };
-    
-    // add a button to the content view
-    Mac_Button* button = mac_button_rs(p, "car.png", "car", MAC_BUTTON_TYPE_RADIO, 40, true, false, contentView, myButtonAction);
-    
-    MProperties p1 = {
-        .position = { 200, 200 },
-        .size = { 150, 50 },
-    };
-    
-    // add a slider
-    Mac_Slider* slider = mac_slider(p1, 0, 100, 5.0, contentView, mySliderAction);
+    Mac_Rect *rect = mac_rect((Mac_FPoint){100, 100}, (MSize){200, 300}, MAC_COLOR_RED);
+
+    mac_fill_rect(rect, contentView);
+
     // Main loop
     bool running = true;
     MAC_Event event;
@@ -54,7 +41,7 @@ int main(int argc, const char * argv[]) {
     }
 
     // Cleanup
-    destroyButton(button);
+    destroy_rect(rect);
     destroyWindow(mainWindow);
     MAC_Quit();
 

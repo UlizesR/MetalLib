@@ -18,8 +18,8 @@
 extern "C" {
 #endif
 
-typedef struct MAC_Window MAC_Window;
-typedef UInt32 MAC_WindowID;
+typedef struct Mac_Window Mac_Window;
+typedef UInt32 Mac_WindowID;
 
 typedef enum
 {
@@ -28,17 +28,17 @@ typedef enum
     MAC_WINDOW_MAXIMIZED = 0x00000004,
     MAC_WINDOW_FULLSCREEN = 0x00000008,
     MAC_WINDOW_METAL = 0x00000010,
-} MAC_WindowFlags;
+} Mac_WindowFlags;
 
 
-struct MAC_Window
+struct Mac_Window
 {
     int width;
     int height;
     const char* title;
-    MAC_WindowID id;
-    MAC_Window *parent;
-    MAC_Window *children;
+    Mac_WindowID id;
+    Mac_Window *parent;
+    Mac_Window *children;
     UInt32 flags;
     void *delegate;
 };
@@ -50,21 +50,21 @@ struct MAC_Window
         - Closable
         - Minimizable
 */
-MAC_Window* createWindow(int width, int height, const char* title);
-void closeWindow(MAC_Window* window);
-bool isWindowOpen(MAC_Window* window);
-void destroyWindow(MAC_Window* window);
+Mac_Window* createWindow(int width, int height, const char* title);
+void closeWindow(Mac_Window* window);
+bool isWindowOpen(Mac_Window* window);
+void destroyWindow(Mac_Window* window);
 void runWindow();
 /*
     Functions for managing window hierarchies
 */
-void addChildWindow(MAC_Window* parent, MAC_Window* child);
-void removeChildWindow(MAC_Window* parent, MAC_Window* child);
+void addChildWindow(Mac_Window* parent, Mac_Window* child);
+void removeChildWindow(Mac_Window* parent, Mac_Window* child);
 
 /*
     Functions for managing window flags
 */
-void setWindowFlag(MAC_Window* window, UInt32 flags);
+void setWindowFlag(Mac_Window* window, UInt32 flags);
 
 #ifdef __cplusplus
 }

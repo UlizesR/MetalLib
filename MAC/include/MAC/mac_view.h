@@ -1,14 +1,23 @@
-// mac_view.h
 #ifndef MAC_VIEW_H_
 #define MAC_VIEW_H_
 
+#include "mac_internals.h"
 #include "mac_window.h"
 #include "mac_pixels.h"
 
 #ifdef __OBJC__
 #import <Cocoa/Cocoa.h>
 
+@interface DrawableShape : NSObject
+@property (nonatomic) CGPathRef path;
+@property (nonatomic) Mac_Color color;
+@property (nonatomic) float lineWidth;
+@property (nonatomic) BOOL filled;
+@end
+
 @interface Mac_NSView : NSView
+@property (nonatomic, strong) NSMutableArray<DrawableShape*>* shapes;
+- (void)setLineWithInitPos:(Mac_FPoint)init_pos endPos:(Mac_FPoint)end_pos lineWidth:(float)line_width color:(Mac_Color)color; // Declare the method here
 @end
 #endif
 
@@ -21,10 +30,10 @@ typedef struct Mac_View Mac_View;
 struct Mac_View
 {
     Mac_View *parent_view;
-    MAC_Window *window_parent;
+    Mac_Window *window_parent;
     int width, height;
     int x, y;
-    MAC_Color background_color;
+    Mac_Color background_color;
     bool is_root;
     bool is_metal_view;
     void* _this;
@@ -34,9 +43,8 @@ struct Mac_View
 extern Mac_View* g_views[MAX_VIEWS];
 extern int g_viewCount;
 
-
-Mac_View* addSubView(Mac_View* parent, int width, int height, int x, int y, MAC_Color background_color);
-Mac_View* addContentView(MAC_Window* parent, MAC_Color background_color);
+Mac_View* addSubView(Mac_View* parent, int width, int height, int x, int y, Mac_Color background_color);
+Mac_View* addContentView(Mac_Window* parent, Mac_Color background_color);
 void destroyViews(Mac_View* views[], int count);
 void destroyView(Mac_View* view);
 
