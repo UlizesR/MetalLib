@@ -33,6 +33,8 @@ So if you are familiar with SDL2 you will be able to use this library.
 
 #### Code Example
 
+How to make a window
+
 1. include <MAC/mac.h> into your main.c file
 
 ```C
@@ -42,9 +44,10 @@ So if you are familiar with SDL2 you will be able to use this library.
 2. create your main function and initialize MAC
 
 ```C
-int main() {
-    if (MAC_Init(0) != 0) {
-        fprintf(stderr, MAC_ERROR_INIZIALIZATION_FAILED);
+int main(int argc, const char * argv[]) {
+    // Initialize the application
+    if(MAC_Init(0) != 0) {
+        mac_printError(MAC_ERROR_INIZIALIZATION_FAILED);
         return 1;
     }
 
@@ -57,20 +60,10 @@ int main() {
 3. create a window
 
 ```C
-    MAC_Window* window = createWindow(800, 600, "Test Window");
-    if (window == NULL) {
-        fprintf(stderr, MAC_ERROR_INIZIALIZATION_FAILED);
-        return MAC_ERROR;
-    }
+    Mac_Window* mainWindow = createWindow(800, 600, true, "Main Window", MAC_COLOR_BLACK, 0);
 ```
 
-4. ignore all apps and be the active app (if you are doing input handling)
-
-```C
-    ignoreApps();
-```
-
-5. create a running loop 
+4. create a running loop 
 
 ```C
     bool running = true;
@@ -83,7 +76,7 @@ int main() {
     }
 ```
 
-6. Deallocate any allocated memory 
+5. Deallocate any allocated memory 
 
 ```C
     destroyWindow(window);
