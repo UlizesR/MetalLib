@@ -2,6 +2,7 @@
 #import "MAC/mac_view.h"
 #import "MAC/mac_window.h"
 
+extern int shapeID;
 
 @implementation DrawableShape
 
@@ -12,6 +13,7 @@
         _color = (Mac_Color){0, 0, 0, 1}; // Default to black color
         _lineWidth = 1.0;
         _filled = NO;
+        _id = shapeID++; // Automatically set the shape ID and increment shapeID
     }
     return self;
 }
@@ -48,7 +50,7 @@
     return self;
 }
 
-- (void)setLineWithInitPos:(Mac_FPoint)init_pos endPos:(Mac_FPoint)end_pos lineWidth:(float)line_width color:(Mac_Color)color {
+- (void)setLineWithInitPos:(Mac_FPoint)init_pos endPos:(Mac_FPoint)end_pos lineWidth:(float)line_width shapeID:(int)id color:(Mac_Color)color {
     CGMutablePathRef path = CGPathCreateMutable();
     CGPathMoveToPoint(path, NULL, init_pos.x, init_pos.y);
     CGPathAddLineToPoint(path, NULL, end_pos.x, end_pos.y);
@@ -58,6 +60,7 @@
     shape.color = color;
     shape.lineWidth = line_width;
     shape.filled = NO;
+    shape.id = id;
 
     [self.shapes addObject:shape];
 
@@ -67,13 +70,14 @@
     [self setNeedsDisplay:YES];
 }
 
-- (void)updateView {
-    [self.shapes removeAllObjects];
-    for (NSValue* value in self.drawingCommands) {
-        DrawingCommand command;
-        [value getValue:&command];
-        [self setLineWithInitPos:command.init_pos endPos:command.end_pos lineWidth:command.line_width color:command.color];
+- (void)updateView:(int)shapeID {
+    NSMutableArray *shapesToRemove = [NSMutableArray array];
+    for (DrawableShape *shape in self.shapes) {
+        if (shape.id == shapeID) {
+            [shapesToRemove addObject:shape];
+        }
     }
+    [self.shapes removeObjectsInArray:shapesToRemove];
     [self setNeedsDisplay:YES];
 }
 
@@ -97,8 +101,8 @@
     }
 }
 
-
 @end
+
 
 Mac_View* addSubView(Mac_View* parent, int width, int height, int x, int y, Mac_Color background_color) {
     Mac_View* view = (Mac_View*)malloc(sizeof(Mac_View));
@@ -165,9 +169,9 @@ Mac_View* addContentView(Mac_Window* parent, Mac_Color background_color) {
     return view;
 }
 
-void updateView(Mac_View* view) {
+void updateView(Mac_View* view, int shape_id) {
     Mac_NSView* nsView = (__bridge Mac_NSView*)view->_this;
-    [nsView updateView];
+    [nsView updateView:shape_id];
 }
 
 

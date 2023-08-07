@@ -5,9 +5,22 @@
 
 #import "MAC/mac_shapes.h"
 
-void mac_draw_line(Mac_View* parent_view, Mac_FPoint init_pos, Mac_FPoint end_pos, float line_width, Mac_Color color) {
+int shapeID = 1;
+
+void mac_draw_line(Mac_View* parent_view, Mac_Line* line) {
     Mac_NSView* nsView = (__bridge Mac_NSView*)parent_view->_this;
-    [nsView setLineWithInitPos:init_pos endPos:end_pos lineWidth:line_width color:color];
+    [nsView setLineWithInitPos:line->init_pos endPos:line->end_pos lineWidth:line->line_width shapeID:line->base.id color:line->color];
+}
+
+Mac_Line* mac_line(Mac_FPoint init_pos, Mac_FPoint end_pos, float line_width, Mac_Color color) {
+    Mac_Line* line = (Mac_Line*)malloc(sizeof(Mac_Line));
+    line->init_pos = init_pos;
+    line->end_pos = end_pos;
+    line->line_width = line_width;
+    line->color = color;
+    line->base.id = shapeID++;
+    line->base.shape_type = MAC_SHAPE_LINE;
+    return line;
 }
 
 void mac_draw_rect(Mac_Rect* rect, float line_width, Mac_View* parent_view) {
@@ -16,11 +29,22 @@ void mac_draw_rect(Mac_Rect* rect, float line_width, Mac_View* parent_view) {
     Mac_FPoint topLeft = { rect->origin.x, rect->origin.y + rect->size.height };
     Mac_FPoint topRight = { rect->origin.x + rect->size.width, rect->origin.y + rect->size.height };
 
-    mac_draw_line(parent_view, bottomLeft, bottomRight, line_width, rect->color); // Bottom side
-    mac_draw_line(parent_view, bottomRight, topRight, line_width, rect->color); // Right side
-    mac_draw_line(parent_view, topRight, topLeft, line_width, rect->color); // Top side
-    mac_draw_line(parent_view, topLeft, bottomLeft, line_width, rect->color); // Left side
+    Mac_Line* bottomSide = mac_line(bottomLeft, bottomRight, line_width, rect->color);
+    Mac_Line* rightSide = mac_line(bottomRight, topRight, line_width, rect->color);
+    Mac_Line* topSide = mac_line(topRight, topLeft, line_width, rect->color);
+    Mac_Line* leftSide = mac_line(topLeft, bottomLeft, line_width, rect->color);
+
+    mac_draw_line(parent_view, bottomSide); // Bottom side
+    mac_draw_line(parent_view, rightSide); // Right side
+    mac_draw_line(parent_view, topSide); // Top side
+    mac_draw_line(parent_view, leftSide); // Left side
+
+    free(bottomSide);
+    free(rightSide);
+    free(topSide);
+    free(leftSide);
 }
+
 
 void mac_fill_rect(Mac_Rect* rect, Mac_View* parent_view) {
     Mac_NSView* nsView = (__bridge Mac_NSView*)parent_view->_this;
@@ -32,6 +56,7 @@ void mac_fill_rect(Mac_Rect* rect, Mac_View* parent_view) {
     shape.path = path;
     shape.color = rect->color;
     shape.filled = YES;
+    shape.id = rect->base.id;
 
     if (!nsView.shapes) {
         nsView.shapes = [NSMutableArray array];
@@ -48,11 +73,19 @@ Mac_Rect* mac_rect(Mac_FPoint origin, MSize size, Mac_Color color) {
     rect->origin = origin;
     rect->size = size;
     rect->color = color;
+    rect->base.id = shapeID++;
+    rect->base.shape_type = MAC_SHAPE_RECT;
     return rect;
 }
 
-void destroy_rect(Mac_Rect* rect) {
-    if (rect != NULL) {
-        free(rect);
+void mac_remove_shape(int shape_id, Mac_View* parent_view) {
+    updateView(parent_view, shape_id);
+}
+
+
+void destroy_shape(Mac_Shape* shape) {
+    if (shape != NULL) {
+        // You can add any specific destruction logic here based on shapeType
+        free(shape);
     }
 }

@@ -20,13 +20,14 @@ typedef struct {
 @property (nonatomic) Mac_Color color;
 @property (nonatomic) float lineWidth;
 @property (nonatomic) BOOL filled;
+@property (nonatomic) int id;
 - (void)updateLineWithInitPos:(Mac_FPoint)init_pos endPos:(Mac_FPoint)end_pos;
 @end
 
 @interface Mac_NSView : NSView
 @property (nonatomic, strong) NSMutableArray<DrawableShape*>* shapes;
 @property (nonatomic, strong) NSMutableArray<NSValue*>* drawingCommands;
-- (void)setLineWithInitPos:(Mac_FPoint)init_pos endPos:(Mac_FPoint)end_pos lineWidth:(float)line_width color:(Mac_Color)color;
+- (void)setLineWithInitPos:(Mac_FPoint)init_pos endPos:(Mac_FPoint)end_pos lineWidth:(float)line_width shapeID:(int)id color:(Mac_Color)color;
 @end
 #endif
 
@@ -54,7 +55,7 @@ extern int g_viewCount;
 
 Mac_View* addSubView(Mac_View* parent, int width, int height, int x, int y, Mac_Color background_color);
 Mac_View* addContentView(Mac_Window* parent, Mac_Color background_color);
-void updateView(Mac_View* view);
+void updateView(Mac_View* view, int shape_id);
 void destroyViews(Mac_View* views[], int count);
 void destroyView(Mac_View* view);
 

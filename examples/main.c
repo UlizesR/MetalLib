@@ -23,10 +23,21 @@ int main(int argc, const char * argv[]) {
     // Add a content view to the window with a blue background
     Mac_View* contentView = addContentView(mainWindow, MAC_COLOR_GREEN_2);
 
-    Mac_Rect *rect = mac_rect((Mac_FPoint){10, 10}, (MSize){50, 50}, MAC_COLOR_RED);
+    Mac_Rect *rect1 = mac_rect((Mac_FPoint){10, 10}, (MSize){50, 50}, MAC_COLOR_RED);
 
-    mac_fill_rect(rect, contentView);
+    mac_fill_rect(rect1, contentView);
 
+    Mac_Rect *rect2 = mac_rect((Mac_FPoint){100, 100}, (MSize){50, 50}, MAC_COLOR_RED);
+
+    mac_fill_rect(rect2, contentView);
+
+    MProperties p = {
+        .position = {100, 500},
+        .size = {100, 50},
+    };
+
+    Mac_Slider* Slider = mac_slider(p, 0, 100, 5, contentView, mySliderAction);
+    
     // Main loop
     bool running = true;
     MAC_Event event;
@@ -36,31 +47,27 @@ int main(int argc, const char * argv[]) {
             if (event.type == MAC_KEYBOARDEVENT) {
                 if (event.keycode == MAC_KEY_D)
                 {
-                    printf("D pressed\n");
-                    rect->origin.x += 10;
-                    updateView(contentView); // Update the view to reflect the changes
-                    mac_fill_rect(rect, contentView); // Redraw the rectangle
+                    rect1->origin.x += 10;
+                    mac_remove_shape(rect1->base.id, contentView);
+                    mac_fill_rect(rect1, contentView); // Redraw the rectangle
                 }
                 if (event.keycode == MAC_KEY_A)
                 {
-                    printf("A pressed\n");
-                    rect->origin.x -= 10;
-                    updateView(contentView); // Update the view to reflect the changes
-                    mac_fill_rect(rect, contentView); // Redraw the rectangle
+                    rect1->origin.x -= 10;
+                    mac_remove_shape(rect1->base.id, contentView);
+                    mac_fill_rect(rect1, contentView); // Redraw the rectangle
                 }
                 if (event.keycode == MAC_KEY_W)
                 {
-                    printf("W pressed\n");
-                    rect->origin.y += 10;
-                    updateView(contentView); // Update the view to reflect the changes
-                    mac_fill_rect(rect, contentView); // Redraw the rectangle
+                    rect1->origin.y += 10;
+                    mac_remove_shape(rect1->base.id, contentView);
+                    mac_fill_rect(rect1, contentView); // Redraw the rectangle
                 }
                 if (event.keycode == MAC_KEY_S)
                 {
-                    printf("S pressed\n");
-                    rect->origin.y -= 10;
-                    updateView(contentView); // Update the view to reflect the changes
-                    mac_fill_rect(rect, contentView); // Redraw the rectangle
+                    rect1->origin.y -= 10;
+                    mac_remove_shape(rect1->base.id, contentView);
+                    mac_fill_rect(rect1, contentView); // Redraw the rectangle
                 }
             }
         }
@@ -70,7 +77,9 @@ int main(int argc, const char * argv[]) {
     }
 
     // Cleanup
-    destroy_rect(rect);
+    destroy_slider(Slider);
+    destroy_shape((Mac_Shape*)rect2);
+    destroy_shape((Mac_Shape*)rect1);
     destroyWindow(mainWindow);
     MAC_Quit();
 
