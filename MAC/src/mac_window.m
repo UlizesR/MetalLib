@@ -1,7 +1,6 @@
 // mac_window.m
 #import "MAC/mac_window.h"
-#include <objc/objc.h>
-#include "MAC/mac_view.h"
+#import "MAC/mac_view.h"
 #import "MAC/mac_error.h"
 #import "MAC/mac_delegate.h"
 #include <stdio.h>
