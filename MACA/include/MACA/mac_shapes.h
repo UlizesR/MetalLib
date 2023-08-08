@@ -21,6 +21,7 @@ typedef enum {
     MAC_SHAPE_TRIANGLE  = 4,
     MAC_SHAPE_POLYGON   = 5,
     MAC_SHAPE_POINT     = 6,
+    MAC_SHAPE_QUADRILATERAL = 7,
 } Mac_ShapeType;
 
 typedef struct {
@@ -68,11 +69,24 @@ typedef struct {
 
 typedef struct {
     Mac_Shape base;
+    MFPoint origin; // Center of the ellipse
+    float radius_x; // Horizontal radius
+    float radius_y; // Vertical radius
+    Mac_Color color;
+} Mac_Ellipse;
+
+typedef struct {
+    Mac_Shape base;
     MFPoint* vertices; // Array of vertices
     int vertex_count;  // Number of vertices
     Mac_Color color;
 } Mac_Polygon;
 
+typedef struct {
+    Mac_Shape base;
+    MFPoint vertices[4]; // Four vertices of the quadrilateral
+    Mac_Color color;
+} Mac_Quadrilateral;
 
 /*!
     draws a point with the given parameters
@@ -185,12 +199,78 @@ void mac_fill_circle(Mac_Circle* circle, Mac_View* parent_view);
 */
 Mac_Circle* mac_circle(MFPoint origin, float radius, Mac_Color color);
 
+/*!
+    draws a wireframe (not filled) ellipse with the given parameters
+    @param ellipse: the ellipse to draw
+    @param line_width: the width of the ellipse's lines
+    @param parent_view: the view to draw the ellipse on
+*/
 void mac_draw_polygon(Mac_Polygon* polygon, float line_width, Mac_View* parent_view);
 
+/*!
+    draws a filled ellipse with the given parameters
+    @param ellipse: the ellipse to fill
+    @param parent_view: the view to fill the ellipse on
+*/
 void mac_fill_polygon(Mac_Polygon* polygon, Mac_View* parent_view);
 
+/*!
+    creates a polygon with the given parameters
+    @param vertices: the vertices of the polygon
+    @param vertex_count: the number of vertices of the polygon
+    @param color: the color of the polygon
+    @return: a pointer to the created polygon
+*/
 Mac_Polygon* mac_polygon(MFPoint* vertices, int vertex_count, Mac_Color color);
 
+/*!
+    draws a wireframe (not filled) ellipse with the given parameters
+    @param ellipse: the ellipse to draw
+    @param line_width: the width of the ellipse's lines
+    @param parent_view: the view to draw the ellipse on
+*/
+void mac_draw_ellipse(Mac_Ellipse* ellipse, float line_width, Mac_View* parent_view);
+
+/*!
+    draws a wireframe (not filled) ellipse with the given parameters
+    @param ellipse: the ellipse to draw
+    @param line_width: the width of the ellipse's lines
+    @param parent_view: the view to draw the ellipse on
+*/
+void mac_fill_ellipse(Mac_Ellipse* ellipse, Mac_View* parent_view);
+
+/*!
+    creates an ellipse with the given parameters
+    @param origin: the origin of the ellipse
+    @param radius_x: the horizontal radius of the ellipse
+    @param radius_y: the vertical radius of the ellipse
+    @param color: the color of the ellipse
+    @return: a pointer to the created ellipse
+*/
+Mac_Ellipse* mac_ellipse(MFPoint origin, float radius_x, float radius_y, Mac_Color color);
+
+/*!
+    draws a wireframe (not filled) quadrilateral with the given parameters
+    @param quad: the quadrilateral to draw
+    @param line_width: the width of the quadrilateral's lines
+    @param parent_view: the view to draw the quadrilateral on
+*/
+void mac_draw_quadrilateral(Mac_Quadrilateral* quad, float line_width, Mac_View* parent_view);
+
+/*!
+    draws a filled quadrilateral with the given parameters
+    @param quad: the quadrilateral to fill
+    @param parent_view: the view to fill the quadrilateral on
+*/
+void mac_fill_quadrilateral(Mac_Quadrilateral* quad, Mac_View* parent_view);
+
+/*!
+    creates a quadrilateral with the given parameters
+    @param vertices: the vertices of the quadrilateral
+    @param color: the color of the quadrilateral
+    @return: a pointer to the created quadrilateral
+*/
+Mac_Quadrilateral* mac_quadrilateral(MFPoint vertices[4], Mac_Color color);
 
 /*!
     removes a given shape from the given view

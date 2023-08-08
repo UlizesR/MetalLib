@@ -22,13 +22,16 @@ int main(int argc, const char * argv[]) {
     vertices[4] = (MFPoint){100, 300};
     vertices[5] = (MFPoint){50, 200};
     
-    
+    MFPoint verticesq[] = {{100, 100}, {200, 150}, {150, 250}, {50, 200}};
+    Mac_Quadrilateral* myQuad = mac_quadrilateral(verticesq, MAC_COLOR_RED);
+    mac_draw_quadrilateral(myQuad, 2, mainWindow->content_view);
 
-
+    Mac_Ellipse* myEllipse = mac_ellipse((MFPoint){400, 300}, 100, 50, MAC_COLOR_RED);
+    mac_draw_ellipse(myEllipse, 2, mainWindow->content_view);
     // Create a polygon
-    Mac_Polygon* polygon = mac_polygon(vertices, 6, MAC_COLOR_RED);
-    // Draw the polygon
-    mac_fill_polygon(polygon, mainWindow->content_view);
+    // Mac_Polygon* polygon = mac_polygon(vertices, 6, MAC_COLOR_RED);
+    // // Draw the polygon
+    // mac_fill_polygon(polygon, mainWindow->content_view);
 
     Mac_Rect* rect = mac_rect((MFPoint){100, 100}, (MSize){50, 50}, MAC_COLOR_RED);
     mac_draw_rect(rect, 2.0, mainWindow->content_view);
@@ -44,8 +47,9 @@ int main(int argc, const char * argv[]) {
     }
 
     // Cleanup
+    destroy_shape((Mac_Shape*)myQuad);
     destroy_shape((Mac_Shape*)rect);
-    // destroy_shape((Mac_Shape*)polygon);
+    destroy_shape((Mac_Shape*)myEllipse);
     destroyWindow(mainWindow);
     MAC_Quit();
 

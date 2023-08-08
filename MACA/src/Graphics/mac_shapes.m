@@ -250,6 +250,96 @@ Mac_Polygon* mac_polygon(MFPoint* vertices, int vertex_count, Mac_Color color) {
     return polygon;
 }
 
+void mac_draw_ellipse(Mac_Ellipse* ellipse, float line_width, Mac_View* parent_view) {
+    Mac_NSView* nsView = (__bridge Mac_NSView*)parent_view->_this;
+
+    CGMutablePathRef path = CGPathCreateMutable();
+    CGPathAddEllipseInRect(path, NULL, CGRectMake(ellipse->origin.x - ellipse->radius_x, ellipse->origin.y - ellipse->radius_y, 2 * ellipse->radius_x, 2 * ellipse->radius_y));
+
+    DrawableShape* shape = [[DrawableShape alloc] init];
+    shape.path = path;
+    shape.color = ellipse->color;
+    shape.lineWidth = line_width;
+    shape.filled = NO;
+
+    [nsView.shapes addObject:shape];
+    [nsView setNeedsDisplay:YES];
+}
+
+void mac_fill_ellipse(Mac_Ellipse* ellipse, Mac_View* parent_view) {
+    Mac_NSView* nsView = (__bridge Mac_NSView*)parent_view->_this;
+
+    CGMutablePathRef path = CGPathCreateMutable();
+    CGPathAddEllipseInRect(path, NULL, CGRectMake(ellipse->origin.x, ellipse->origin.y, ellipse->radius_x * 2, ellipse->radius_y * 2));
+
+    DrawableShape* shape = [[DrawableShape alloc] init];
+    shape.path = path;
+    shape.color = ellipse->color;
+    shape.lineWidth = 1.0; // Line width is irrelevant for filled shapes
+    shape.filled = YES; // Set filled to YES
+
+    [nsView.shapes addObject:shape];
+    [nsView setNeedsDisplay:YES];
+}
+
+Mac_Ellipse* mac_ellipse(MFPoint origin, float radius_x, float radius_y, Mac_Color color) {
+    Mac_Ellipse* ellipse = (Mac_Ellipse*)malloc(sizeof(Mac_Ellipse));
+    ellipse->base.shape_type = MAC_SHAPE_ELLIPSE; // Assuming you have this enum value
+    ellipse->origin = origin;
+    ellipse->radius_x = radius_x;
+    ellipse->radius_y = radius_y;
+    ellipse->color = color;
+    return ellipse;
+}
+
+void mac_draw_quadrilateral(Mac_Quadrilateral* quad, float line_width, Mac_View* parent_view) {
+    Mac_NSView* nsView = (__bridge Mac_NSView*)parent_view->_this;
+
+    CGMutablePathRef path = CGPathCreateMutable();
+    CGPathMoveToPoint(path, NULL, quad->vertices[0].x, quad->vertices[0].y);
+    for (int i = 1; i < 4; i++) {
+        CGPathAddLineToPoint(path, NULL, quad->vertices[i].x, quad->vertices[i].y);
+    }
+    CGPathCloseSubpath(path); // Close the path to create a quadrilateral
+
+    DrawableShape* shape = [[DrawableShape alloc] init];
+    shape.path = path;
+    shape.color = quad->color;
+    shape.lineWidth = line_width;
+    shape.filled = NO;
+
+    [nsView.shapes addObject:shape];
+    [nsView setNeedsDisplay:YES];
+}
+
+void mac_fill_quadrilateral(Mac_Quadrilateral* quad, Mac_View* parent_view) {
+    Mac_NSView* nsView = (__bridge Mac_NSView*)parent_view->_this;
+
+    CGMutablePathRef path = CGPathCreateMutable();
+    CGPathMoveToPoint(path, NULL, quad->vertices[0].x, quad->vertices[0].y);
+    for (int i = 1; i < 4; i++) {
+        CGPathAddLineToPoint(path, NULL, quad->vertices[i].x, quad->vertices[i].y);
+    }
+    CGPathCloseSubpath(path); // Close the path to create a quadrilateral
+
+    DrawableShape* shape = [[DrawableShape alloc] init];
+    shape.path = path;
+    shape.color = quad->color;
+    shape.lineWidth = 1.0; // Line width is irrelevant for filled shapes
+    shape.filled = YES; // Set filled to YES
+
+    [nsView.shapes addObject:shape];
+    [nsView setNeedsDisplay:YES];
+}
+
+Mac_Quadrilateral* mac_quadrilateral(MFPoint vertices[4], Mac_Color color) {
+    Mac_Quadrilateral* quad = (Mac_Quadrilateral*)malloc(sizeof(Mac_Quadrilateral));
+    quad->base.shape_type = MAC_SHAPE_QUADRILATERAL; // Assuming you have this enum value
+    memcpy(quad->vertices, vertices, 4 * sizeof(MFPoint));
+    quad->color = color;
+    return quad;
+}
+
 
 void mac_remove_shape(int shape_id, Mac_View* parent_view) {
     updateView(parent_view, shape_id);
