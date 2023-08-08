@@ -204,6 +204,51 @@ Mac_Circle* mac_circle(MFPoint origin, float radius, Mac_Color color) {
     return circle;
 }
 
+void mac_draw_polygon(Mac_Polygon* polygon, float line_width, Mac_View* parent_view) {
+    if (polygon->vertex_count < 2) return; // Need at least 2 vertices to draw a line
+
+    for (int i = 0; i < polygon->vertex_count - 1; i++) {
+        Mac_Line* line = mac_line(polygon->vertices[i], polygon->vertices[i + 1], line_width, polygon->color);
+        mac_draw_line(parent_view, line);
+        free(line);
+    }
+
+    // Draw the line connecting the last vertex to the first to close the polygon
+    Mac_Line* closingLine = mac_line(polygon->vertices[polygon->vertex_count - 1], polygon->vertices[0], line_width, polygon->color);
+    mac_draw_line(parent_view, closingLine);
+    free(closingLine); // Assuming you have a function to destroy the shape
+}
+
+
+void mac_fill_polygon(Mac_Polygon* polygon, Mac_View* parent_view) {
+    Mac_NSView* nsView = (__bridge Mac_NSView*)parent_view->_this;
+
+    CGMutablePathRef path = CGPathCreateMutable();
+    if (polygon->vertex_count > 0) {
+        CGPathMoveToPoint(path, NULL, polygon->vertices[0].x, polygon->vertices[0].y);
+        for (int i = 1; i < polygon->vertex_count; i++) {
+            CGPathAddLineToPoint(path, NULL, polygon->vertices[i].x, polygon->vertices[i].y);
+        }
+        CGPathCloseSubpath(path); // Close the path to create a polygon
+    }
+
+    DrawableShape* shape = [[DrawableShape alloc] init];
+    shape.path = path;
+    shape.color = polygon->color;
+    shape.filled = YES;
+
+    [nsView.shapes addObject:shape];
+    [nsView setNeedsDisplay:YES];
+}
+
+Mac_Polygon* mac_polygon(MFPoint* vertices, int vertex_count, Mac_Color color) {
+    Mac_Polygon* polygon = (Mac_Polygon*)malloc(sizeof(Mac_Polygon));
+    polygon->base.shape_type = MAC_SHAPE_POLYGON;
+    polygon->vertices = vertices;
+    polygon->vertex_count = vertex_count;
+    polygon->color = color;
+    return polygon;
+}
 
 
 void mac_remove_shape(int shape_id, Mac_View* parent_view) {

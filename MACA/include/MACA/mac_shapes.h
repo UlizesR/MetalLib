@@ -35,7 +35,6 @@ typedef struct {
     Mac_Color color;
 } Mac_Point;
 
-
 typedef struct {
     Mac_Shape base;
     MFPoint init_pos;
@@ -66,6 +65,14 @@ typedef struct {
     float radius;
     Mac_Color color;
 } Mac_Circle;
+
+typedef struct {
+    Mac_Shape base;
+    MFPoint* vertices; // Array of vertices
+    int vertex_count;  // Number of vertices
+    Mac_Color color;
+} Mac_Polygon;
+
 
 /*!
     draws a point with the given parameters
@@ -177,6 +184,13 @@ void mac_fill_circle(Mac_Circle* circle, Mac_View* parent_view);
     @return: a pointer to the created circle
 */
 Mac_Circle* mac_circle(MFPoint origin, float radius, Mac_Color color);
+
+void mac_draw_polygon(Mac_Polygon* polygon, float line_width, Mac_View* parent_view);
+
+void mac_fill_polygon(Mac_Polygon* polygon, Mac_View* parent_view);
+
+Mac_Polygon* mac_polygon(MFPoint* vertices, int vertex_count, Mac_Color color);
+
 
 /*!
     removes a given shape from the given view
