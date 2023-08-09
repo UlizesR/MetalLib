@@ -19,11 +19,11 @@ GUI
         ✔ Textured @done(23-08-05 18:30)
         ✔ Square @done(23-08-05 18:30)
     ☐ Add Button Types
-        ☐ Push Button
+        ✔ Push Button @done(23-08-08 16:07)
         ☐ Toggle 
-        ☐ Radio
+        ✔ Radio @done(23-08-08 16:07)
         ☐ Switch
-        ☐ Checkbox
+        ✔ Checkbox @done(23-08-08 16:07)
 ✔ Sliders @done(23-08-07 03:06)
 ☐ Labels
 ☐ Text Fields
@@ -43,8 +43,9 @@ Graphics
 ☐ create metal view
 ☐ create metal device
 ☐ create metal render pipeline
-☐ render 2d graphics
-    ☐ render 2d shapes
+☐ create renderer
+✔ render 2d graphics @done(23-08-08 16:07)
+    ✔ render 2d shapes @done(23-08-08 16:07)
         ✔ render lines @done(23-08-07 03:06)
         ✔ render circles @done(23-08-07 03:06)
         ✔ render rectangles @done(23-08-07 03:06)

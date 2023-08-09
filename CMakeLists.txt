@@ -18,6 +18,7 @@ set(SOURCES
     MACA/src/mac_error.c
     MACA/src/Graphics/mac_view.m
     MACA/src/Graphics/mac_shapes.m
+    MACA/src/Graphics/mac_renderer.m
     MACA/src/Gui/mac_button.m
     MACA/src/Gui/mac_slider.m
 )
@@ -26,7 +27,7 @@ set(SOURCES
 add_library(MACA STATIC ${SOURCES})
 
 # Link the necessary frameworks
-target_link_libraries(MACA "-framework Cocoa" "-framework Metal")
+target_link_libraries(MACA "-framework Cocoa" "-framework Metalkit")
 
 # Set the install location for the library
 install(TARGETS MACA
