@@ -1,8 +1,7 @@
-#include "MACA/mac_colors.h"
-#include "MACA/mac_defs.h"
-#include "MACA/mac_view.h"
+#include "MACA/mac_render.h"
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include <MACA/maca.h>
 
@@ -13,40 +12,49 @@ int main(int argc, const char * argv[]) {
         return 1;
     }
 
-    Mac_Window* mainWindow = MAC_CreateWindow(800, 600, true, "Main Window", MAC_WINDOW_MINIMIZED | MAC_WINDOW_RESIZABLE);
-    if(mainWindow == NULL) {
-        fprintf(stderr, "Failed to create main window\n");
+    // Create a window and renderer
+    Mac_Window* window;
+    Mac_Renderer* renderer;
+
+    MAC_CreateWindowAndRenderer(800, 600, "Window", MAC_RENDERER_CORE_G, MAC_WINDOW_MINIMIZED | MAC_WINDOW_RESIZABLE, &window, &renderer);
+    if (!window || !renderer)
+    {
+        printf("ERROR: Failed to create window or renderer.\n");
         return 1;
     }
 
-    // Create a content view for the main window
-    Mac_View* contentView = MAC_AddContentView(mainWindow, MAC_COLOR_BLUE_3, MAC_VIEW_TYPE_NORMAL, NULL);
-    if(contentView == NULL) {
-        fprintf(stderr, "Failed to create content view\n");
-        return 1;
-    }
+    // Set the renderer's background color
+    MAC_SetRendererColor(renderer, MAC_COLOR_BLACK);
 
-    Mac_View* subView = MAC_AddSubView(contentView, MAC_VIEW_TYPE_NORMAL, 300, 200, 100, 100, 0, MAC_COLOR_GREEN_2, NULL);
-    if(subView == NULL) {
-        fprintf(stderr, "Failed to create sub view\n");
-        return 1;
-    }
+    // Define the vertices of a trapezoid
+    MFPoint vertices[4];
+    vertices[0] = (MFPoint){100, 100}; // Top left
+    vertices[1] = (MFPoint){300, 100}; // Top right
+    vertices[2] = (MFPoint){250, 200}; // Bottom right
+    vertices[3] = (MFPoint){150, 200}; // Bottom left
+
+    // Create a quadrilateral with the trapezoid vertices
+    Mac_Quadrilateral* trapezoid = mac_quadrilateral(vertices, MAC_COLOR_WHITE);
+
+    // Draw the trapezoid
+    mac_draw_quadrilateral(trapezoid, 2.0, renderer);
+
+    MAC_ClearRenderer(renderer);
+
     // Main loop
     bool running = true;
     // MAC_Event event;
     while (running) {
         runDelegate();
-        if(!isWindowOpen(mainWindow)) {
+        if(!isWindowOpen(window)) {
             running = false;
         }
     }
 
-    printf("Closing application\n");
-    // Cleanup
-    MAC_DestroyView(contentView); // Destroy the content view
-    MAC_DestroyView(subView); // Destroy the sub view
-    printf("Destroyed content view\n");
-    MAC_DestroyWindow(mainWindow);
+    // Clean up
+    free(trapezoid);
+    MAC_DestroyRenderer(renderer);
+    MAC_DestroyWindow(window);
     printf("Destroyed main window\n");
     MAC_Quit();
     return 0;

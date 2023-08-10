@@ -14,6 +14,8 @@ set(SOURCES
         MACA/src/mac_window.m
         MACA/src/mac_init.m
         MACA/src/Graphics/mac_view.m
+        MACA/src/Graphics/mac_renderer.c
+        MACA/src/Graphics/mac_shapes.m
 )
 
 # Create the library

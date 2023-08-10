@@ -8,7 +8,104 @@
 @implementation Mac_NSView_Normal
 @end
 
+extern int shapeID;
+@implementation DrawableShape
+
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        _path = NULL;
+        _color = (Mac_Color){0, 0, 0, 1}; // Default to black color
+        _lineWidth = 1.0;
+        _filled = NO;
+        _id = shapeID++; // Automatically set the shape ID and increment shapeID
+    }
+    return self;
+}
+
+- (void)updateLineWithInitPos:(MFPoint)init_pos endPos:(MFPoint)end_pos {
+    CGMutablePathRef newPath = CGPathCreateMutable();
+    CGPathMoveToPoint(newPath, NULL, init_pos.x, init_pos.y);
+    CGPathAddLineToPoint(newPath, NULL, end_pos.x, end_pos.y);
+
+    if (_path) {
+        CGPathRelease(_path);
+    }
+
+    _path = newPath;
+}
+
+- (void)dealloc {
+    [super dealloc];
+    if (_path) {
+        CGPathRelease(_path);
+    }
+}
+
+@end
+
 @implementation Mac_NSView_Core_G
+
+- (instancetype)initWithFrame:(NSRect)frameRect {
+    self = [super initWithFrame:frameRect];
+    if (self) {
+        _shapes = [NSMutableArray array];
+        _drawingCommands = [NSMutableArray array];
+    }
+    return self;
+}
+
+- (void)setLineWithInitPos:(MFPoint)init_pos endPos:(MFPoint)end_pos lineWidth:(float)line_width shapeID:(int)id color:(Mac_Color)color {
+    CGMutablePathRef path = CGPathCreateMutable();
+    CGPathMoveToPoint(path, NULL, init_pos.x, init_pos.y);
+    CGPathAddLineToPoint(path, NULL, end_pos.x, end_pos.y);
+
+    DrawableShape* shape = [[DrawableShape alloc] init];
+    shape.path = path;
+    shape.color = color;
+    shape.lineWidth = line_width;
+    shape.filled = NO;
+    shape.id = id;
+
+    [self.shapes addObject:shape];
+
+    DrawingCommand command = {init_pos, end_pos, line_width, color};
+    [self.drawingCommands addObject:[NSValue valueWithBytes:&command objCType:@encode(DrawingCommand)]];
+
+    [self setNeedsDisplay:YES];
+}
+
+- (void)updateView:(int)shapeID {
+    NSMutableArray *shapesToRemove = [NSMutableArray array];
+    for (DrawableShape *shape in self.shapes) {
+        if (shape.id == shapeID) {
+            [shapesToRemove addObject:shape];
+        }
+    }
+    [self.shapes removeObjectsInArray:shapesToRemove];
+    [self setNeedsDisplay:YES];
+}
+
+- (void)drawRect:(NSRect)dirtyRect {
+    [super drawRect:dirtyRect];
+
+    CGContextRef context = [[NSGraphicsContext currentContext] CGContext];
+    CGContextSetShouldAntialias(context, YES);
+
+    for (DrawableShape* shape in self.shapes) {
+        CGContextSetLineWidth(context, shape.lineWidth);
+        CGContextSetRGBStrokeColor(context, shape.color.r, shape.color.g, shape.color.b, shape.color.a);
+        if (shape.filled) {
+            CGContextSetRGBFillColor(context, shape.color.r, shape.color.g, shape.color.b, shape.color.a);
+            CGContextAddPath(context, shape.path);
+            CGContextFillPath(context);
+        } else {
+            CGContextAddPath(context, shape.path);
+            CGContextStrokePath(context);
+        }
+    }
+}
+
 @end
 
 @implementation Mac_NSView_Metal
@@ -37,7 +134,7 @@ Mac_View* MAC_AddSubView(Mac_View* parent, UInt32 type, int width, int height, i
                                         blue:background_color.b
                                        alpha:background_color.a];
 
-    if (type & MAC_VIEW_TYPE_NORMAL)
+    if (type == MAC_VIEW_TYPE_NORMAL)
     {
         Mac_NView* nview = (Mac_NView*)malloc(sizeof(Mac_NView));
         if (nview == NULL) {
@@ -65,7 +162,7 @@ Mac_View* MAC_AddSubView(Mac_View* parent, UInt32 type, int width, int height, i
         Mac_NSView_Normal* parentNSView = (__bridge Mac_NSView_Normal*)parent->view.n_view._this;
         [parentNSView addSubview:nsview];
     }
-    if (type & MAC_VIEW_TYPE_CORE_G)
+    if (type == MAC_VIEW_TYPE_CORE_G)
     {
         Mac_RView* rview = (Mac_RView*)malloc(sizeof(Mac_RView));
         if (rview == NULL) {
@@ -120,7 +217,7 @@ Mac_View* MAC_AddContentView(Mac_Window* parent, Mac_Color background_color, UIn
                                         blue:background_color.b
                                         alpha:background_color.a];
 
-    if (type & MAC_VIEW_TYPE_NORMAL)
+    if (type == MAC_VIEW_TYPE_NORMAL)
     {
         Mac_NView* nview = (Mac_NView*)malloc(sizeof(Mac_NView));
         if (nview == NULL) {
@@ -153,7 +250,7 @@ Mac_View* MAC_AddContentView(Mac_Window* parent, Mac_Color background_color, UIn
         NSWindow* parentNSWindow = (__bridge NSWindow*)parent->delegate;
         [parentNSWindow setContentView:nsView]; // Set the content view of the parent window
     }
-    if (type & MAC_VIEW_TYPE_CORE_G)
+    if (type == MAC_VIEW_TYPE_CORE_G)
     {
         Mac_RView* rview = (Mac_RView*)malloc(sizeof(Mac_RView));
         if (rview == NULL) {
@@ -192,18 +289,52 @@ Mac_View* MAC_AddContentView(Mac_Window* parent, Mac_Color background_color, UIn
     return contentView;
 }
 
+void MAC_ChangeViewBGColor(Mac_View* view, Mac_Color color)
+{
+    if (view == NULL)
+    {
+        printf("ERROR: View is NULL. Cannot change background color.\n");
+        return;
+    }
+
+    NSColor* nsColor = [NSColor colorWithRed:color.r green:color.g blue:color.b alpha:color.a];
+
+    if (view->type & MAC_VIEW_TYPE_NORMAL)
+    {
+        Mac_NSView_Normal* nsView = (__bridge Mac_NSView_Normal*)view->view.n_view._this;
+        [nsView.layer setBackgroundColor:nsColor.CGColor];
+        [nsView setNeedsDisplay:YES];
+    }
+    else if (view->type & MAC_VIEW_TYPE_CORE_G)
+    {
+        Mac_NSView_Core_G* nsView = (__bridge Mac_NSView_Core_G*)view->view.r_view._this;
+        [nsView.layer setBackgroundColor:nsColor.CGColor];
+        [nsView setNeedsDisplay:YES];
+    }
+    else if (view->type & MAC_VIEW_TYPE_METAL)
+    {
+        Mac_NSView_Metal* nsView = (__bridge Mac_NSView_Metal*)view->view.m_view._this;
+        [nsView.layer setBackgroundColor:nsColor.CGColor];
+        [nsView setNeedsDisplay:YES];
+    }
+    else
+    {
+        printf("ERROR: Unsupported view type. Cannot change background color.\n");
+    }
+}
+
 void MAC_DestroyView(Mac_View* view)
 {
     if (view == NULL) {
         return;
     }
 
-    if (view->type & MAC_VIEW_TYPE_NORMAL) {
+    if (view->type == MAC_VIEW_TYPE_NORMAL) {
         Mac_NView* nview = &view->view.n_view;
         Mac_NSView_Normal* nsview = (__bridge Mac_NSView_Normal*)nview->_this;
         [nsview removeFromSuperview]; // Remove the Objective-C view from its superview
     }
-    if (view->type & MAC_VIEW_TYPE_CORE_G) {
+    if (view->type == MAC_VIEW_TYPE_CORE_G) {
         Mac_RView* rview = &view->view.r_view;
         Mac_NSView_Core_G* nsview = (__bridge Mac_NSView_Core_G*)rview->_this;
         [nsview removeFromSuperview]; // Remove the Objective-C view from its superview
@@ -218,7 +349,7 @@ void MAC_DestroyContentView(Mac_View* contentView) {
         return;
     }
 
-    if (contentView->type & MAC_VIEW_TYPE_NORMAL) {
+    if (contentView->type == MAC_VIEW_TYPE_NORMAL) {
         Mac_NView* nview = &contentView->view.n_view;
         Mac_NSView_Normal* nsview = (__bridge Mac_NSView_Normal*)nview->_this;
         [nsview removeFromSuperview]; // Remove the Objective-C view from its superview

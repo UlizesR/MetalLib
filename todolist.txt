@@ -14,12 +14,12 @@ Graphics
 ☐ Create a Layer
 ☐ Set up Core Graphics
     ☐ Render 2D Shapes
-        ☐ Rectangles
-        ☐ Circles
-        ☐ Lines
-        ☐ Ellipses
-        ☐ Quadrilaterals
-        ☐ Polygons
+        ✔ Rectangles @done(23-08-10 00:27)
+        ✔ Circles @done(23-08-10 00:27)
+        ✔ Lines @done(23-08-10 00:27)
+        ✔ Ellipses @done(23-08-10 00:27)
+        ✔ Quadrilaterals @done(23-08-10 00:27)
+        ✔ Polygons @done(23-08-10 00:27)
         ☐ Paths
 ☐ Set up Metal     
     ☐ Render 3D objects

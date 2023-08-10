@@ -10,10 +10,31 @@
 #import <Cocoa/Cocoa.h>
 #import <MetalKit/MetalKit.h>
 
+
+
 @interface Mac_NSView_Normal: NSView;
 @end
 
+typedef struct {
+    MFPoint init_pos;
+    MFPoint end_pos;
+    float line_width;
+    Mac_Color color;
+} DrawingCommand;
+
+@interface DrawableShape : NSObject
+@property (nonatomic) CGPathRef path;
+@property (nonatomic) Mac_Color color;
+@property (nonatomic) float lineWidth;
+@property (nonatomic) BOOL filled;
+@property (nonatomic) int id;
+- (void)updateLineWithInitPos:(MFPoint)init_pos endPos:(MFPoint)end_pos;
+@end
+
 @interface Mac_NSView_Core_G: NSView;
+@property (nonatomic, strong) NSMutableArray<DrawableShape*>* shapes;
+@property (nonatomic, strong) NSMutableArray<NSValue*>* drawingCommands;
+- (void)setLineWithInitPos:(MFPoint)init_pos endPos:(MFPoint)end_pos lineWidth:(float)line_width shapeID:(int)id color:(Mac_Color)color;
 @end
 
 @interface Mac_NSView_Metal: MTKView;
@@ -104,6 +125,12 @@ Mac_View* MAC_AddSubView(Mac_View* parent, UInt32 type, int width, int height, i
 */
 Mac_View* MAC_AddContentView(Mac_Window* parent, Mac_Color background_color, UInt32 type, Mac_Renderer* renderer);
 
+/*!
+    Changes the Color of the given view.
+    @param view: the view to be changed
+    @param color: the new color of the view
+*/
+void MAC_ChangeViewBGColor(Mac_View* view, Mac_Color color);
 /*!
     Destroys the given view.
     @param view: the view to be destroyed
