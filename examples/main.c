@@ -1,9 +1,46 @@
-#include "MACA/mac_render.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 #include <MACA/maca.h>
+
+void rotate_around_center(MFPoint* vertices, float angle) {
+    float radian = angle * (M_PI / 180); // Convert angle to radians
+    float cosTheta = cos(radian);
+    float sinTheta = sin(radian);
+
+    // Calculate the center of the shape
+    float centerX = 0.0f;
+    float centerY = 0.0f;
+    for (int i = 0; i < 4; i++) {
+        centerX += vertices[i].x;
+        centerY += vertices[i].y;
+    }
+    centerX /= 4;
+    centerY /= 4;
+
+    // Translate vertices so that the center is at the origin
+    for (int i = 0; i < 4; i++) {
+        vertices[i].x -= centerX;
+        vertices[i].y -= centerY;
+    }
+
+    // Rotate vertices
+    for (int i = 0; i < 4; i++) {
+        float x = vertices[i].x;
+        float y = vertices[i].y;
+        vertices[i].x = cosTheta * x - sinTheta * y;
+        vertices[i].y = sinTheta * x + cosTheta * y;
+    }
+
+    // Translate vertices back
+    for (int i = 0; i < 4; i++) {
+        vertices[i].x += centerX;
+        vertices[i].y += centerY;
+    }
+}
+
 
 int main(int argc, const char * argv[]) {
     // Initialize the application
@@ -39,20 +76,56 @@ int main(int argc, const char * argv[]) {
     // Draw the trapezoid
     mac_draw_quadrilateral(trapezoid, 2.0, renderer);
 
-    MAC_ClearRenderer(renderer);
-
     // Main loop
     bool running = true;
-    // MAC_Event event;
+    MAC_Event event;
     while (running) {
-        runDelegate();
+        while (MAC_PollEvent(&event) != 0) { // Poll for events
+            if (event.type == MAC_KEYBOARDEVENT) {
+                if (event.keycode == MAC_KEY_R) {
+                    rotate_around_center(trapezoid->vertices, 10.0); // Rotate by 10 degrees
+                    mac_remove_shape(trapezoid->base.id, renderer);
+                    mac_draw_quadrilateral(trapezoid, 2.0, renderer);
+                }
+                if (event.keycode == MAC_KEY_W) {
+                    for (int i = 0; i < 4; i++) {
+                        trapezoid->vertices[i].y += 5; // Move up
+                    }
+                    mac_remove_shape(trapezoid->base.id, renderer);
+                    mac_draw_quadrilateral(trapezoid, 2.0, renderer);
+                }
+                if (event.keycode == MAC_KEY_D) {
+                    for (int i = 0; i < 4; i++) {
+                        trapezoid->vertices[i].x += 5; // Move right         
+                    }
+                    mac_remove_shape(trapezoid->base.id, renderer);
+                    mac_draw_quadrilateral(trapezoid, 2.0, renderer);
+                }
+                if (event.keycode == MAC_KEY_S) {
+                    for (int i = 0; i < 4; i++) {
+                        trapezoid->vertices[i].y -= 5; // Move down
+                    }
+                    mac_remove_shape(trapezoid->base.id, renderer);
+                    mac_draw_quadrilateral(trapezoid, 2.0, renderer);
+                }
+                if (event.keycode == MAC_KEY_A) {
+                    for (int i = 0; i < 4; i++) {
+                        trapezoid->vertices[i].x -= 5; // Move left
+                    }
+                    mac_remove_shape(trapezoid->base.id, renderer);
+                    mac_draw_quadrilateral(trapezoid, 2.0, renderer);
+                }
+            }
+        }
+       
+        // runDelegate();
         if(!isWindowOpen(window)) {
             running = false;
         }
     }
 
     // Clean up
-    free(trapezoid);
+    destroy_shape((Mac_Shape*)trapezoid);
     MAC_DestroyRenderer(renderer);
     MAC_DestroyWindow(window);
     printf("Destroyed main window\n");
