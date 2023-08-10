@@ -3,32 +3,33 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <time.h>
 
 #include <MACA/maca.h>
 
-void rotate_around_center(MFPoint* vertices, float angle) {
+void rotate_around_center(MFPoint* vertices, int vertex_count, MFPoint* center, float angle) {
     float radian = angle * (M_PI / 180); // Convert angle to radians
     float cosTheta = cos(radian);
     float sinTheta = sin(radian);
 
     // Calculate the center of the shape
-    float centerX = 0.0f;
-    float centerY = 0.0f;
-    for (int i = 0; i < 4; i++) {
-        centerX += vertices[i].x;
-        centerY += vertices[i].y;
+    center->x = 0.0f;
+    center->y = 0.0f;
+    for (int i = 0; i < vertex_count; i++) {
+        center->x += vertices[i].x;
+        center->y += vertices[i].y;
     }
-    centerX /= 4;
-    centerY /= 4;
+    center->x /= vertex_count;
+    center->y /= vertex_count;
 
     // Translate vertices so that the center is at the origin
-    for (int i = 0; i < 4; i++) {
-        vertices[i].x -= centerX;
-        vertices[i].y -= centerY;
+    for (int i = 0; i < vertex_count; i++) {
+        vertices[i].x -= center->x;
+        vertices[i].y -= center->y;
     }
 
     // Rotate vertices
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < vertex_count; i++) {
         float x = vertices[i].x;
         float y = vertices[i].y;
         vertices[i].x = cosTheta * x - sinTheta * y;
@@ -36,12 +37,11 @@ void rotate_around_center(MFPoint* vertices, float angle) {
     }
 
     // Translate vertices back
-    for (int i = 0; i < 4; i++) {
-        vertices[i].x += centerX;
-        vertices[i].y += centerY;
+    for (int i = 0; i < vertex_count; i++) {
+        vertices[i].x += center->x;
+        vertices[i].y += center->y;
     }
 }
-
 
 int main(int argc, const char * argv[]) {
     // Initialize the application
@@ -81,10 +81,12 @@ int main(int argc, const char * argv[]) {
     bool running = true;
     MAC_Event event;
     while (running) {
+        clock_t start_time = clock();
+
         while (MAC_PollEvent(&event) != 0) { // Poll for events
             if (event.type == MAC_KEYBOARDEVENT) {
                 if (event.keycode == MAC_KEY_R) {
-                    rotate_around_center(trapezoid->vertices, 10.0); // Rotate by 10 degrees
+                    rotate_around_center(trapezoid->vertices, 4, &trapezoid->base.center_point, 10.0); // Rotate by 10 degrees
                     MAC_RemoveShape(trapezoid->base.id, renderer);
                     MAC_DrawQuadrilateral(trapezoid, 2.0, renderer);
                 }
@@ -119,6 +121,7 @@ int main(int argc, const char * argv[]) {
             }
         }
        
+        
         // runDelegate();
         if(!isWindowOpen(window)) {
             running = false;

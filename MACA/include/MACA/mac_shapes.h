@@ -28,6 +28,7 @@ typedef enum {
 typedef struct {
     int shape_type; // 0 for line, 1 for rectangle, etc.
     int id;
+    MFPoint center_point;
     // Add any other common properties here
 } Mac_Shape;
 

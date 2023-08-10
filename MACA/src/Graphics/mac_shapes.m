@@ -37,7 +37,8 @@ Mac_Point* MAC_Point(float x, float y, Mac_Color color)
     point->position.x = x;
     point->position.y = y;
     point->color = color;
-    point->base.id = shapeID++; // Using a static variable for unique shape IDs
+    point->base.id = shapeID++; 
+    point->base.center_point = point->position;
     point->base.shape_type = MAC_SHAPE_POINT; // Assuming MAC_SHAPE_POINT is defined as a unique value for points
     return point;
 }
@@ -63,7 +64,9 @@ Mac_Line* MAC_Line(MFPoint init_pos, MFPoint end_pos, float line_width, Mac_Colo
     line->end_pos = end_pos;
     line->line_width = line_width;
     line->color = color;
-    line->base.id = shapeID++; // Assuming shapeID is a global variable for unique shape IDs
+    line->base.id = shapeID++; 
+    line->base.center_point.x = (init_pos.x + end_pos.x) / 2;
+    line->base.center_point.y = (init_pos.y + end_pos.y) / 2;
     line->base.shape_type = MAC_SHAPE_LINE;
     return line;
 }
@@ -136,6 +139,8 @@ Mac_Rect* MAC_Rect(MFPoint origin, MSize size, Mac_Color color)
     rect->size = size;
     rect->color = color;
     rect->base.id = shapeID++;
+    rect->base.center_point.x = origin.x + (float)size.width / 2;
+    rect->base.center_point.y = origin.y + (float)size.height / 2;
     rect->base.shape_type = MAC_SHAPE_RECT;
 
     // Calculate the other points based on the origin and size
@@ -207,6 +212,8 @@ Mac_Triangle* MAC_Triangle(MFPoint p1, MFPoint p2, MFPoint p3, Mac_Color color)
     triangle->p3 = p3;
     triangle->color = color;
     triangle->base.id = shapeID++;
+    triangle->base.center_point.x = (p1.x + p2.x + p3.x) / 3;
+    triangle->base.center_point.y = (p1.y + p2.y + p3.y) / 3;
     triangle->base.shape_type = MAC_SHAPE_TRIANGLE;
     return triangle;
 }
@@ -277,6 +284,7 @@ Mac_Circle* MAC_Circle(MFPoint origin, float radius, Mac_Color color)
     circle->radius = radius;
     circle->color = color;
     circle->base.id = shapeID++;
+    circle->base.center_point = origin;
     circle->base.shape_type = MAC_SHAPE_CIRCLE;
     return circle;
 }
@@ -352,6 +360,14 @@ Mac_Polygon* MAC_Polygon(MFPoint* vertices, int vertex_count, Mac_Color color)
 {
     Mac_Polygon* polygon = (Mac_Polygon*)malloc(sizeof(Mac_Polygon));
     polygon->base.shape_type = MAC_SHAPE_POLYGON;
+    polygon->base.id = shapeID++;
+    float sumX = 0, sumY = 0;
+    for (int i = 0; i < vertex_count; i++) {
+        sumX += vertices[i].x;
+        sumY += vertices[i].y;
+    }
+    polygon->base.center_point.x = sumX / vertex_count;
+    polygon->base.center_point.y = sumY / vertex_count;
     polygon->vertices = vertices;
     polygon->vertex_count = vertex_count;
     polygon->color = color;
@@ -421,6 +437,8 @@ Mac_Ellipse* MAC_Ellipse(MFPoint origin, float radius_x, float radius_y, Mac_Col
 {
     Mac_Ellipse* ellipse = (Mac_Ellipse*)malloc(sizeof(Mac_Ellipse));
     ellipse->base.shape_type = MAC_SHAPE_ELLIPSE; // Assuming you have this enum value
+    ellipse->base.id = shapeID++;
+    ellipse->base.center_point = origin;
     ellipse->origin = origin;
     ellipse->radius_x = radius_x;
     ellipse->radius_y = radius_y;
@@ -500,7 +518,10 @@ void MAC_FillQuadrilateral(Mac_Quadrilateral* quad, Mac_Renderer* renderer)
 Mac_Quadrilateral* MAC_Quadrilateral(MFPoint vertices[4], Mac_Color color) 
 {
     Mac_Quadrilateral* quad = (Mac_Quadrilateral*)malloc(sizeof(Mac_Quadrilateral));
-    quad->base.shape_type = MAC_SHAPE_QUADRILATERAL; // Assuming you have this enum value
+    quad->base.shape_type = MAC_SHAPE_QUADRILATERAL; 
+    quad->base.id = shapeID++;
+    quad->base.center_point.x = (vertices[0].x + vertices[1].x + vertices[2].x + vertices[3].x) / 4;
+    quad->base.center_point.y = (vertices[0].y + vertices[1].y + vertices[2].y + vertices[3].y) / 4;
     memcpy(quad->vertices, vertices, 4 * sizeof(MFPoint));
     quad->color = color;
     return quad;
