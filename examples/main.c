@@ -1,3 +1,4 @@
+#include "MACA/mac_shapes.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -71,10 +72,10 @@ int main(int argc, const char * argv[]) {
     vertices[3] = (MFPoint){150, 200}; // Bottom left
 
     // Create a quadrilateral with the trapezoid vertices
-    Mac_Quadrilateral* trapezoid = mac_quadrilateral(vertices, MAC_COLOR_WHITE);
+    Mac_Quadrilateral* trapezoid = MAC_Quadrilateral(vertices, MAC_COLOR_WHITE);
 
     // Draw the trapezoid
-    mac_draw_quadrilateral(trapezoid, 2.0, renderer);
+    MAC_DrawQuadrilateral(trapezoid, 2.0, renderer);
 
     // Main loop
     bool running = true;
@@ -84,36 +85,36 @@ int main(int argc, const char * argv[]) {
             if (event.type == MAC_KEYBOARDEVENT) {
                 if (event.keycode == MAC_KEY_R) {
                     rotate_around_center(trapezoid->vertices, 10.0); // Rotate by 10 degrees
-                    mac_remove_shape(trapezoid->base.id, renderer);
-                    mac_draw_quadrilateral(trapezoid, 2.0, renderer);
+                    MAC_RemoveShape(trapezoid->base.id, renderer);
+                    MAC_DrawQuadrilateral(trapezoid, 2.0, renderer);
                 }
                 if (event.keycode == MAC_KEY_W) {
                     for (int i = 0; i < 4; i++) {
                         trapezoid->vertices[i].y += 5; // Move up
                     }
-                    mac_remove_shape(trapezoid->base.id, renderer);
-                    mac_draw_quadrilateral(trapezoid, 2.0, renderer);
+                    MAC_RemoveShape(trapezoid->base.id, renderer);
+                    MAC_DrawQuadrilateral(trapezoid, 2.0, renderer);
                 }
                 if (event.keycode == MAC_KEY_D) {
                     for (int i = 0; i < 4; i++) {
                         trapezoid->vertices[i].x += 5; // Move right         
                     }
-                    mac_remove_shape(trapezoid->base.id, renderer);
-                    mac_draw_quadrilateral(trapezoid, 2.0, renderer);
+                    MAC_RemoveShape(trapezoid->base.id, renderer);
+                    MAC_DrawQuadrilateral(trapezoid, 2.0, renderer);
                 }
                 if (event.keycode == MAC_KEY_S) {
                     for (int i = 0; i < 4; i++) {
                         trapezoid->vertices[i].y -= 5; // Move down
                     }
-                    mac_remove_shape(trapezoid->base.id, renderer);
-                    mac_draw_quadrilateral(trapezoid, 2.0, renderer);
+                    MAC_RemoveShape(trapezoid->base.id, renderer);
+                    MAC_DrawQuadrilateral(trapezoid, 2.0, renderer);
                 }
                 if (event.keycode == MAC_KEY_A) {
                     for (int i = 0; i < 4; i++) {
                         trapezoid->vertices[i].x -= 5; // Move left
                     }
-                    mac_remove_shape(trapezoid->base.id, renderer);
-                    mac_draw_quadrilateral(trapezoid, 2.0, renderer);
+                    MAC_RemoveShape(trapezoid->base.id, renderer);
+                    MAC_DrawQuadrilateral(trapezoid, 2.0, renderer);
                 }
             }
         }
@@ -125,7 +126,7 @@ int main(int argc, const char * argv[]) {
     }
 
     // Clean up
-    destroy_shape((Mac_Shape*)trapezoid);
+    MAC_DestroyShape((Mac_Shape*)trapezoid);
     MAC_DestroyRenderer(renderer);
     MAC_DestroyWindow(window);
     printf("Destroyed main window\n");

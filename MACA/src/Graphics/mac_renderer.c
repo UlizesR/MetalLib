@@ -1,5 +1,5 @@
 #include "MACA/mac_colors.h"
-#include "MACA/mac_render.h"
+#include "MACA/mac_renderer.h"
 #include "MACA/mac_shapes.h"
 #include "MACA/mac_view.h"
 #include "MACA/mac_window.h"
@@ -146,7 +146,7 @@ void MAC_ClearRenderer(Mac_Renderer* renderer) {
         printf("ERROR: Renderer pointer is NULL.\n");
         return;
     }
-    mac_remove_all_shapes(renderer);
+    MAC_RemoveAllShapes(renderer);
     Mac_View view_to_change;
     if (renderer->type == MAC_RENDERER_CORE_G)
     {

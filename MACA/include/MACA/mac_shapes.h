@@ -3,7 +3,6 @@
 
 #include "mac_colors.h"
 #include "mac_defs.h"
-#include "mac_render.h"
 
 #include <stdbool.h>
 
@@ -95,7 +94,7 @@ typedef struct {
     @param renderer: the renderer to draw the shape to
     @param point: the point to draw
 */
-void mac_draw_point(Mac_Renderer* renderer, Mac_Point* point);
+void MAC_DrawPoint(Mac_Renderer* renderer, Mac_Point* point);
 
 /*!
     creates a point with the given parameters
@@ -104,7 +103,7 @@ void mac_draw_point(Mac_Renderer* renderer, Mac_Point* point);
     @param color: the color of the point
     @return: a pointer to the created point
 */
-Mac_Point* mac_point(float x, float y, Mac_Color color);
+Mac_Point* MAC_Point(float x, float y, Mac_Color color);
 
 /*!
     draws a line with the given parameters
@@ -115,7 +114,7 @@ Mac_Point* mac_point(float x, float y, Mac_Color color);
     @param color: the color of the line
 */
 
-void mac_draw_line(Mac_Renderer* renderer, Mac_Line* line);
+void MAC_DrawLine(Mac_Renderer* renderer, Mac_Line* line);
 
 /*!
     creates a line with the given parameters
@@ -125,7 +124,7 @@ void mac_draw_line(Mac_Renderer* renderer, Mac_Line* line);
     @param color: the color of the line
     @return: a pointer to the created line
 */
-Mac_Line* mac_line(MFPoint init_pos, MFPoint end_pos, float line_width, Mac_Color color);
+Mac_Line* MAC_Line(MFPoint init_pos, MFPoint end_pos, float line_width, Mac_Color color);
 
 
 /*!
@@ -134,14 +133,14 @@ Mac_Line* mac_line(MFPoint init_pos, MFPoint end_pos, float line_width, Mac_Colo
     @param line_width: the width of the rectangle's lines
     @param renderer: the renderer to draw the shape to
 */
-void mac_draw_rect(Mac_Rect* rect, float line_width, Mac_Renderer* renderer);
+void MAC_DrawRect(Mac_Rect* rect, float line_width, Mac_Renderer* renderer);
 
 /*!
     draws a filled rectangle with the given parameters
     @param rect: the rectangle to fill
     @param renderer: the renderer to draw the shape to
 */
-void mac_fill_rect(Mac_Rect* rect, Mac_Renderer* renderer);
+void MAC_FillRect(Mac_Rect* rect, Mac_Renderer* renderer);
 
 /*!
     creates a rectangle with the given parameters
@@ -150,7 +149,7 @@ void mac_fill_rect(Mac_Rect* rect, Mac_Renderer* renderer);
     @param color: the color of the rectangle
     @return: a pointer to the created rectangle
 */
-Mac_Rect* mac_rect(MFPoint origin, MSize size, Mac_Color color);
+Mac_Rect* MAC_Rect(MFPoint origin, MSize size, Mac_Color color);
 
 /*
     draws a wireframe (not filled) triangle with the given parameters
@@ -158,14 +157,14 @@ Mac_Rect* mac_rect(MFPoint origin, MSize size, Mac_Color color);
     @param line_width: the width of the triangle's lines
     @param renderer: the renderer to draw the shape to
 */
-void mac_draw_triangle(Mac_Triangle* triangle, float line_width, Mac_Renderer* renderer);
+void MAC_DrawTriangle(Mac_Triangle* triangle, float line_width, Mac_Renderer* renderer);
 
 /*!
     draws a filled triangle with the given parameters
     @param triangle: the triangle to fill
     @param renderer: the renderer to draw the shape to
 */
-void mac_fill_triangle(Mac_Triangle* triangle, Mac_Renderer* renderer);
+void MAC_FillTriangle(Mac_Triangle* triangle, Mac_Renderer* renderer);
 
 /*!
     creates a triangle with the given parameters
@@ -175,7 +174,7 @@ void mac_fill_triangle(Mac_Triangle* triangle, Mac_Renderer* renderer);
     @param color: the color of the triangle
     @return: a pointer to the created triangle
 */
-Mac_Triangle* mac_triangle(MFPoint p1, MFPoint p2, MFPoint p3, Mac_Color color);
+Mac_Triangle* MAC_Triangle(MFPoint p1, MFPoint p2, MFPoint p3, Mac_Color color);
 
 /*!
     draws a wireframe (not filled) circle with the given parameters
@@ -183,14 +182,14 @@ Mac_Triangle* mac_triangle(MFPoint p1, MFPoint p2, MFPoint p3, Mac_Color color);
     @param line_width: the width of the circle's lines
     @param renderer: the renderer to draw the shape to
 */
-void mac_draw_circle(Mac_Circle* circle, float line_width, Mac_Renderer* renderer);
+void MAC_DrawCircle(Mac_Circle* circle, float line_width, Mac_Renderer* renderer);
 
 /*!
     draws a filled circle with the given parameters
     @param circle: the circle to fill
     @param renderer: the renderer to draw the shape to
 */
-void mac_fill_circle(Mac_Circle* circle, Mac_Renderer* renderer);
+void MAC_FillCircle(Mac_Circle* circle, Mac_Renderer* renderer);
 
 /*!
     creates a circle with the given parameters
@@ -199,7 +198,7 @@ void mac_fill_circle(Mac_Circle* circle, Mac_Renderer* renderer);
     @param color: the color of the circle
     @return: a pointer to the created circle
 */
-Mac_Circle* mac_circle(MFPoint origin, float radius, Mac_Color color);
+Mac_Circle* MAC_Circle(MFPoint origin, float radius, Mac_Color color);
 
 /*!
     draws a wireframe (not filled) ellipse with the given parameters
@@ -207,14 +206,14 @@ Mac_Circle* mac_circle(MFPoint origin, float radius, Mac_Color color);
     @param line_width: the width of the ellipse's lines
     @param renderer: the renderer to draw the shape to
 */
-void mac_draw_polygon(Mac_Polygon* polygon, float line_width, Mac_Renderer* renderer);
+void MAC_DrawPolygon(Mac_Polygon* polygon, float line_width, Mac_Renderer* renderer);
 
 /*!
     draws a filled ellipse with the given parameters
     @param ellipse: the ellipse to fill
     @param renderer: the renderer to draw the shape to
 */
-void mac_fill_polygon(Mac_Polygon* polygon, Mac_Renderer* renderer);
+void MAC_FillPolygon(Mac_Polygon* polygon, Mac_Renderer* renderer);
 
 /*!
     creates a polygon with the given parameters
@@ -223,7 +222,7 @@ void mac_fill_polygon(Mac_Polygon* polygon, Mac_Renderer* renderer);
     @param color: the color of the polygon
     @return: a pointer to the created polygon
 */
-Mac_Polygon* mac_polygon(MFPoint* vertices, int vertex_count, Mac_Color color);
+Mac_Polygon* MAC_Polygon(MFPoint* vertices, int vertex_count, Mac_Color color);
 
 /*!
     draws a wireframe (not filled) ellipse with the given parameters
@@ -231,7 +230,7 @@ Mac_Polygon* mac_polygon(MFPoint* vertices, int vertex_count, Mac_Color color);
     @param line_width: the width of the ellipse's lines
     @param renderer: the renderer to draw the shape to
 */
-void mac_draw_ellipse(Mac_Ellipse* ellipse, float line_width, Mac_Renderer* renderer);
+void MAC_DrawEllipse(Mac_Ellipse* ellipse, float line_width, Mac_Renderer* renderer);
 
 /*!
     draws a wireframe (not filled) ellipse with the given parameters
@@ -239,7 +238,7 @@ void mac_draw_ellipse(Mac_Ellipse* ellipse, float line_width, Mac_Renderer* rend
     @param line_width: the width of the ellipse's lines
     @param renderer: the renderer to draw the shape to
 */
-void mac_fill_ellipse(Mac_Ellipse* ellipse, Mac_Renderer* renderer);
+void MAC_FillEllipse(Mac_Ellipse* ellipse, Mac_Renderer* renderer);
 
 /*!
     creates an ellipse with the given parameters
@@ -249,7 +248,7 @@ void mac_fill_ellipse(Mac_Ellipse* ellipse, Mac_Renderer* renderer);
     @param color: the color of the ellipse
     @return: a pointer to the created ellipse
 */
-Mac_Ellipse* mac_ellipse(MFPoint origin, float radius_x, float radius_y, Mac_Color color);
+Mac_Ellipse* MAC_Ellipse(MFPoint origin, float radius_x, float radius_y, Mac_Color color);
 
 /*!
     draws a wireframe (not filled) quadrilateral with the given parameters
@@ -257,14 +256,14 @@ Mac_Ellipse* mac_ellipse(MFPoint origin, float radius_x, float radius_y, Mac_Col
     @param line_width: the width of the quadrilateral's lines
     @param renderer: the renderer to draw the shape to
 */
-void mac_draw_quadrilateral(Mac_Quadrilateral* quad, float line_width, Mac_Renderer* renderer);
+void MAC_DrawQuadrilateral(Mac_Quadrilateral* quad, float line_width, Mac_Renderer* renderer);
 
 /*!
     draws a filled quadrilateral with the given parameters
     @param quad: the quadrilateral to fill
     @param renderer: the renderer to draw the shape to
 */
-void mac_fill_quadrilateral(Mac_Quadrilateral* quad, Mac_Renderer* renderer);
+void MAC_FillQuadrilateral(Mac_Quadrilateral* quad, Mac_Renderer* renderer);
 
 /*!
     creates a quadrilateral with the given parameters
@@ -272,26 +271,26 @@ void mac_fill_quadrilateral(Mac_Quadrilateral* quad, Mac_Renderer* renderer);
     @param color: the color of the quadrilateral
     @return: a pointer to the created quadrilateral
 */
-Mac_Quadrilateral* mac_quadrilateral(MFPoint vertices[4], Mac_Color color);
+Mac_Quadrilateral* MAC_Quadrilateral(MFPoint vertices[4], Mac_Color color);
 
 /*!
     removes a given shape from the given view
     @param shape_id: the id of the rectangle
     @param renderer: the renderer to draw the shape to
 */
-void mac_remove_shape(int shape_id, Mac_Renderer* renderer);
+void MAC_RemoveShape(int shape_id, Mac_Renderer* renderer);
 
 /*!
     removes all shapes from the given view
     @param renderer: the renderer to draw the shape to
 */
-void mac_remove_all_shapes(Mac_Renderer* renderer);
+void MAC_RemoveAllShapes(Mac_Renderer* renderer);
 
 /*!
     destroys the given rectangle
     @param rect: the rectangle to destroy
 */
-void destroy_shape(Mac_Shape* shape);
+void MAC_DestroyShape(Mac_Shape* shape);
 
 #ifdef __cplusplus
 }

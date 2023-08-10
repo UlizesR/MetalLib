@@ -4,10 +4,11 @@
 
 #import "MACA/mac_view.h"
 #import "MACA/mac_shapes.h"
+#import "MACA/mac_renderer.h"
 
 int shapeID = 0;
 
-void mac_draw_point(Mac_Renderer* renderer, Mac_Point* point) 
+void MAC_DrawPoint(Mac_Renderer* renderer, Mac_Point* point) 
 {
     if (!renderer || !point) 
     {
@@ -25,7 +26,7 @@ void mac_draw_point(Mac_Renderer* renderer, Mac_Point* point)
     [nsView setNeedsDisplay:YES];
 }
 
-Mac_Point* mac_point(float x, float y, Mac_Color color) 
+Mac_Point* MAC_Point(float x, float y, Mac_Color color) 
 {
     Mac_Point* point = (Mac_Point*)malloc(sizeof(Mac_Point));
     if (!point) 
@@ -41,7 +42,7 @@ Mac_Point* mac_point(float x, float y, Mac_Color color)
     return point;
 }
 
-void mac_draw_line(Mac_Renderer* renderer, Mac_Line* line) 
+void MAC_DrawLine(Mac_Renderer* renderer, Mac_Line* line) 
 {
     if (!renderer || !line) 
     {
@@ -55,7 +56,7 @@ void mac_draw_line(Mac_Renderer* renderer, Mac_Line* line)
     [nsView setLineWithInitPos:line->init_pos endPos:line->end_pos lineWidth:line->line_width shapeID:line->base.id color:line->color];
 }
 
-Mac_Line* mac_line(MFPoint init_pos, MFPoint end_pos, float line_width, Mac_Color color) 
+Mac_Line* MAC_Line(MFPoint init_pos, MFPoint end_pos, float line_width, Mac_Color color) 
 {
     Mac_Line* line = (Mac_Line*)malloc(sizeof(Mac_Line));
     line->init_pos = init_pos;
@@ -67,7 +68,7 @@ Mac_Line* mac_line(MFPoint init_pos, MFPoint end_pos, float line_width, Mac_Colo
     return line;
 }
 
-void mac_draw_rect(Mac_Rect* rect, float line_width, Mac_Renderer* renderer) 
+void MAC_DrawRect(Mac_Rect* rect, float line_width, Mac_Renderer* renderer) 
 {
     if (!rect || !renderer) 
     {
@@ -80,15 +81,15 @@ void mac_draw_rect(Mac_Rect* rect, float line_width, Mac_Renderer* renderer)
     MFPoint topLeft = { rect->origin.x, rect->origin.y + rect->size.height };
     MFPoint topRight = { rect->origin.x + rect->size.width, rect->origin.y + rect->size.height };
 
-    Mac_Line* bottomSide = mac_line(bottomLeft, bottomRight, line_width, rect->color);
-    Mac_Line* rightSide = mac_line(bottomRight, topRight, line_width, rect->color);
-    Mac_Line* topSide = mac_line(topRight, topLeft, line_width, rect->color);
-    Mac_Line* leftSide = mac_line(topLeft, bottomLeft, line_width, rect->color);
+    Mac_Line* bottomSide = MAC_Line(bottomLeft, bottomRight, line_width, rect->color);
+    Mac_Line* rightSide = MAC_Line(bottomRight, topRight, line_width, rect->color);
+    Mac_Line* topSide = MAC_Line(topRight, topLeft, line_width, rect->color);
+    Mac_Line* leftSide = MAC_Line(topLeft, bottomLeft, line_width, rect->color);
 
-    mac_draw_line(renderer, bottomSide); // Bottom side
-    mac_draw_line(renderer, rightSide); // Right side
-    mac_draw_line(renderer, topSide); // Top side
-    mac_draw_line(renderer, leftSide); // Left side
+    MAC_DrawLine(renderer, bottomSide); // Bottom side
+    MAC_DrawLine(renderer, rightSide); // Right side
+    MAC_DrawLine(renderer, topSide); // Top side
+    MAC_DrawLine(renderer, leftSide); // Left side
 
     free(bottomSide);
     free(rightSide);
@@ -96,7 +97,7 @@ void mac_draw_rect(Mac_Rect* rect, float line_width, Mac_Renderer* renderer)
     free(leftSide);
 }
 
-void mac_fill_rect(Mac_Rect* rect, Mac_Renderer* renderer) 
+void MAC_FillRect(Mac_Rect* rect, Mac_Renderer* renderer) 
 {
     if (!renderer || !rect) 
     {
@@ -128,7 +129,7 @@ void mac_fill_rect(Mac_Rect* rect, Mac_Renderer* renderer)
 }
 
 
-Mac_Rect* mac_rect(MFPoint origin, MSize size, Mac_Color color) 
+Mac_Rect* MAC_Rect(MFPoint origin, MSize size, Mac_Color color) 
 {
     Mac_Rect* rect = (Mac_Rect*)malloc(sizeof(Mac_Rect));
     rect->origin = origin;
@@ -145,7 +146,7 @@ Mac_Rect* mac_rect(MFPoint origin, MSize size, Mac_Color color)
     return rect;
 }
 
-void mac_draw_triangle(Mac_Triangle* triangle, float line_width, Mac_Renderer* renderer) 
+void MAC_DrawTriangle(Mac_Triangle* triangle, float line_width, Mac_Renderer* renderer) 
 {
     if (!triangle || !renderer) 
     {
@@ -153,20 +154,20 @@ void mac_draw_triangle(Mac_Triangle* triangle, float line_width, Mac_Renderer* r
         return;
     }
 
-    Mac_Line* side1 = mac_line(triangle->p1, triangle->p2, line_width, triangle->color);
-    Mac_Line* side2 = mac_line(triangle->p2, triangle->p3, line_width, triangle->color);
-    Mac_Line* side3 = mac_line(triangle->p3, triangle->p1, line_width, triangle->color);
+    Mac_Line* side1 = MAC_Line(triangle->p1, triangle->p2, line_width, triangle->color);
+    Mac_Line* side2 = MAC_Line(triangle->p2, triangle->p3, line_width, triangle->color);
+    Mac_Line* side3 = MAC_Line(triangle->p3, triangle->p1, line_width, triangle->color);
 
-    mac_draw_line(renderer, side1);
-    mac_draw_line(renderer, side2);
-    mac_draw_line(renderer, side3);
+    MAC_DrawLine(renderer, side1);
+    MAC_DrawLine(renderer, side2);
+    MAC_DrawLine(renderer, side3);
 
     free(side1);
     free(side2);
     free(side3);
 }
 
-void mac_fill_triangle(Mac_Triangle* triangle, Mac_Renderer* renderer) 
+void MAC_FillTriangle(Mac_Triangle* triangle, Mac_Renderer* renderer) 
 {
     if (!triangle || !renderer) 
     {
@@ -198,7 +199,7 @@ void mac_fill_triangle(Mac_Triangle* triangle, Mac_Renderer* renderer)
     [nsView setNeedsDisplay:YES];
 }
 
-Mac_Triangle* mac_triangle(MFPoint p1, MFPoint p2, MFPoint p3, Mac_Color color) 
+Mac_Triangle* MAC_Triangle(MFPoint p1, MFPoint p2, MFPoint p3, Mac_Color color) 
 {
     Mac_Triangle* triangle = (Mac_Triangle*)malloc(sizeof(Mac_Triangle));
     triangle->p1 = p1;
@@ -210,7 +211,7 @@ Mac_Triangle* mac_triangle(MFPoint p1, MFPoint p2, MFPoint p3, Mac_Color color)
     return triangle;
 }
 
-void mac_draw_circle(Mac_Circle* circle, float line_width, Mac_Renderer* renderer) 
+void MAC_DrawCircle(Mac_Circle* circle, float line_width, Mac_Renderer* renderer) 
 {
     if (!circle || !renderer) 
     {
@@ -240,7 +241,7 @@ void mac_draw_circle(Mac_Circle* circle, float line_width, Mac_Renderer* rendere
     [nsView setNeedsDisplay:YES];
 }
 
-void mac_fill_circle(Mac_Circle* circle, Mac_Renderer* renderer) 
+void MAC_FillCircle(Mac_Circle* circle, Mac_Renderer* renderer) 
 {
     if (!circle || !renderer) 
     {
@@ -269,7 +270,7 @@ void mac_fill_circle(Mac_Circle* circle, Mac_Renderer* renderer)
     [nsView setNeedsDisplay:YES];
 }
 
-Mac_Circle* mac_circle(MFPoint origin, float radius, Mac_Color color) 
+Mac_Circle* MAC_Circle(MFPoint origin, float radius, Mac_Color color) 
 {
     Mac_Circle* circle = (Mac_Circle*)malloc(sizeof(Mac_Circle));
     circle->origin = origin;
@@ -280,7 +281,7 @@ Mac_Circle* mac_circle(MFPoint origin, float radius, Mac_Color color)
     return circle;
 }
 
-void mac_draw_polygon(Mac_Polygon* polygon, float line_width, Mac_Renderer* renderer) 
+void MAC_DrawPolygon(Mac_Polygon* polygon, float line_width, Mac_Renderer* renderer) 
 {
     if (!polygon || !renderer) 
     {
@@ -297,18 +298,18 @@ void mac_draw_polygon(Mac_Polygon* polygon, float line_width, Mac_Renderer* rend
 
     for (int i = 0; i < polygon->vertex_count - 1; i++) 
     {
-        Mac_Line* line = mac_line(polygon->vertices[i], polygon->vertices[i + 1], line_width, polygon->color);
-        mac_draw_line(renderer, line); // Pass renderer instead of parent_view
+        Mac_Line* line = MAC_Line(polygon->vertices[i], polygon->vertices[i + 1], line_width, polygon->color);
+        MAC_DrawLine(renderer, line); // Pass renderer instead of parent_view
         free(line);
     }
 
     // Draw the line connecting the last vertex to the first to close the polygon
-    Mac_Line* closingLine = mac_line(polygon->vertices[polygon->vertex_count - 1], polygon->vertices[0], line_width, polygon->color);
-    mac_draw_line(renderer, closingLine); // Pass renderer instead of parent_view
+    Mac_Line* closingLine = MAC_Line(polygon->vertices[polygon->vertex_count - 1], polygon->vertices[0], line_width, polygon->color);
+    MAC_DrawLine(renderer, closingLine); // Pass renderer instead of parent_view
     free(closingLine);
 }
 
-void mac_fill_polygon(Mac_Polygon* polygon, Mac_Renderer* renderer) 
+void MAC_FillPolygon(Mac_Polygon* polygon, Mac_Renderer* renderer) 
 {
     if (!polygon || !renderer) 
     {
@@ -347,7 +348,7 @@ void mac_fill_polygon(Mac_Polygon* polygon, Mac_Renderer* renderer)
     [nsView setNeedsDisplay:YES];
 }
 
-Mac_Polygon* mac_polygon(MFPoint* vertices, int vertex_count, Mac_Color color) 
+Mac_Polygon* MAC_Polygon(MFPoint* vertices, int vertex_count, Mac_Color color) 
 {
     Mac_Polygon* polygon = (Mac_Polygon*)malloc(sizeof(Mac_Polygon));
     polygon->base.shape_type = MAC_SHAPE_POLYGON;
@@ -357,7 +358,7 @@ Mac_Polygon* mac_polygon(MFPoint* vertices, int vertex_count, Mac_Color color)
     return polygon;
 }
 
-void mac_draw_ellipse(Mac_Ellipse* ellipse, float line_width, Mac_Renderer* renderer) 
+void MAC_DrawEllipse(Mac_Ellipse* ellipse, float line_width, Mac_Renderer* renderer) 
 {
     if (!ellipse || !renderer) 
     {
@@ -387,7 +388,7 @@ void mac_draw_ellipse(Mac_Ellipse* ellipse, float line_width, Mac_Renderer* rend
     [nsView setNeedsDisplay:YES];
 }
 
-void mac_fill_ellipse(Mac_Ellipse* ellipse, Mac_Renderer* renderer) 
+void MAC_FillEllipse(Mac_Ellipse* ellipse, Mac_Renderer* renderer) 
 {
     if (!ellipse || !renderer) 
     {
@@ -416,7 +417,7 @@ void mac_fill_ellipse(Mac_Ellipse* ellipse, Mac_Renderer* renderer)
     [nsView setNeedsDisplay:YES];
 }
 
-Mac_Ellipse* mac_ellipse(MFPoint origin, float radius_x, float radius_y, Mac_Color color) 
+Mac_Ellipse* MAC_Ellipse(MFPoint origin, float radius_x, float radius_y, Mac_Color color) 
 {
     Mac_Ellipse* ellipse = (Mac_Ellipse*)malloc(sizeof(Mac_Ellipse));
     ellipse->base.shape_type = MAC_SHAPE_ELLIPSE; // Assuming you have this enum value
@@ -427,7 +428,7 @@ Mac_Ellipse* mac_ellipse(MFPoint origin, float radius_x, float radius_y, Mac_Col
     return ellipse;
 }
 
-void mac_draw_quadrilateral(Mac_Quadrilateral* quad, float line_width, Mac_Renderer* renderer) 
+void MAC_DrawQuadrilateral(Mac_Quadrilateral* quad, float line_width, Mac_Renderer* renderer) 
 {
     if (!quad || !renderer) 
     {
@@ -462,7 +463,7 @@ void mac_draw_quadrilateral(Mac_Quadrilateral* quad, float line_width, Mac_Rende
     [nsView setNeedsDisplay:YES];
 }
 
-void mac_fill_quadrilateral(Mac_Quadrilateral* quad, Mac_Renderer* renderer) 
+void MAC_FillQuadrilateral(Mac_Quadrilateral* quad, Mac_Renderer* renderer) 
 {
     if (!quad || !renderer) 
     {
@@ -496,7 +497,7 @@ void mac_fill_quadrilateral(Mac_Quadrilateral* quad, Mac_Renderer* renderer)
     [nsView setNeedsDisplay:YES];
 }
 
-Mac_Quadrilateral* mac_quadrilateral(MFPoint vertices[4], Mac_Color color) 
+Mac_Quadrilateral* MAC_Quadrilateral(MFPoint vertices[4], Mac_Color color) 
 {
     Mac_Quadrilateral* quad = (Mac_Quadrilateral*)malloc(sizeof(Mac_Quadrilateral));
     quad->base.shape_type = MAC_SHAPE_QUADRILATERAL; // Assuming you have this enum value
@@ -505,7 +506,7 @@ Mac_Quadrilateral* mac_quadrilateral(MFPoint vertices[4], Mac_Color color)
     return quad;
 }
 
-void mac_remove_shape(int shape_id, Mac_Renderer* renderer) 
+void MAC_RemoveShape(int shape_id, Mac_Renderer* renderer) 
 {
     if (!renderer) 
     {
@@ -535,7 +536,7 @@ void mac_remove_shape(int shape_id, Mac_Renderer* renderer)
     }
 }
 
-void mac_remove_all_shapes(Mac_Renderer* renderer)
+void MAC_RemoveAllShapes(Mac_Renderer* renderer)
 {
     if (!renderer) 
     {
@@ -556,7 +557,7 @@ void mac_remove_all_shapes(Mac_Renderer* renderer)
     [nsView setNeedsDisplay:YES];
 }
 
-void destroy_shape(Mac_Shape* shape) 
+void MAC_DestroyShape(Mac_Shape* shape) 
 {
     if (shape != NULL) 
     {

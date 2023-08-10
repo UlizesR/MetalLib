@@ -11,7 +11,7 @@
 #include "mac_defs.h"
 #include "mac_delegate.h"
 #include "mac_init.h"
-#include "mac_render.h"
+#include "mac_renderer.h"
 #include "mac_shapes.h"
 #include "mac_events.h"
 
