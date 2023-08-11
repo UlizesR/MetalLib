@@ -1,5 +1,5 @@
-#ifndef mac_buttins_h_
-#define mac_buttins_h_
+#ifndef mac_buttons_h_
+#define mac_buttons_h_
 
 #include "mac_defs.h"
 #include <stdint.h>
@@ -10,8 +10,7 @@
 
 @interface NSMac_Button : NSButton
 @end
-@interface CenteredButtonCell : NSButtonCell
-@end
+
 #endif
 
 #ifdef __cplusplus
@@ -86,7 +85,7 @@ typedef struct Mac_Button Mac_Button;
     takes a pointer to the button that was clicked
 
 */
-typedef void (*ButtonAction)(Mac_Button*);
+typedef void (*ButtonAction)(Mac_Button*, void* user_data);
 
 /*
     This is the struct that holds all the information for the button
@@ -97,6 +96,7 @@ struct Mac_Button {
     MTitle title;
     Mac_View* parent_view;
     ButtonAction action;
+    void* user_data;
     int tag;
     MImage image;
 };
@@ -114,8 +114,10 @@ struct Mac_Button {
     @param bordered_when_hovered Whether the button is bordered when hovered.
     @param parent_view The parent view of the button.
     @param action The action of the button.
+    @param user_data The data that is being targeted by the button
+    @return A pointer to the button.
 */
-Mac_Button* mac_button_rs(MSize size, MPoint position, MImage image, MTitle title,  UInt32 type, int font_size, bool isBordered, bool bordered_when_hovered, Mac_View* parent_view, ButtonAction action);
+Mac_Button* mac_button_rs(MSize size, MPoint position, MImage image, MTitle title,  UInt32 type, int font_size, bool isBordered, bool bordered_when_hovered, Mac_View* parent_view, ButtonAction action, void* user_data);
 
 /*!
     Creates a standard push button with a title and image.
@@ -125,9 +127,10 @@ Mac_Button* mac_button_rs(MSize size, MPoint position, MImage image, MTitle titl
     @param image The image of the button.
     @param parent_view The parent view of the button.
     @param action The action of the button.
+    @param user_data The data that is being targeted by the button
     @return A pointer to the button.
 */
-Mac_Button* mac_button_spb_tita(MSize size, MPoint position, MTitle title, MImage image, Mac_View* parent_view, ButtonAction action);
+Mac_Button* mac_button_spb_tita(MSize size, MPoint position, MTitle title, MImage image, Mac_View* parent_view, ButtonAction action, void* user_data);
 
 /*!
     Creates a standard push button with the provided title.
@@ -136,9 +139,10 @@ Mac_Button* mac_button_spb_tita(MSize size, MPoint position, MTitle title, MImag
     @param title The title of the button.
     @param parent_view The parent view of the button.
     @param action The action of the button.
+    @param user_data The data that is being targeted by the button
     @return A pointer to the button.
 */
-Mac_Button* mac_button_spb_tta(MSize size, MPoint position, MTitle title, Mac_View* parent_view, ButtonAction action);
+Mac_Button* mac_button_spb_tta(MSize size, MPoint position, MTitle title, Mac_View* parent_view, ButtonAction action, void* user_data);
 
 /*!
     Creates a standard push button with the provided image.
@@ -147,9 +151,10 @@ Mac_Button* mac_button_spb_tta(MSize size, MPoint position, MTitle title, Mac_Vi
     @param image The image of the button.
     @param parent_view The parent view of the button.
     @param action The action of the button.
+    @param user_data The data that is being targeted by the button
     @return A pointer to the button.
 */
-Mac_Button* mac_button_spb_ita(MSize size, MPoint position, MImage image, Mac_View* parent_view, ButtonAction action);
+Mac_Button* mac_button_spb_ita(MSize size, MPoint position, MImage image, Mac_View* parent_view, ButtonAction action, void* user_data);
 
 /*!
     Creates a standard checkbox with the provided title.
@@ -160,7 +165,7 @@ Mac_Button* mac_button_spb_ita(MSize size, MPoint position, MImage image, Mac_Vi
     @param action The action message sent by the control.
     @return An initialized button object.
  */
-Mac_Button* mac_button_scb_tta(MSize size, MPoint position, MTitle title, Mac_View* parent_view, ButtonAction action);
+Mac_Button* mac_button_scb_tta(MSize size, MPoint position, MTitle title, Mac_View* parent_view, ButtonAction action, void* user_data);
 
 /*!
     Creates a standard radio with the provided image.
@@ -171,7 +176,7 @@ Mac_Button* mac_button_scb_tta(MSize size, MPoint position, MTitle title, Mac_Vi
     @param action The action message sent by the control.
     @return An initialized button object.
 */
-Mac_Button* mac_button_srb_tta(MSize size, MPoint position, MTitle title, Mac_View* parent_view, ButtonAction action);
+Mac_Button* mac_button_srb_tta(MSize size, MPoint position, MTitle title, Mac_View* parent_view, ButtonAction action, void* user_data);
 
 void destroyButton(Mac_Button* button);
 
@@ -179,4 +184,4 @@ void destroyButton(Mac_Button* button);
 }
 #endif
 
-#endif // mac_buttins_h_
+#endif // mac_buttons_h_

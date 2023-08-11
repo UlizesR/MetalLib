@@ -14,5 +14,6 @@
 #include "mac_renderer.h"
 #include "mac_shapes.h"
 #include "mac_events.h"
+#include "mac_buttons.h"
 
 #endif // maca_h_

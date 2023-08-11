@@ -1,0 +1,370 @@
+#import "MACA/mac_buttons.h"
+#import "MACA/mac_view.h"
+
+#include <MacTypes.h>
+#include <stdio.h>
+#import <objc/runtime.h>
+
+#ifdef __OBJC__
+
+@implementation NSMac_Button
+
+- (void)onClick:(id)sender 
+{
+    NSButton *nsButton = (NSButton*)sender;
+    Mac_Button *button = (Mac_Button *)nsButton.tag;
+    if (button && button->action) {
+        button->action(button, button->user_data); // Pass the user data
+    }
+}
+
+
+- (instancetype)button_spb_tita:(NSString*)title image:(NSImage*)image 
+{
+    NSMac_Button* button = [NSMac_Button buttonWithTitle:title image:image target:self action:@selector(onClick:)];
+    return button;
+}
+
+- (instancetype)button_spb_tta:(NSString*)title 
+{
+    NSMac_Button* button = [NSMac_Button buttonWithTitle:title target:self action:@selector(onClick:)];
+    return button;
+}
+
+- (instancetype)button_spb_ita:(NSImage*)image 
+{
+    NSMac_Button* button = [NSMac_Button buttonWithImage:image target:self action:@selector(onClick:)];
+    return button;
+}
+
+- (instancetype)button_scb_tta:(NSString*)title 
+{
+    NSMac_Button* button = [NSMac_Button checkboxWithTitle:title target:self action:@selector(onClick:)];
+    return button;
+}
+
+- (instancetype)button_srb_tta:(NSString*)title 
+{
+    NSMac_Button* button = [NSMac_Button radioButtonWithTitle:title target:self action:@selector(onClick:)];
+    return button;
+}
+
+@end
+
+#endif
+
+Mac_Button* mac_button_rs(MSize size, MPoint position, MImage image, MTitle title,  UInt32 type, int font_size, bool isBordered, bool bordered_when_hovered, Mac_View* parent_view, ButtonAction action, void* user_data)
+{
+    Mac_Button* button = (Mac_Button*)malloc(sizeof(Mac_Button));
+    if(button == NULL) {
+        printf("Memory allocation for button failed\n");
+        return NULL;
+    }
+
+    button->size = size;
+    button->position = position;
+    button->title = title;
+    button->image = image;
+    button->parent_view = parent_view;
+    button->action = action;
+    button->user_data = user_data; // Set the user_data field
+
+    if (font_size > size.height) {
+        printf("Font size is too big for the button\n");
+        free(button);
+        return NULL;
+    }
+
+    NSString* bTitle = [NSString stringWithUTF8String:title];
+    NSImage* bImage = [[NSImage alloc] initWithContentsOfFile:[NSString stringWithUTF8String:image]];
+
+    NSRect frame = NSMakeRect(position.x, position.y, size.width, size.height);
+    NSMac_Button* nsButton = [[NSMac_Button alloc] initWithFrame:frame];
+    if (bTitle)
+    {
+        [nsButton setFont:[NSFont systemFontOfSize:font_size]];
+        [nsButton setTitle:bTitle];
+        [nsButton setAlignment:NSTextAlignmentCenter];
+    }
+    [nsButton setBezelStyle:NSBezelStyleRegularSquare];
+    [nsButton setButtonType:type];
+
+    if (isBordered) {
+        [nsButton setBordered:YES];
+    } else {
+        [nsButton setBordered:NO];
+    }
+    if (bordered_when_hovered) {
+        [nsButton setShowsBorderOnlyWhileMouseInside:YES];
+    } else {
+        [nsButton setShowsBorderOnlyWhileMouseInside:NO];
+    }
+    if (bImage) {
+        [nsButton setImage:bImage];
+        [nsButton setImageScaling:NSImageScaleProportionallyDown];
+        [nsButton setImagePosition:NSImageLeft];
+    }
+
+    [nsButton setEnabled:YES];
+    nsButton.tag = (NSInteger)button; // Set the tag property
+    button->tag = (int)nsButton.tag;
+    [nsButton setTarget:nsButton];
+    [nsButton setAction:@selector(onClick:)];
+
+    NSView* nsView = NULL;
+    switch (parent_view->type) {
+        case MAC_VIEW_TYPE_NORMAL:
+            nsView = (__bridge Mac_NSView_Normal *)(parent_view->view.n_view._this);
+            break;
+        case MAC_VIEW_TYPE_CORE_G:
+            nsView = (__bridge Mac_NSView_Core_G *)(parent_view->view.r_view._this);
+            break;
+        case MAC_VIEW_TYPE_METAL:
+            nsView = (__bridge Mac_NSView_Metal *)(parent_view->view.m_view._this);
+            break;
+        default:
+            free(button); // Free the allocated memory if the view type is unknown
+            return NULL;
+    }
+    [nsView addSubview:nsButton];
+
+    return button;
+}
+
+Mac_Button* mac_button_spb_tita(MSize size, MPoint position, MTitle title, MImage image, Mac_View* parent_view, ButtonAction action, void* user_data)
+{
+    Mac_Button* button = (Mac_Button*)malloc(sizeof(Mac_Button));
+    if(button == NULL) {
+        printf("Error: Could not allocate memory for button\n");
+        return NULL;
+    }
+
+    button->size = size;
+    button->position = position;
+    button->title = title;
+    button->image = image;
+    button->parent_view = parent_view;
+    button->action = action;
+    button->user_data = user_data;
+
+    NSString* bTitle = [NSString stringWithUTF8String:title];
+    NSImage* bImage = [[NSImage alloc] initWithContentsOfFile:[NSString stringWithUTF8String:image]];
+    NSMac_Button* nsButton = [[NSMac_Button alloc] button_spb_tita:bTitle image:bImage];
+
+    [nsButton setFrame: NSMakeRect(position.x, position.y, size.width, size.height)];
+    nsButton.tag = (NSInteger)button; // Set the tag property
+    button->tag = (int)nsButton.tag;
+    [nsButton setEnabled:YES];
+    [nsButton sizeToFit];
+
+    NSView* nsView = NULL;
+    switch (parent_view->type) {
+        case MAC_VIEW_TYPE_NORMAL:
+            nsView = (__bridge Mac_NSView_Normal *)(parent_view->view.n_view._this);
+            break;
+        case MAC_VIEW_TYPE_CORE_G:
+            nsView = (__bridge Mac_NSView_Core_G *)(parent_view->view.r_view._this);
+            break;
+        case MAC_VIEW_TYPE_METAL:
+            nsView = (__bridge Mac_NSView_Metal *)(parent_view->view.m_view._this);
+            break;
+        default:
+            free(button); // Free the allocated memory if the view type is unknown
+            return NULL;
+    }
+    [nsView addSubview:nsButton];
+
+    return button;
+}
+
+
+Mac_Button* mac_button_spb_tta(MSize size, MPoint position, MTitle title, Mac_View* parent_view, ButtonAction action, void* user_data)
+{
+    Mac_Button* button = (Mac_Button*)malloc(sizeof(Mac_Button));
+    if(button == NULL) {
+        printf("Error: Could not allocate memory for button\n");
+        return NULL;
+    }
+
+    button->size = size;
+    button->position = position;
+    button->title = title;
+    button->image = "";
+    button->parent_view = parent_view;
+    button->action = action;
+    button->user_data = user_data;
+
+    NSString* bTitle = [NSString stringWithUTF8String:title];
+    NSMac_Button* nsButton = [[NSMac_Button alloc] button_spb_tta:bTitle];
+
+    [nsButton setFrame: NSMakeRect(position.x, position.y, size.width, size.height)];
+    nsButton.tag = (NSInteger)button; // Set the tag property
+    button->tag = (int)nsButton.tag;
+    [nsButton setEnabled:YES];
+    [nsButton sizeToFit];
+
+    NSView* nsView = NULL;
+    switch (parent_view->type) {
+        case MAC_VIEW_TYPE_NORMAL:
+            nsView = (__bridge Mac_NSView_Normal *)(parent_view->view.n_view._this);
+            break;
+        case MAC_VIEW_TYPE_CORE_G:
+            nsView = (__bridge Mac_NSView_Core_G *)(parent_view->view.r_view._this);
+            break;
+        case MAC_VIEW_TYPE_METAL:
+            nsView = (__bridge Mac_NSView_Metal *)(parent_view->view.m_view._this);
+            break;
+        default:
+            free(button); // Free the allocated memory if the view type is unknown
+            return NULL;
+    }
+    [nsView addSubview:nsButton];
+
+    return button;
+}
+
+
+Mac_Button* mac_button_spb_ita(MSize size, MPoint position, MImage image, Mac_View* parent_view, ButtonAction action, void* user_data)
+{
+    Mac_Button* button = (Mac_Button*)malloc(sizeof(Mac_Button));
+    if(button == NULL) {
+        printf("Error: Could not allocate memory for button\n");
+        return NULL;
+    }
+
+    button->size = size;
+    button->position = position;
+    button->title = "";
+    button->image = image;
+    button->parent_view = parent_view;
+    button->action = action;
+    button->user_data = user_data;
+
+    NSImage* bImage = [[NSImage alloc] initWithContentsOfFile:[NSString stringWithUTF8String:image]];
+    NSMac_Button* nsButton = [[NSMac_Button alloc] button_spb_ita:bImage];
+
+    [nsButton setFrame: NSMakeRect(position.x, position.y, size.width, size.height)];
+    nsButton.tag = (NSInteger)button; // Set the tag property
+    button->tag = (int)nsButton.tag;
+    [nsButton setEnabled:YES];
+    [nsButton sizeToFit];
+
+    NSView* nsView = NULL;
+    switch (parent_view->type) {
+        case MAC_VIEW_TYPE_NORMAL:
+            nsView = (__bridge Mac_NSView_Normal *)(parent_view->view.n_view._this);
+            break;
+        case MAC_VIEW_TYPE_CORE_G:
+            nsView = (__bridge Mac_NSView_Core_G *)(parent_view->view.r_view._this);
+            break;
+        case MAC_VIEW_TYPE_METAL:
+            nsView = (__bridge Mac_NSView_Metal *)(parent_view->view.m_view._this);
+            break;
+        default:
+            free(button); // Free the allocated memory if the view type is unknown
+            return NULL;
+    }
+    [nsView addSubview:nsButton];
+
+    return button;
+}
+
+
+Mac_Button* mac_button_scb_tta(MSize size, MPoint position, MTitle title, Mac_View* parent_view, ButtonAction action, void* user_data)
+{
+    Mac_Button* button = (Mac_Button*)malloc(sizeof(Mac_Button));
+    if(button == NULL) {
+        printf("Error: Could not allocate memory for button\n");
+        return NULL;
+    }
+
+    button->size = size;
+    button->position = position;
+    button->title = title;
+    button->image = "";
+    button->parent_view = parent_view;
+    button->action = action;
+    button->user_data = user_data;
+    
+    NSString* bTitle = [NSString stringWithUTF8String:title];
+    NSMac_Button* nsButton = [[NSMac_Button alloc] button_scb_tta:bTitle];
+    
+    [nsButton setFrame: NSMakeRect(position.x, position.y, size.width, size.height)];
+    nsButton.tag = (NSInteger)button; // Set the tag property
+    button->tag = (int)nsButton.tag;
+    [nsButton setEnabled:YES];
+    [nsButton sizeToFit];
+
+    NSView* nsView = NULL;
+    switch (parent_view->type) {
+        case MAC_VIEW_TYPE_NORMAL:
+            nsView = (__bridge Mac_NSView_Normal *)(parent_view->view.n_view._this);
+            break;
+        case MAC_VIEW_TYPE_CORE_G:
+            nsView = (__bridge Mac_NSView_Core_G *)(parent_view->view.r_view._this);
+            break;
+        case MAC_VIEW_TYPE_METAL:
+            nsView = (__bridge Mac_NSView_Metal *)(parent_view->view.m_view._this);
+            break;
+        default:
+            free(button); // Free the allocated memory if the view type is unknown
+            return NULL;
+    }
+    [nsView addSubview:nsButton];
+
+    return button;
+}
+
+
+Mac_Button* mac_button_srb_tta(MSize size, MPoint position, MTitle title, Mac_View* parent_view, ButtonAction action, void* user_data)
+{
+    Mac_Button* button = (Mac_Button*)malloc(sizeof(Mac_Button));
+    if(button == NULL) {
+        printf("Error: Could not allocate memory for button\n");
+        return NULL;
+    }
+
+    button->size = size;
+    button->position = position;
+    button->title = title;
+    button->image = "";
+    button->parent_view = parent_view;
+    button->action = action;
+    button->user_data = user_data;
+
+    NSString* bTitle = [NSString stringWithUTF8String:title];
+    NSMac_Button* nsButton = [[NSMac_Button alloc] button_srb_tta:bTitle];
+
+    [nsButton setFrame: NSMakeRect(position.x, position.y, size.width, size.height)];
+    nsButton.tag = (NSInteger)button; // Set the tag property
+    button->tag = (int)nsButton.tag;
+    [nsButton setEnabled:YES];
+    [nsButton sizeToFit];
+
+    NSView* nsView = NULL;
+    switch (parent_view->type) {
+        case MAC_VIEW_TYPE_NORMAL:
+            nsView = (__bridge Mac_NSView_Normal *)(parent_view->view.n_view._this);
+            break;
+        case MAC_VIEW_TYPE_CORE_G:
+            nsView = (__bridge Mac_NSView_Core_G *)(parent_view->view.r_view._this);
+            break;
+        case MAC_VIEW_TYPE_METAL:
+            nsView = (__bridge Mac_NSView_Metal *)(parent_view->view.m_view._this);
+            break;
+        default:
+            free(button); // Free the allocated memory if the view type is unknown
+            return NULL;
+    }
+    [nsView addSubview:nsButton];
+
+    return button;
+}
+
+
+
+void destroyButton(Mac_Button* button) {
+    if (button != NULL) {
+        free(button);
+    }
+}

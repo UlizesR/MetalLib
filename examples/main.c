@@ -1,4 +1,3 @@
-#include "MACA/mac_shapes.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -6,6 +5,55 @@
 #include <time.h>
 
 #include <MACA/maca.h>
+
+typedef struct {
+    Mac_Quadrilateral* trapezoid;
+    Mac_Renderer* renderer;
+} ShapeControl;
+
+void move_up(Mac_Button* button, void* user_data) {
+    ShapeControl* control = (ShapeControl*)user_data;
+    Mac_Quadrilateral* trapezoid = control->trapezoid;
+    for (int i = 0; i < 4; i++) {
+        trapezoid->vertices[i].y += 5; // Move up
+    }
+    MAC_RemoveShape(trapezoid->base.id, control->renderer);
+    MAC_DrawQuadrilateral(trapezoid, 2.0, control->renderer);
+}
+
+void move_down(Mac_Button* button, void* user_data) {
+    ShapeControl* control = (ShapeControl*)user_data;
+    Mac_Quadrilateral* trapezoid = control->trapezoid;
+    for (int i = 0; i < 4; i++) {
+        trapezoid->vertices[i].y -= 5; // Move down
+    }
+    MAC_RemoveShape(trapezoid->base.id, control->renderer);
+    MAC_DrawQuadrilateral(trapezoid, 2.0, control->renderer);
+}
+
+void move_left(Mac_Button* button, void* user_data) {
+    ShapeControl* control = (ShapeControl*)user_data;
+    Mac_Quadrilateral* trapezoid = control->trapezoid;
+    for (int i = 0; i < 4; i++) {
+        trapezoid->vertices[i].x -= 5; // Move left
+    }
+    MAC_RemoveShape(trapezoid->base.id, control->renderer);
+    MAC_DrawQuadrilateral(trapezoid, 2.0, control->renderer);
+}
+
+void move_right(Mac_Button* button, void* user_data) {
+    ShapeControl* control = (ShapeControl*)user_data;
+    Mac_Quadrilateral* trapezoid = control->trapezoid;
+    for (int i = 0; i < 4; i++) {
+        trapezoid->vertices[i].x += 5; // Move right
+    }
+    MAC_RemoveShape(trapezoid->base.id, control->renderer);
+    MAC_DrawQuadrilateral(trapezoid, 2.0, control->renderer);
+}
+
+void radion_click(Mac_Button* button, void* user_data) {
+    printf("Radio button clicked\n");
+}
 
 void rotate_around_center(MFPoint* vertices, int vertex_count, MFPoint* center, float angle) {
     float radian = angle * (M_PI / 180); // Convert angle to radians
@@ -54,6 +102,8 @@ int main(int argc, const char * argv[]) {
     Mac_Window* window;
     Mac_Renderer* renderer;
 
+    int* ud = 0;
+
     MAC_CreateWindowAndRenderer(800, 600, "Window", MAC_RENDERER_CORE_G, MAC_WINDOW_MINIMIZED | MAC_WINDOW_RESIZABLE, &window, &renderer);
     if (!window || !renderer)
     {
@@ -76,6 +126,17 @@ int main(int argc, const char * argv[]) {
 
     // Draw the trapezoid
     MAC_DrawQuadrilateral(trapezoid, 2.0, renderer);
+
+    ShapeControl control;
+    control.trapezoid = trapezoid;
+    control.renderer = renderer;
+
+    Mac_Button* button_up = mac_button_rs((MSize){50, 50}, (MPoint){60, 550}, "", "U", 0, 20, true, false, window->content_view, move_up, &control);
+    Mac_Button* button_down = mac_button_rs((MSize){50, 50}, (MPoint){60, 500}, "", "D", 0, 20, true, false, window->content_view, move_down, &control);
+    Mac_Button* button_left = mac_button_rs((MSize){50, 50}, (MPoint){10, 525}, "", "L", 0, 20, true, false, window->content_view, move_left, &control);
+    Mac_Button* button_right = mac_button_rs((MSize){50, 50}, (MPoint){110, 525}, "", "R", 0, 20, true, false, window->content_view, move_right, &control);
+
+    mac_button_scb_tta((MSize){0, 0}, (MPoint){500, 500}, "radio", window->content_view, radion_click, &ud);
 
     // Main loop
     bool running = true;
@@ -129,6 +190,10 @@ int main(int argc, const char * argv[]) {
     }
 
     // Clean up
+    destroyButton(button_up);
+    destroyButton(button_down);
+    destroyButton(button_left);
+    destroyButton(button_right);
     MAC_DestroyShape((Mac_Shape*)trapezoid);
     MAC_DestroyRenderer(renderer);
     MAC_DestroyWindow(window);
