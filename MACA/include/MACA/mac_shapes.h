@@ -50,6 +50,7 @@ typedef struct {
     Mac_Shape base;
     MSize size;
     MFPoint* vertices;
+    int vertex_count;
     Mac_Color color;
 } Mac_Rect;
 
@@ -109,10 +110,7 @@ Mac_Point* MAC_Point(float x, float y, Mac_Color color);
 /*!
     draws a line with the given parameters
     @param renderer: the renderer to draw the shape to
-    @param init_pos: the initial position of the line
-    @param end_pos: the end position of the line
-    @param line_width: the width of the line
-    @param color: the color of the line
+    @param line: the line to draw
 */
 
 void MAC_DrawLine(Mac_Renderer* renderer, Mac_Line* line);

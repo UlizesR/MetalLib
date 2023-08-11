@@ -12,6 +12,7 @@
 
 @end
 
+
 Mac_Slider* MAC_HSlider(MSize size, MPoint position, float minValue, float maxValue, float increment, Mac_Color track_color, Mac_View* parent_view, SliderAction action, void* user_data)
 {
     Mac_Slider* slider = (Mac_Slider*)malloc(sizeof(Mac_Slider));

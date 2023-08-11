@@ -73,31 +73,38 @@ Mac_Line* MAC_Line(MFPoint init_pos, MFPoint end_pos, float line_width, Mac_Colo
 
 void MAC_DrawRect(Mac_Rect* rect, float line_width, Mac_Renderer* renderer) 
 {
-    if (!rect || !renderer) 
+    if (!rect || !renderer || rect->vertex_count != 4) 
     {
-        printf("ERROR: Rectangle or renderer is NULL.\n");
+        printf("ERROR: Rectangle or renderer is NULL, or vertex count is incorrect.\n");
         return;
     }
 
-    MFPoint bottomLeft = rect->vertices[0];
-    MFPoint bottomRight = { rect->vertices[0].x + rect->size.width, rect->vertices[0].y };
-    MFPoint topLeft = { rect->vertices[0].x, rect->vertices[0].y + rect->size.height };
-    MFPoint topRight = { rect->vertices[0].x + rect->size.width, rect->vertices[0].y + rect->size.height };
+    Mac_RView* view_to_render = renderer->render_view->rview; // Assuming the renderer has a render_view field pointing to the appropriate view
+    Mac_NSView_Core_G* nsView = (__bridge Mac_NSView_Core_G*)view_to_render->_this; // Assuming the view is of type Core Graphics
 
-    Mac_Line* bottomSide = MAC_Line(bottomLeft, bottomRight, line_width, rect->color);
-    Mac_Line* rightSide = MAC_Line(bottomRight, topRight, line_width, rect->color);
-    Mac_Line* topSide = MAC_Line(topRight, topLeft, line_width, rect->color);
-    Mac_Line* leftSide = MAC_Line(topLeft, bottomLeft, line_width, rect->color);
+    CGMutablePathRef path = CGPathCreateMutable();
+    CGPathMoveToPoint(path, NULL, rect->vertices[0].x, rect->vertices[0].y);
+    for (int i = 1; i < 4; i++) 
+    {
+        CGPathAddLineToPoint(path, NULL, rect->vertices[i].x, rect->vertices[i].y);
+    }
+    CGPathCloseSubpath(path); // Close the path to create a quadrilateral
 
-    MAC_DrawLine(renderer, bottomSide); // Bottom side
-    MAC_DrawLine(renderer, rightSide); // Right side
-    MAC_DrawLine(renderer, topSide); // Top side
-    MAC_DrawLine(renderer, leftSide); // Left side
+    DrawableShape* shape = [[DrawableShape alloc] init];
+    shape.path = path;
+    shape.color = rect->color;
+    shape.filled = NO;
+    shape.id = rect->base.id;
 
-    free(bottomSide);
-    free(rightSide);
-    free(topSide);
-    free(leftSide);
+    if (!nsView.shapes) 
+    {
+        nsView.shapes = [NSMutableArray array];
+    }
+    [nsView.shapes addObject:shape];
+
+    // Removed the CGPathRelease(path) as it's managed by the DrawableShape object now.
+
+    [nsView setNeedsDisplay:YES];
 }
 
 void MAC_FillRect(Mac_Rect* rect, Mac_Renderer* renderer) 
@@ -135,6 +142,8 @@ void MAC_FillRect(Mac_Rect* rect, Mac_Renderer* renderer)
 Mac_Rect* MAC_Rect(MFPoint origin, MSize size, Mac_Color color) 
 {
     Mac_Rect* rect = (Mac_Rect*)malloc(sizeof(Mac_Rect));
+    rect->vertices = (MFPoint*)malloc(4 * sizeof(MFPoint)); // Allocate space for 4 vertices
+    rect->vertex_count = 4;
     rect->vertices[0] = origin;
     rect->size = size;
     rect->color = color;

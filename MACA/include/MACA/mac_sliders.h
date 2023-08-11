@@ -4,6 +4,8 @@
 #include "MACA/mac_colors.h"
 #include "mac_defs.h"
 
+#include <MacTypes.h>
+
 #ifdef __OBJC__
 #import <Cocoa/Cocoa.h> 
 

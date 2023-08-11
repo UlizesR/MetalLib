@@ -1,11 +1,13 @@
-#include "MACA/mac_view.h"
-#include "MACA/mac_window.h"
+#import "MACA/mac_view.h"
+#import "MACA/mac_window.h"
 
 #import <Cocoa/Cocoa.h>
 #include <stdio.h>
-#include <Foundation/Foundation.h>
 
 @implementation Mac_NSView_Normal
+- (void)drawRect:(NSRect)dirtyRect {
+    [super drawRect:dirtyRect];
+}
 @end
 
 extern int shapeID;
@@ -149,6 +151,7 @@ Mac_View* MAC_AddSubView(Mac_View* parent, UInt32 type, int width, int height, i
         nview->background_color = background_color;
         nview->window_parent = parent->view.n_view.window_parent;
         nview->id = viewIDCounter++;
+        nview->is_content_view = false; 
 
         nsview = [[Mac_NSView_Normal alloc] initWithFrame:frame];
         [nsview setWantsLayer:YES];
@@ -186,14 +189,15 @@ Mac_View* MAC_AddSubView(Mac_View* parent, UInt32 type, int width, int height, i
         rview->window_parent = parent->view.r_view.window_parent;
         rview->renderer = renderer;
         rview->id = viewIDCounter++;
+        rview->is_content_view = false;
 
         nsview = [[Mac_NSView_Core_G alloc] initWithFrame:frame];
+        rview->_this = (__bridge void*)nsview;
         [nsview setWantsLayer:YES];
         [nsview.layer setBackgroundColor:bgColor.CGColor];
         [nsview.layer setCornerRadius:corner_radius];
         [nsview setNeedsDisplay:YES];
         [nsview setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
-        rview->_this = (__bridge void*)nsview;
         subView->view.r_view = *rview;
 
         if (parent->type == MAC_VIEW_TYPE_NORMAL)
@@ -248,6 +252,7 @@ Mac_View* MAC_AddContentView(Mac_Window* parent, Mac_Color background_color, UIn
         nview->background_color = background_color;
         nview->window_parent = parent;
         nview->id = viewIDCounter++; // Set the view ID
+        nview->is_content_view = true; // Set the is_content_view flag to true
 
         Mac_NSView_Normal* nsView = [[Mac_NSView_Normal alloc] initWithFrame:frame];
         if (nsView == NULL) {
@@ -282,6 +287,7 @@ Mac_View* MAC_AddContentView(Mac_Window* parent, Mac_Color background_color, UIn
         rview->window_parent = parent;
         rview->id = viewIDCounter++; // Set the view ID
         rview->renderer = renderer;
+        rview->is_content_view = true; // Set the is_content_view flag to true
 
         Mac_NSView_Core_G* nsView = [[Mac_NSView_Core_G alloc] initWithFrame:frame];
         if (nsView == NULL) {
