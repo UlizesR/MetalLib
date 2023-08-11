@@ -62,7 +62,6 @@ int main(int argc, const char * argv[]) {
 ```C
     Mac_Window* mainWindow = MAC_CreateWindow(800, 600, true, "Main Window", 0);
     Mac_View* contentView = MAC_AddContentView(mainWindow, MAC_COLOR_WHITE, MAC_VIEW_TYPE_NORMAL, NULL);
-
 ```
 
 4. create a running loop 
@@ -76,7 +75,7 @@ int main(int argc, const char * argv[]) {
             // do event handling
         }
         // Check if the window is still open
-        if (!isWindowOpen(window)) {
+        if (!isWindowOpen(mainWindow)) {
             running = false;
         }
     }

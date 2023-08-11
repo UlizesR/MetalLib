@@ -51,10 +51,6 @@ void move_right(Mac_Button* button, void* user_data) {
     MAC_DrawQuadrilateral(trapezoid, 2.0, control->renderer);
 }
 
-void radion_click(Mac_Button* button, void* user_data) {
-    printf("Radio button clicked\n");
-}
-
 void rotate_around_center(MFPoint* vertices, int vertex_count, MFPoint* center, float angle) {
     float radian = angle * (M_PI / 180); // Convert angle to radians
     float cosTheta = cos(radian);
@@ -102,8 +98,6 @@ int main(int argc, const char * argv[]) {
     Mac_Window* window;
     Mac_Renderer* renderer;
 
-    int* ud = 0;
-
     MAC_CreateWindowAndRenderer(800, 600, "Window", MAC_RENDERER_CORE_G, MAC_WINDOW_MINIMIZED | MAC_WINDOW_RESIZABLE, &window, &renderer);
     if (!window || !renderer)
     {
@@ -135,8 +129,6 @@ int main(int argc, const char * argv[]) {
     Mac_Button* button_down = mac_button_rs((MSize){50, 50}, (MPoint){60, 500}, "", "D", 0, 20, true, false, window->content_view, move_down, &control);
     Mac_Button* button_left = mac_button_rs((MSize){50, 50}, (MPoint){10, 525}, "", "L", 0, 20, true, false, window->content_view, move_left, &control);
     Mac_Button* button_right = mac_button_rs((MSize){50, 50}, (MPoint){110, 525}, "", "R", 0, 20, true, false, window->content_view, move_right, &control);
-
-    mac_button_scb_tta((MSize){0, 0}, (MPoint){500, 500}, "radio", window->content_view, radion_click, &ud);
 
     // Main loop
     bool running = true;
