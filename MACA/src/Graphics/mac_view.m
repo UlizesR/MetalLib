@@ -133,7 +133,7 @@ Mac_View* MAC_AddSubView(Mac_View* parent, UInt32 type, int width, int height, i
                                        green:background_color.g
                                         blue:background_color.b
                                        alpha:background_color.a];
-
+    NSView* nsview = NULL;
     if (type == MAC_VIEW_TYPE_NORMAL)
     {
         Mac_NView* nview = (Mac_NView*)malloc(sizeof(Mac_NView));
@@ -150,7 +150,7 @@ Mac_View* MAC_AddSubView(Mac_View* parent, UInt32 type, int width, int height, i
         nview->window_parent = parent->view.n_view.window_parent;
         nview->id = viewIDCounter++;
 
-        Mac_NSView_Normal* nsview = [[Mac_NSView_Normal alloc] initWithFrame:frame];
+        nsview = [[Mac_NSView_Normal alloc] initWithFrame:frame];
         [nsview setWantsLayer:YES];
         [nsview.layer setBackgroundColor:bgColor.CGColor];
         [nsview.layer setCornerRadius:corner_radius];
@@ -179,7 +179,7 @@ Mac_View* MAC_AddSubView(Mac_View* parent, UInt32 type, int width, int height, i
         rview->renderer = renderer;
         rview->id = viewIDCounter++;
 
-        Mac_NSView_Core_G* nsview = [[Mac_NSView_Core_G alloc] initWithFrame:frame];
+        nsview = [[Mac_NSView_Core_G alloc] initWithFrame:frame];
         [nsview setWantsLayer:YES];
         [nsview.layer setBackgroundColor:bgColor.CGColor];
         [nsview.layer setCornerRadius:corner_radius];

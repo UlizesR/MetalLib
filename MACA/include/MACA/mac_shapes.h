@@ -49,7 +49,7 @@ typedef struct {
 typedef struct {
     Mac_Shape base;
     MSize size;
-    MFPoint p_tr, p_tl, p_br, origin;
+    MFPoint* vertices;
     Mac_Color color;
 } Mac_Rect;
 

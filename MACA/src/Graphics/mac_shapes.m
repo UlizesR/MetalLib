@@ -79,10 +79,10 @@ void MAC_DrawRect(Mac_Rect* rect, float line_width, Mac_Renderer* renderer)
         return;
     }
 
-    MFPoint bottomLeft = rect->origin;
-    MFPoint bottomRight = { rect->origin.x + rect->size.width, rect->origin.y };
-    MFPoint topLeft = { rect->origin.x, rect->origin.y + rect->size.height };
-    MFPoint topRight = { rect->origin.x + rect->size.width, rect->origin.y + rect->size.height };
+    MFPoint bottomLeft = rect->vertices[0];
+    MFPoint bottomRight = { rect->vertices[0].x + rect->size.width, rect->vertices[0].y };
+    MFPoint topLeft = { rect->vertices[0].x, rect->vertices[0].y + rect->size.height };
+    MFPoint topRight = { rect->vertices[0].x + rect->size.width, rect->vertices[0].y + rect->size.height };
 
     Mac_Line* bottomSide = MAC_Line(bottomLeft, bottomRight, line_width, rect->color);
     Mac_Line* rightSide = MAC_Line(bottomRight, topRight, line_width, rect->color);
@@ -112,7 +112,7 @@ void MAC_FillRect(Mac_Rect* rect, Mac_Renderer* renderer)
     Mac_NSView_Core_G* nsView = (__bridge Mac_NSView_Core_G*)view_to_render->_this; // Assuming the view is of type Core Graphics
 
     CGMutablePathRef path = CGPathCreateMutable();
-    CGPathAddRect(path, NULL, CGRectMake(rect->origin.x, rect->origin.y, rect->size.width, rect->size.height));
+    CGPathAddRect(path, NULL, CGRectMake(rect->vertices[0].x, rect->vertices[0].y, rect->size.width, rect->size.height));
 
     DrawableShape* shape = [[DrawableShape alloc] init];
     shape.path = path;
@@ -135,7 +135,7 @@ void MAC_FillRect(Mac_Rect* rect, Mac_Renderer* renderer)
 Mac_Rect* MAC_Rect(MFPoint origin, MSize size, Mac_Color color) 
 {
     Mac_Rect* rect = (Mac_Rect*)malloc(sizeof(Mac_Rect));
-    rect->origin = origin;
+    rect->vertices[0] = origin;
     rect->size = size;
     rect->color = color;
     rect->base.id = shapeID++;
@@ -144,9 +144,9 @@ Mac_Rect* MAC_Rect(MFPoint origin, MSize size, Mac_Color color)
     rect->base.shape_type = MAC_SHAPE_RECT;
 
     // Calculate the other points based on the origin and size
-    rect->p_tr = (MFPoint){ origin.x + size.width, origin.y + size.height };
-    rect->p_tl = (MFPoint){ origin.x, origin.y + size.height };
-    rect->p_br = (MFPoint){ origin.x + size.width, origin.y };
+    rect->vertices[1] = (MFPoint){ origin.x + size.width, origin.y };
+    rect->vertices[2] = (MFPoint){ origin.x + size.width, origin.y + size.height };
+    rect->vertices[3] = (MFPoint){ origin.x, origin.y + size.height };
 
     return rect;
 }
