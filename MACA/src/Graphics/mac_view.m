@@ -159,8 +159,16 @@ Mac_View* MAC_AddSubView(Mac_View* parent, UInt32 type, int width, int height, i
         nview->_this = (__bridge void*)nsview;
         subView->view.n_view = *nview;
 
-        Mac_NSView_Normal* parentNSView = (__bridge Mac_NSView_Normal*)parent->view.n_view._this;
-        [parentNSView addSubview:nsview];
+        if (parent->type == MAC_VIEW_TYPE_NORMAL)
+        {
+            Mac_NSView_Normal* parentNSView = (__bridge Mac_NSView_Normal*)parent->view.n_view._this;
+            [parentNSView addSubview:nsview];
+        }
+        else if (parent->type == MAC_VIEW_TYPE_CORE_G)
+        {
+            Mac_NSView_Core_G* parentNSView = (__bridge Mac_NSView_Core_G*)parent->view.r_view._this;
+            [parentNSView addSubview:nsview];
+        }
     }
     if (type == MAC_VIEW_TYPE_CORE_G)
     {
@@ -188,8 +196,16 @@ Mac_View* MAC_AddSubView(Mac_View* parent, UInt32 type, int width, int height, i
         rview->_this = (__bridge void*)nsview;
         subView->view.r_view = *rview;
 
-        Mac_NSView_Core_G* parentNSView = (__bridge Mac_NSView_Core_G*)parent->view.r_view._this;
-        [parentNSView addSubview:nsview];
+        if (parent->type == MAC_VIEW_TYPE_NORMAL)
+        {
+            Mac_NSView_Normal* parentNSView = (__bridge Mac_NSView_Normal*)parent->view.n_view._this;
+            [parentNSView addSubview:nsview];
+        }
+        else if (parent->type == MAC_VIEW_TYPE_CORE_G)
+        {
+            Mac_NSView_Core_G* parentNSView = (__bridge Mac_NSView_Core_G*)parent->view.r_view._this;
+            [parentNSView addSubview:nsview];
+        }
     }
 
     return subView;
