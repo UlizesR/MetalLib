@@ -109,16 +109,24 @@ void slider_rotate(Mac_Slider* slider, void* user_data)
     previousAngle = currentAngle;
 }
 
+typedef struct ViewControl
+{
+    Mac_View* view;
+    Mac_Button* button;
+} ViewControl;
+
 void click_button1(Mac_Button* button, void* user_data)
 {
-    Mac_View* view = (Mac_View*)user_data;
-    MAC_ShowView(view);
+    ViewControl* viewc = (ViewControl*)user_data;
+    MAC_HideButton(viewc->button);
+    MAC_ShowView(viewc->view);
 }
 
 void click_button2(Mac_Button* button, void* user_data)
 {
-    Mac_View* view = (Mac_View*)user_data;
-    MAC_HideView(view);
+    ViewControl* viewc = (ViewControl*)user_data;
+    MAC_ShowButton(viewc->button);
+    MAC_HideView(viewc->view);
 }
 
 int main(int argc, const char * argv[]) {
@@ -140,12 +148,25 @@ int main(int argc, const char * argv[]) {
 
     // Set the renderer's background color
     MAC_SetRendererColor(renderer, MAC_COLOR_BLACK);
-    Mac_View* gui_view = MAC_AddSubView(window->content_view, MAC_VIEW_TYPE_NORMAL, 240, 150, 580, 410, 0, MAC_COLOR_MAGENTA_5, NULL);
+    Mac_View* gui_view = MAC_AddSubView(window->content_view, MAC_VIEW_TYPE_NORMAL, 240, 150, 550, 440, 20, MAC_COLOR_MAGENTA_5, NULL);
+    MAC_HideView(gui_view);
 
-    Mac_Button* button1 = mac_button_rs((MSize){25, 25}, (MPoint){765, 565}, "", "\u25B2", MAC_BUTTON_TYPE_MOMENTARY_PUSH_IN, 20, true, false, window->content_view, click_button1, gui_view);
-    Mac_Button* button2 = mac_button_rs((MSize){25, 25}, (MPoint){210, 120}, "", "\u25BC", MAC_BUTTON_TYPE_MOMENTARY_PUSH_IN, 20, true, false, gui_view, click_button2, gui_view);
-    // Mac_Line* line = MAC_Line((MFPoint){20, 0}, (MFPoint){20, 600}, 2.0, MAC_COLOR_WHITE);
-    // MAC_DrawLine(renderer, line);
+    Mac_Button* button1;
+    Mac_Button* button2;
+
+    ViewControl viewControl;
+    viewControl.view = gui_view;
+    // Initialize button1 later, after it's created
+    viewControl.button = NULL;
+
+    ViewControl viewControl2;
+    viewControl2.view = gui_view;
+
+    button1 = MAC_ButtonRS((MSize){25, 25}, (MPoint){765, 565}, "", "\u25B2", MAC_BUTTON_TYPE_MOMENTARY_PUSH_IN, 10, true, false, window->content_view, click_button1, &viewControl);
+    viewControl.button = button1;
+    viewControl2.button = button1;
+    button2 = MAC_ButtonRS((MSize){25, 25}, (MPoint){210, 120}, "", "\u25BC", MAC_BUTTON_TYPE_MOMENTARY_PUSH_IN, 10, true, false, gui_view, click_button2, &viewControl2);
+    
 
     ShapeControl control1;  
     MFPoint vertices1[4] = {
