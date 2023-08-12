@@ -1,18 +1,20 @@
-#include "MACA/mac_events.h"
+#include "MACA/mac_buttons.h"
+#include "MACA/mac_view.h"
 #include <MACA/maca.h>
 
 #include <stdio.h>
 #include <math.h>
 
 typedef struct {
-    Mac_Rect* rect;
+    Mac_Quadrilateral* quad;
     Mac_Renderer* renderer;
     MFPoint originalVertices[4]; // Store the original vertices
 } ShapeControl;
 
 
 
-void rotate_around_center(MFPoint* vertices, int vertex_count, MFPoint* center, float angle) {
+void rotate_around_center(MFPoint* vertices, int vertex_count, MFPoint* center, float angle) 
+{
     float radian = angle * (M_PI / 180); // Convert angle to radians
     float cosTheta = cos(radian);
     float sinTheta = sin(radian);
@@ -54,49 +56,69 @@ void slider_action(Mac_Slider* slider, void* user_data)
     float delta = slider->value - previousValue; // Calculate the difference
 
     ShapeControl* control = (ShapeControl*)user_data;
-    Mac_Rect* rect = control->rect;
+    Mac_Quadrilateral* quad = control->quad;
 
     if (slider->value == 0) {
         // Reset to the original vertices
         for (int i = 0; i < 4; i++) {
-            rect->vertices[i] = control->originalVertices[i];
+            quad->vertices[i] = control->originalVertices[i];
         }
     } else {
         for (int i = 0; i < 4; i++) {
-            rect->vertices[i].x += delta; // Move by the difference
+            quad->vertices[i].x += delta; // Move by the difference
         }
     }
 
-    MAC_RemoveShape(rect->base.id, control->renderer);
-    MAC_DrawRect(rect, 2.0, control->renderer);
+    MAC_RemoveShape(quad->base.id, control->renderer);
+    MAC_DrawQuadrilateral(quad, 2.0, control->renderer);
 
     previousValue = slider->value; // Update the previous value
 }
 
 void slider_rotate(Mac_Slider* slider, void* user_data)
 {
+    static float previousAngle = 0; // Keep track of the previous angle
+
     ShapeControl* control = (ShapeControl*)user_data;
-    Mac_Rect* rect = control->rect;
+    Mac_Quadrilateral* quad = control->quad;
 
     // Calculate the center of the shape
     MFPoint center;
     center.x = 0.0f;
     center.y = 0.0f;
     for (int i = 0; i < 4; i++) {
-        center.x += rect->vertices[i].x;
-        center.y += rect->vertices[i].y;
+        center.x += quad->vertices[i].x;
+        center.y += quad->vertices[i].y;
     }
     center.x /= 4;
     center.y /= 4;
 
-    // Calculate the rotation angle based on the slider's value
-    float angle = (slider->value / slider->maxValue) * 360.0f;
+    // Calculate the current rotation angle based on the slider's value
+    float currentAngle = slider->value;
 
-    // Rotate around the center of the rectangle
-    rotate_around_center(rect->vertices, 4, &center, angle);
+    // Calculate the difference between the current angle and the previous angle
+    float angleDifference = currentAngle - previousAngle;
 
-    MAC_RemoveShape(rect->base.id, control->renderer);
-    MAC_DrawRect(rect, 2.0, control->renderer);
+    // Rotate around the center of the quadrilateral by the angle difference
+    rotate_around_center(quad->vertices, 4, &center, -angleDifference);
+
+    MAC_RemoveShape(quad->base.id, control->renderer);
+    MAC_DrawQuadrilateral(quad, 2.0, control->renderer);
+
+    // Update the previous angle
+    previousAngle = currentAngle;
+}
+
+void click_button1(Mac_Button* button, void* user_data)
+{
+    Mac_View* view = (Mac_View*)user_data;
+    MAC_ShowView(view);
+}
+
+void click_button2(Mac_Button* button, void* user_data)
+{
+    Mac_View* view = (Mac_View*)user_data;
+    MAC_HideView(view);
 }
 
 int main(int argc, const char * argv[]) {
@@ -118,49 +140,75 @@ int main(int argc, const char * argv[]) {
 
     // Set the renderer's background color
     MAC_SetRendererColor(renderer, MAC_COLOR_BLACK);
-    Mac_View* gui_view = MAC_AddSubView(window->content_view, MAC_VIEW_TYPE_NORMAL, 200, 100, 590, 490, 0, (Mac_Color){0.1, 0, 0.3, 1.0}, NULL);
+    Mac_View* gui_view = MAC_AddSubView(window->content_view, MAC_VIEW_TYPE_NORMAL, 240, 150, 580, 410, 0, MAC_COLOR_MAGENTA_5, NULL);
 
-    Mac_Line* line = MAC_Line((MFPoint){20, 0}, (MFPoint){20, 600}, 2.0, MAC_COLOR_WHITE);
-    MAC_DrawLine(renderer, line);
+    Mac_Button* button1 = mac_button_rs((MSize){25, 25}, (MPoint){765, 565}, "", "\u25B2", MAC_BUTTON_TYPE_MOMENTARY_PUSH_IN, 20, true, false, window->content_view, click_button1, gui_view);
+    Mac_Button* button2 = mac_button_rs((MSize){25, 25}, (MPoint){210, 120}, "", "\u25BC", MAC_BUTTON_TYPE_MOMENTARY_PUSH_IN, 20, true, false, gui_view, click_button2, gui_view);
+    // Mac_Line* line = MAC_Line((MFPoint){20, 0}, (MFPoint){20, 600}, 2.0, MAC_COLOR_WHITE);
+    // MAC_DrawLine(renderer, line);
 
     ShapeControl control1;  
-    Mac_Rect* rect = MAC_Rect((MFPoint){20, 540}, (MSize){50, 50}, MAC_COLOR_RED);
-    control1.rect = rect;
+    MFPoint vertices1[4] = {
+        {20, 540},
+        {70, 540},
+        {70, 590},
+        {20, 590}
+    };
+    Mac_Quadrilateral* quad = MAC_Quadrilateral(vertices1, MAC_COLOR_RED);
+    control1.quad = quad;
     control1.renderer = renderer;
-    MAC_DrawRect(control1.rect, 2.0, renderer);
+    MAC_DrawQuadrilateral(control1.quad, 2.0, renderer);
 
-    Mac_Slider* slider = MAC_HSlider((MSize){200, 25}, (MPoint){0, 75}, 0, 100, 0.0, MAC_COLOR_RED, gui_view, slider_action, &control1);
+    Mac_Slider* slider = MAC_HSlider((MSize){200, 25}, (MPoint){5, 75}, 0, 100, 0.0, MAC_COLOR_RED, gui_view, slider_action, &control1);
 
     ShapeControl control2;  
-    Mac_Rect* rect2 = MAC_Rect((MFPoint){20, 480}, (MSize){50, 50}, MAC_COLOR_GREEN);
-    control2.rect = rect2;
+    MFPoint vertices2[4] = {
+        {20, 480},
+        {70, 480},
+        {70, 530},
+        {20, 530}
+    };
+    Mac_Quadrilateral* quad2 = MAC_Quadrilateral(vertices2, MAC_COLOR_GREEN);
+    control2.quad = quad2;
     control2.renderer = renderer;
-    MAC_DrawRect(control2.rect, 2.0, renderer);
+    MAC_DrawQuadrilateral(control2.quad, 2.0, renderer);
 
-    Mac_Slider* slider2 = MAC_HSlider((MSize){200, 25}, (MPoint){0, 50}, 0, 100, 0.0, MAC_COLOR_GREEN, gui_view, slider_action, &control2);
+    Mac_Slider* slider2 = MAC_HSlider((MSize){200, 25}, (MPoint){5, 50}, 0, 100, 0.0, MAC_COLOR_GREEN, gui_view, slider_action, &control2);
 
     ShapeControl control3;
-    Mac_Rect* rect3 = MAC_Rect((MFPoint){20, 420}, (MSize){50, 50}, MAC_COLOR_BLUE);
-    control3.rect = rect3;
+    MFPoint vertices3[4] = {
+        {20, 420},
+        {70, 420},
+        {70, 470},
+        {20, 470}
+    };
+    Mac_Quadrilateral* quad3 = MAC_Quadrilateral(vertices3, MAC_COLOR_BLUE);
+    control3.quad = quad3;
     control3.renderer = renderer;
-    MAC_DrawRect(control3.rect, 2.0, renderer);
+    MAC_DrawQuadrilateral(control3.quad, 2.0, renderer);
 
-    Mac_Slider* slider3 = MAC_HSlider((MSize){200, 25}, (MPoint){0, 25}, 0, 100, 0.0, MAC_COLOR_BLUE, gui_view, slider_action, &control3);
+    Mac_Slider* slider3 = MAC_HSlider((MSize){200, 25}, (MPoint){5, 25}, 0, 100, 0.0, MAC_COLOR_BLUE, gui_view, slider_action, &control3);
 
     ShapeControl control4;
-    Mac_Rect* rect4 = MAC_Rect((MFPoint){20, 300}, (MSize){50, 50}, MAC_COLOR_YELLOW);
-    control4.rect = rect4;
+    MFPoint vertices4[4] = {
+        {20, 360},
+        {70, 360},
+        {70, 410},
+        {20, 410}
+    };
+    Mac_Quadrilateral* quad4 = MAC_Quadrilateral(vertices4, MAC_COLOR_YELLOW);
+    control4.quad = quad4;
     control4.renderer = renderer;
-    MAC_DrawRect(control4.rect, 2.0, renderer);
+    MAC_DrawQuadrilateral(control4.quad, 2.0, renderer);
 
-    Mac_Slider* slider4 = MAC_HSlider((MSize){200, 25}, (MPoint){0, 0}, 0, 360, 0.0, MAC_COLOR_YELLOW, gui_view, slider_rotate, &control4);
+    Mac_Slider* slider4 = MAC_HSlider((MSize){200, 25}, (MPoint){5, 0}, 0, 360, 0.0, MAC_COLOR_YELLOW, gui_view, slider_rotate, &control4);
 
 
     for (int i = 0; i < 4; i++) {
-        control1.originalVertices[i] = rect->vertices[i];
-        control2.originalVertices[i] = rect2->vertices[i];
-        control3.originalVertices[i] = rect3->vertices[i];
-        control4.originalVertices[i] = rect4->vertices[i];
+        control1.originalVertices[i] = quad->vertices[i];
+        control2.originalVertices[i] = quad2->vertices[i];
+        control3.originalVertices[i] = quad3->vertices[i];
+        control4.originalVertices[i] = quad4->vertices[i];
     }
 
 
@@ -183,10 +231,10 @@ int main(int argc, const char * argv[]) {
         }
     }
 
-    MAC_DestroyShape((Mac_Shape*)rect);
-    MAC_DestroyShape((Mac_Shape*)rect2);
-    MAC_DestroyShape((Mac_Shape*)rect3);
-    MAC_DestroyShape((Mac_Shape*)rect4);
+    MAC_DestroyShape((Mac_Shape*)quad);
+    MAC_DestroyShape((Mac_Shape*)quad2);
+    MAC_DestroyShape((Mac_Shape*)quad3);
+    MAC_DestroyShape((Mac_Shape*)quad4);
     MAC_DestroySlider(slider);
     MAC_DestroySlider(slider2);
     MAC_DestroySlider(slider3);

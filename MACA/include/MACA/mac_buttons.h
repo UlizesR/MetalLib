@@ -4,6 +4,7 @@
 #include "mac_defs.h"
 #include <stdint.h>
 #include <stdbool.h>
+#include <MacTypes.h>
 
 #ifdef __OBJC__
 #import <Cocoa/Cocoa.h>

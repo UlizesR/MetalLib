@@ -131,6 +131,19 @@ Mac_View* MAC_AddContentView(Mac_Window* parent, Mac_Color background_color, UIn
     @param color: the new color of the view
 */
 void MAC_ChangeViewBGColor(Mac_View* view, Mac_Color color);
+
+/*!
+    Hides the given view.
+    @param view: the view to be hidden
+*/
+void MAC_HideView(Mac_View* view);
+
+/*!
+    Shows the given view.
+    @param view: the view to be shown
+*/
+void MAC_ShowView(Mac_View* view);
+
 /*!
     Destroys the given view.
     @param view: the view to be destroyed

@@ -77,17 +77,6 @@ extern int shapeID;
     [self setNeedsDisplay:YES];
 }
 
-- (void)updateView:(int)shapeID {
-    NSMutableArray *shapesToRemove = [NSMutableArray array];
-    for (DrawableShape *shape in self.shapes) {
-        if (shape.id == shapeID) {
-            [shapesToRemove addObject:shape];
-        }
-    }
-    [self.shapes removeObjectsInArray:shapesToRemove];
-    [self setNeedsDisplay:YES];
-}
-
 - (void)drawRect:(NSRect)dirtyRect {
     [super drawRect:dirtyRect];
 
@@ -345,6 +334,58 @@ void MAC_ChangeViewBGColor(Mac_View* view, Mac_Color color)
     }
 }
 
+void MAC_HideView(Mac_View* view) 
+{
+    if (view == NULL) {
+        printf("ERROR: View is NULL. Cannot hide the view.\n");
+        return;
+    }
+
+    NSView* nsView = NULL;
+
+    if (view->type & MAC_VIEW_TYPE_NORMAL) {
+        nsView = (__bridge Mac_NSView_Normal*)view->view.n_view._this;
+    }
+    else if (view->type & MAC_VIEW_TYPE_CORE_G) {
+        nsView = (__bridge Mac_NSView_Core_G*)view->view.r_view._this;
+    }
+    else if (view->type & MAC_VIEW_TYPE_METAL) {
+        nsView = (__bridge Mac_NSView_Metal*)view->view.m_view._this;
+    }
+    else {
+        printf("ERROR: Unsupported view type. Cannot hide the view.\n");
+        return;
+    }
+
+    [nsView setHidden:YES];
+}
+
+void MAC_ShowView(Mac_View *view)
+{
+    if (view == NULL) {
+        printf("ERROR: View is NULL. Cannot hide the view.\n");
+        return;
+    }
+
+    NSView* nsView = NULL;
+
+    if (view->type & MAC_VIEW_TYPE_NORMAL) {
+        nsView = (__bridge Mac_NSView_Normal*)view->view.n_view._this;
+    }
+    else if (view->type & MAC_VIEW_TYPE_CORE_G) {
+        nsView = (__bridge Mac_NSView_Core_G*)view->view.r_view._this;
+    }
+    else if (view->type & MAC_VIEW_TYPE_METAL) {
+        nsView = (__bridge Mac_NSView_Metal*)view->view.m_view._this;
+    }
+    else {
+        printf("ERROR: Unsupported view type. Cannot hide the view.\n");
+        return;
+    }
+
+    [nsView setHidden:NO];
+}
+
 void MAC_DestroyView(Mac_View* view)
 {
     if (view == NULL) {
@@ -364,7 +405,6 @@ void MAC_DestroyView(Mac_View* view)
 
     free(view); // Free the view itself
 }
-
 
 void MAC_DestroyContentView(Mac_View* contentView) {
     if (contentView == NULL) {
