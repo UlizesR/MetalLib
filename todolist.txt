@@ -36,7 +36,7 @@ GUI
 ✔ Creadte a Button @done(23-08-10 17:19)
 ☐ Create a Text Field
 ☐ Create a Text View
-☐ Create a Slider
+✔ Create a Slider @done(23-08-11 23:50)
 ☐ Create a Progress Bar
 ☐ Create a Stepper
 ☐ Create a Popover

@@ -1,17 +1,21 @@
-#include "MACA/mac_buttons.h"
-#include "MACA/mac_view.h"
+/*
+    This example demonstrates how to render graphics using the core graphics renderer.
+    It also demonstrates how to use sliders and buttons.
+    
+    The example draws four quadrilaterals, each with a different color. Each quadrilateral
+    has a slider that controls its x position. The sliders are also colored to match the
+    quadrilateral they control. The sliders are also connected to the quadrilaterals so
+    that when the slider is moved, the quadrilateral moves with it. 
+
+    The example also has a button that hides the view containing the sliders.
+
+*/
+
 #include <MACA/maca.h>
 
 #include <stdio.h>
 #include <math.h>
-
-typedef struct {
-    Mac_Quadrilateral* quad;
-    Mac_Renderer* renderer;
-    MFPoint originalVertices[4]; // Store the original vertices
-} ShapeControl;
-
-
+#include <stdlib.h>
 
 void rotate_around_center(MFPoint* vertices, int vertex_count, MFPoint* center, float angle) 
 {
@@ -49,6 +53,12 @@ void rotate_around_center(MFPoint* vertices, int vertex_count, MFPoint* center, 
         vertices[i].y += center->y;
     }
 }
+
+typedef struct {
+    Mac_Quadrilateral* quad;
+    Mac_Renderer* renderer;
+    MFPoint originalVertices[4]; // Store the original vertices
+} ShapeControl;
 
 void slider_action(Mac_Slider* slider, void* user_data)
 {
@@ -139,7 +149,7 @@ int main(int argc, const char * argv[]) {
     Mac_Window* window;
     Mac_Renderer* renderer;
 
-    MAC_CreateWindowAndRenderer(800, 600, "Window", MAC_RENDERER_CORE_G, MAC_WINDOW_MINIMIZED | MAC_WINDOW_RESIZABLE, &window, &renderer);
+    MAC_CreateWindowAndRenderer(800, 600, "Window", MAC_RENDERER_CORE_G, MAC_WINDOW_MINIMIZED, &window, &renderer);
     if (!window || !renderer)
     {
         printf("ERROR: Failed to create window or renderer.\n");
@@ -148,7 +158,7 @@ int main(int argc, const char * argv[]) {
 
     // Set the renderer's background color
     MAC_SetRendererColor(renderer, MAC_COLOR_BLACK);
-    Mac_View* gui_view = MAC_AddSubView(window->content_view, MAC_VIEW_TYPE_NORMAL, 240, 150, 550, 440, 20, MAC_COLOR_MAGENTA_5, NULL);
+    Mac_View* gui_view = MAC_AddSubView(window->content_view, MAC_VIEW_TYPE_NORMAL, 240, 185, 560, 415, 0, MAC_COLOR_GRAY_3,  NULL);
     MAC_HideView(gui_view);
 
     Mac_Button* button1;
@@ -162,11 +172,10 @@ int main(int argc, const char * argv[]) {
     ViewControl viewControl2;
     viewControl2.view = gui_view;
 
-    button1 = MAC_ButtonRS((MSize){25, 25}, (MPoint){765, 565}, "", "\u25B2", MAC_BUTTON_TYPE_MOMENTARY_PUSH_IN, 10, true, false, window->content_view, click_button1, &viewControl);
+    button1 = MAC_ButtonRS((MSize){40, 40}, (MPoint){750, 550}, "", "\u25B2", MAC_BUTTON_TYPE_MOMENTARY_PUSH_IN, 20, true, false, window->content_view, click_button1, &viewControl);
     viewControl.button = button1;
     viewControl2.button = button1;
-    button2 = MAC_ButtonRS((MSize){25, 25}, (MPoint){210, 120}, "", "\u25BC", MAC_BUTTON_TYPE_MOMENTARY_PUSH_IN, 10, true, false, gui_view, click_button2, &viewControl2);
-    
+    button2 = MAC_ButtonRS((MSize){40, 40}, (MPoint){190, 135}, "", "\u25BC", MAC_BUTTON_TYPE_MOMENTARY_PUSH_IN, 20, true, false, gui_view, click_button2, &viewControl2);
 
     ShapeControl control1;  
     MFPoint vertices1[4] = {
@@ -180,7 +189,7 @@ int main(int argc, const char * argv[]) {
     control1.renderer = renderer;
     MAC_DrawQuadrilateral(control1.quad, 2.0, renderer);
 
-    Mac_Slider* slider = MAC_HSlider((MSize){200, 25}, (MPoint){5, 75}, 0, 100, 0.0, MAC_COLOR_RED, gui_view, slider_action, &control1);
+    Mac_Slider* slider = MAC_HRectSlider((MSize){200, 25}, (MPoint){20, 100}, 0, 100, 0.0, MAC_COLOR_RED, MAC_COLOR_BLACK, MAC_COLOR_WHITE, gui_view, slider_action, &control1);
 
     ShapeControl control2;  
     MFPoint vertices2[4] = {
@@ -194,7 +203,7 @@ int main(int argc, const char * argv[]) {
     control2.renderer = renderer;
     MAC_DrawQuadrilateral(control2.quad, 2.0, renderer);
 
-    Mac_Slider* slider2 = MAC_HSlider((MSize){200, 25}, (MPoint){5, 50}, 0, 100, 0.0, MAC_COLOR_GREEN, gui_view, slider_action, &control2);
+    Mac_Slider* slider2 = MAC_HRectSlider((MSize){200, 25}, (MPoint){20, 70}, 0, 100, 0.0, MAC_COLOR_GREEN, MAC_COLOR_BLACK, MAC_COLOR_WHITE, gui_view, slider_action, &control2);
 
     ShapeControl control3;
     MFPoint vertices3[4] = {
@@ -208,7 +217,7 @@ int main(int argc, const char * argv[]) {
     control3.renderer = renderer;
     MAC_DrawQuadrilateral(control3.quad, 2.0, renderer);
 
-    Mac_Slider* slider3 = MAC_HSlider((MSize){200, 25}, (MPoint){5, 25}, 0, 100, 0.0, MAC_COLOR_BLUE, gui_view, slider_action, &control3);
+    Mac_Slider* slider3 = MAC_HRectSlider((MSize){200, 25}, (MPoint){20, 40}, 0, 100, 0.0, MAC_COLOR_BLUE, MAC_COLOR_BLACK, MAC_COLOR_WHITE, gui_view, slider_action, &control3);
 
     ShapeControl control4;
     MFPoint vertices4[4] = {
@@ -222,8 +231,7 @@ int main(int argc, const char * argv[]) {
     control4.renderer = renderer;
     MAC_DrawQuadrilateral(control4.quad, 2.0, renderer);
 
-    Mac_Slider* slider4 = MAC_HSlider((MSize){200, 25}, (MPoint){5, 0}, 0, 360, 0.0, MAC_COLOR_YELLOW, gui_view, slider_rotate, &control4);
-
+    Mac_Slider* slider4 = MAC_HRectSlider((MSize){200, 25}, (MPoint){20, 10}, 0, 360, 0.0, MAC_COLOR_YELLOW, MAC_COLOR_BLACK, MAC_COLOR_WHITE, gui_view, slider_rotate, &control4);
 
     for (int i = 0; i < 4; i++) {
         control1.originalVertices[i] = quad->vertices[i];
