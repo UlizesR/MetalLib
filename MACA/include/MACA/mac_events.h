@@ -1,6 +1,5 @@
 // mac_events.h
-#ifndef mac_events_h_
-#define mac_events_h_
+#pragma once
 
 #include <stdint.h>
 
@@ -108,5 +107,3 @@ int MAC_PollEvent(MAC_Event* event);
 #ifdef __cplusplus
 }
 #endif
-
-#endif // mac_events_h_

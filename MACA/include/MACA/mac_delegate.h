@@ -1,5 +1,4 @@
-#ifndef mac_delegate_h_
-#define mac_delegate_h_
+#pragma once
 
 #ifdef __OBJC__
 #import <Cocoa/Cocoa.h>
@@ -40,5 +39,3 @@ void terminateDelegate();
 #ifdef __cplusplus
 }
 #endif
-
-#endif // mac_delegate_h_

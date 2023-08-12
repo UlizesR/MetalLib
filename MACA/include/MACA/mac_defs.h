@@ -1,5 +1,4 @@
-#ifndef mac_defs_h_
-#define mac_defs_h_
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,5 +40,3 @@ typedef struct Mac_Renderer Mac_Renderer; // renderer for graphics
 #ifdef __cplusplus
 }
 #endif
-
-#endif // mac_defs_h_

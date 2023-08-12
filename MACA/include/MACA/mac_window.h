@@ -1,5 +1,4 @@
-#ifndef mac_window_h_
-#define mac_window_h_
+#pragma once
 
 #include "mac_defs.h"
 #include "mac_colors.h"
@@ -77,5 +76,3 @@ void MAC_DestroyWindow(Mac_Window* window);
 #ifdef __cplusplus
 }
 #endif
-
-#endif // mac_window_h_

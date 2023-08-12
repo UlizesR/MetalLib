@@ -1,5 +1,4 @@
-#ifndef maca_h_
-#define maca_h_
+#pragma once
 
 #ifndef __APPLE__
 #error "This file is only for Mac OS X"
@@ -16,5 +15,3 @@
 #include "mac_events.h"
 #include "mac_buttons.h"
 #include "mac_sliders.h"
-
-#endif // maca_h_

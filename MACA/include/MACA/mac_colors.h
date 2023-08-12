@@ -1,6 +1,4 @@
-#ifndef mac_colors_h_
-#define mac_colors_h_
-
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -120,5 +118,3 @@ typedef struct Mac_Color
 #ifdef __cplusplus
 }
 #endif
-
-#endif // mac_colors_h_

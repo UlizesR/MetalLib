@@ -1,5 +1,4 @@
-#ifndef mac_renderer_h_
-#define mac_renderer_h_
+#pragma once
 
 #include "mac_defs.h"
 #include "mac_colors.h"
@@ -73,5 +72,3 @@ void MAC_DestroyRenderer(Mac_Renderer* renderer);
 #ifdef __cplusplus
 }
 #endif
-
-#endif // mac_renderer_h_

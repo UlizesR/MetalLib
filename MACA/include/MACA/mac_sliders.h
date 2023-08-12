@@ -1,7 +1,6 @@
 #ifndef mac_sliders_h_
 #define mac_sliders_h_
 
-#include "MACA/mac_colors.h"
 #include "mac_colors.h"
 #include "mac_defs.h"
 

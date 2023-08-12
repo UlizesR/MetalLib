@@ -1,6 +1,4 @@
-#ifndef mac_init_h_
-#define mac_init_h_
-
+#pragma once
 
 #include <stdint.h>
 #include <MacTypes.h>
@@ -33,5 +31,3 @@ void MAC_Quit();
 #ifdef __cplusplus
 }
 #endif
-
-#endif // mac_init_h_

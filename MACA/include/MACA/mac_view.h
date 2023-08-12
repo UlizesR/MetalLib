@@ -1,5 +1,4 @@
-#ifndef mac_view_h_
-#define mac_view_h_
+#pragma once
 
 #include "mac_defs.h"
 #include "mac_colors.h"
@@ -160,5 +159,3 @@ void MAC_DestroyContentView(Mac_View* contentView);
 #ifdef __cplusplus
 }
 #endif
-
-#endif // mac_view_h_

@@ -1,5 +1,4 @@
-#ifndef mac_buttons_h_
-#define mac_buttons_h_
+#pragma once
 
 #include "mac_defs.h"
 #include <stdint.h>
@@ -207,5 +206,3 @@ void MAC_DestroyButton(Mac_Button* button);
 #ifdef __cplusplus
 }
 #endif
-
-#endif // mac_buttons_h_
