@@ -4,6 +4,25 @@
 #import <Cocoa/Cocoa.h>
 #include <stdio.h>
 
+NSView* getViewFromMacView(Mac_View* parent_view) {
+    NSView* nsView = NULL;
+    switch (parent_view->type) {
+        case MAC_VIEW_TYPE_NORMAL:
+            nsView = (__bridge Mac_NSView_Normal *)(parent_view->view.n_view._this);
+            break;
+        case MAC_VIEW_TYPE_CORE_G:
+            nsView = (__bridge Mac_NSView_Core_G *)(parent_view->view.r_view._this);
+            break;
+        case MAC_VIEW_TYPE_METAL:
+            nsView = (__bridge Mac_NSView_Metal *)(parent_view->view.m_view._this);
+            break;
+        default:
+            NSLog(@"Error: Unknown view type");
+            return NULL;
+    }
+    return nsView;
+}
+
 @implementation Mac_NSView_Normal
 - (void)drawRect:(NSRect)dirtyRect {
     [super drawRect:dirtyRect];

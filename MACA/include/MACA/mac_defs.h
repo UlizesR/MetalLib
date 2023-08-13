@@ -4,7 +4,6 @@
 extern "C" {
 #endif
 
-
 typedef struct MSize
 {
     int width;

@@ -9,7 +9,7 @@
 #import <Cocoa/Cocoa.h>
 #import <MetalKit/MetalKit.h>
 
-
+NSView* getViewFromMacView(Mac_View* parent_view);
 
 @interface Mac_NSView_Normal: NSView;
 @end

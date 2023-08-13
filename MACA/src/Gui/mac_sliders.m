@@ -81,22 +81,7 @@ Mac_Slider* MAC_HSlider(MSize size, MPoint position, float minValue, float maxVa
     nsSlider.tag = (__bridge NSInteger)(slider);
     slider->tag = (int)nsSlider.tag;
 
-    NSView* nsView = NULL;
-    switch (parent_view->type) {
-        case MAC_VIEW_TYPE_NORMAL:
-            nsView = (__bridge Mac_NSView_Normal *)(parent_view->view.n_view._this);
-            break;
-        case MAC_VIEW_TYPE_CORE_G:
-            nsView = (__bridge Mac_NSView_Core_G *)(parent_view->view.r_view._this);
-            break;
-        case MAC_VIEW_TYPE_METAL:
-            nsView = (__bridge Mac_NSView_Metal *)(parent_view->view.m_view._this);
-            break;
-        default:
-            free(slider); // Free the allocated memory if the view type is unknown
-            printf("Error: Unknown view type\n");
-            return NULL;
-    }
+    NSView* nsView = getViewFromMacView(parent_view);
     [nsView addSubview:nsSlider];
 
     return slider;
@@ -135,22 +120,7 @@ Mac_Slider* MAC_VSlider(MSize size, MPoint position, float minValue, float maxVa
     nsSlider.tag = (__bridge NSInteger)(slider);
     slider->tag = (int)nsSlider.tag;
 
-    NSView* nsView = NULL;
-    switch (parent_view->type) {
-        case MAC_VIEW_TYPE_NORMAL:
-            nsView = (__bridge Mac_NSView_Normal *)(parent_view->view.n_view._this);
-            break;
-        case MAC_VIEW_TYPE_CORE_G:
-            nsView = (__bridge Mac_NSView_Core_G *)(parent_view->view.r_view._this);
-            break;
-        case MAC_VIEW_TYPE_METAL:
-            nsView = (__bridge Mac_NSView_Metal *)(parent_view->view.m_view._this);
-            break;
-        default:
-            free(slider); // Free the allocated memory if the view type is unknown
-            printf("Error: Unknown view type\n");
-            return NULL;
-    }
+    NSView* nsView = getViewFromMacView(parent_view);
     [nsView addSubview:nsSlider];
 
     return slider;
@@ -189,22 +159,7 @@ Mac_Slider* MAC_HTickSlider(MSize size, MPoint position, float minValue, float m
     nsSlider.tag = (__bridge NSInteger)(slider);
     slider->tag = (int)nsSlider.tag;
 
-    NSView* nsView = NULL;
-    switch (parent_view->type) {
-        case MAC_VIEW_TYPE_NORMAL:
-            nsView = (__bridge Mac_NSView_Normal *)(parent_view->view.n_view._this);
-            break;
-        case MAC_VIEW_TYPE_CORE_G:
-            nsView = (__bridge Mac_NSView_Core_G *)(parent_view->view.r_view._this);
-            break;
-        case MAC_VIEW_TYPE_METAL:
-            nsView = (__bridge Mac_NSView_Metal *)(parent_view->view.m_view._this);
-            break;
-        default:
-            free(slider); // Free the allocated memory if the view type is unknown
-            printf("Error: Unknown view type\n");
-            return NULL;
-    }
+    NSView* nsView = getViewFromMacView(parent_view);
     [nsView addSubview:nsSlider];
 
     return slider;
@@ -243,22 +198,7 @@ Mac_Slider* MAC_VTickSlider(MSize size, MPoint position, float minValue, float m
     nsSlider.tag = (__bridge NSInteger)(slider);
     slider->tag = (int)nsSlider.tag;
 
-    NSView* nsView = NULL;
-    switch (parent_view->type) {
-        case MAC_VIEW_TYPE_NORMAL:
-            nsView = (__bridge Mac_NSView_Normal *)(parent_view->view.n_view._this);
-            break;
-        case MAC_VIEW_TYPE_CORE_G:
-            nsView = (__bridge Mac_NSView_Core_G *)(parent_view->view.r_view._this);
-            break;
-        case MAC_VIEW_TYPE_METAL:
-            nsView = (__bridge Mac_NSView_Metal *)(parent_view->view.m_view._this);
-            break;
-        default:
-            free(slider); // Free the allocated memory if the view type is unknown
-            printf("Error: Unknown view type\n");
-            return NULL;
-    }
+    NSView* nsView = getViewFromMacView(parent_view);
     [nsView addSubview:nsSlider];
 
     return slider;
@@ -295,22 +235,7 @@ Mac_Slider* MAC_CircularSlider(MSize size, MPoint position, float minValue, floa
     nsSlider.tag = (__bridge NSInteger)(slider);
     slider->tag = (int)nsSlider.tag;
 
-    NSView* nsView = NULL;
-    switch (parent_view->type) {
-        case MAC_VIEW_TYPE_NORMAL:
-            nsView = (__bridge Mac_NSView_Normal *)(parent_view->view.n_view._this);
-            break;
-        case MAC_VIEW_TYPE_CORE_G:
-            nsView = (__bridge Mac_NSView_Core_G *)(parent_view->view.r_view._this);
-            break;
-        case MAC_VIEW_TYPE_METAL:
-            nsView = (__bridge Mac_NSView_Metal *)(parent_view->view.m_view._this);
-            break;
-        default:
-            free(slider); // Free the allocated memory if the view type is unknown
-            printf("Error: Unknown view type\n");
-            return NULL;
-    }
+    NSView* nsView = getViewFromMacView(parent_view);
     [nsView addSubview:nsSlider];
     
     return slider;
@@ -355,22 +280,7 @@ Mac_Slider* MAC_HRectSlider(MSize size, MPoint position, float minValue, float m
     nsSlider.tag = (__bridge NSInteger)(slider);
     slider->tag = (int)nsSlider.tag;
 
-    NSView* nsView = NULL;
-    switch (parent_view->type) {
-        case MAC_VIEW_TYPE_NORMAL:
-            nsView = (__bridge Mac_NSView_Normal *)(parent_view->view.n_view._this);
-            break;
-        case MAC_VIEW_TYPE_CORE_G:
-            nsView = (__bridge Mac_NSView_Core_G *)(parent_view->view.r_view._this);
-            break;
-        case MAC_VIEW_TYPE_METAL:
-            nsView = (__bridge Mac_NSView_Metal *)(parent_view->view.m_view._this);
-            break;
-        default:
-            free(slider); // Free the allocated memory if the view type is unknown
-            printf("Error: Unknown view type\n");
-            return NULL;
-    }
+    NSView* nsView = getViewFromMacView(parent_view);
     [nsView addSubview:nsSlider];
 
     return slider;
@@ -415,22 +325,7 @@ Mac_Slider* MAC_VRectSlider(MSize size, MPoint position, float minValue, float m
     nsSlider.tag = (__bridge NSInteger)(slider);
     slider->tag = (int)nsSlider.tag;
 
-    NSView* nsView = NULL;
-    switch (parent_view->type) {
-        case MAC_VIEW_TYPE_NORMAL:
-            nsView = (__bridge Mac_NSView_Normal *)(parent_view->view.n_view._this);
-            break;
-        case MAC_VIEW_TYPE_CORE_G:
-            nsView = (__bridge Mac_NSView_Core_G *)(parent_view->view.r_view._this);
-            break;
-        case MAC_VIEW_TYPE_METAL:
-            nsView = (__bridge Mac_NSView_Metal *)(parent_view->view.m_view._this);
-            break;
-        default:
-            free(slider); // Free the allocated memory if the view type is unknown
-            printf("Error: Unknown view type\n");
-            return NULL;
-    }
+    NSView* nsView = getViewFromMacView(parent_view);
     [nsView addSubview:nsSlider];
 
     return slider;

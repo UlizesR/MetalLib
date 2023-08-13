@@ -1,4 +1,3 @@
-#include "MACA/mac_defs.h"
 #include <AppKit/AppKit.h>
 #import <Cocoa/Cocoa.h>
 #import <CoreGraphics/CoreGraphics.h>

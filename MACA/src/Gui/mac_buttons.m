@@ -1,5 +1,6 @@
 #import "MACA/mac_buttons.h"
 #import "MACA/mac_view.h"
+#import "MACA/mac_text.h"
 
 #include <stdio.h>
 
@@ -75,6 +76,13 @@ Mac_Button* MAC_ButtonRS(MSize size, MPoint position, MImage image, MTitle title
         return NULL;
     }
 
+    MSize textSize = MAC_GetTextSize(title, font_size);
+    if (textSize.width > size.width || textSize.height > size.height) {
+        printf("Text is too big for the button\n");
+        free(button);
+        return NULL;
+    }
+
     NSString* bTitle = [NSString stringWithUTF8String:title];
     NSImage* bImage = [[NSImage alloc] initWithContentsOfFile:[NSString stringWithUTF8String:image]];
 
@@ -114,21 +122,7 @@ Mac_Button* MAC_ButtonRS(MSize size, MPoint position, MImage image, MTitle title
     [nsButton setAction:@selector(onClick:)];
     button->_this = (__bridge void *)nsButton;
 
-    NSView* nsView = NULL;
-    switch (parent_view->type) {
-        case MAC_VIEW_TYPE_NORMAL:
-            nsView = (__bridge Mac_NSView_Normal *)(parent_view->view.n_view._this);
-            break;
-        case MAC_VIEW_TYPE_CORE_G:
-            nsView = (__bridge Mac_NSView_Core_G *)(parent_view->view.r_view._this);
-            break;
-        case MAC_VIEW_TYPE_METAL:
-            nsView = (__bridge Mac_NSView_Metal *)(parent_view->view.m_view._this);
-            break;
-        default:
-            free(button); // Free the allocated memory if the view type is unknown
-            return NULL;
-    }
+    NSView* nsView = getViewFromMacView(parent_view);
     [nsView addSubview:nsButton];
 
     return button;
@@ -162,21 +156,7 @@ Mac_Button* MAC_ButtonSpbTita(MSize size, MPoint position, MTitle title, MImage 
     [nsButton setEnabled:YES];
     [nsButton sizeToFit];
 
-    NSView* nsView = NULL;
-    switch (parent_view->type) {
-        case MAC_VIEW_TYPE_NORMAL:
-            nsView = (__bridge Mac_NSView_Normal *)(parent_view->view.n_view._this);
-            break;
-        case MAC_VIEW_TYPE_CORE_G:
-            nsView = (__bridge Mac_NSView_Core_G *)(parent_view->view.r_view._this);
-            break;
-        case MAC_VIEW_TYPE_METAL:
-            nsView = (__bridge Mac_NSView_Metal *)(parent_view->view.m_view._this);
-            break;
-        default:
-            free(button); // Free the allocated memory if the view type is unknown
-            return NULL;
-    }
+    NSView* nsView = getViewFromMacView(parent_view);
     [nsView addSubview:nsButton];
 
     return button;
@@ -210,21 +190,7 @@ Mac_Button* MAC_ButtonSpbTta(MSize size, MPoint position, MTitle title, Mac_View
     [nsButton setEnabled:YES];
     [nsButton sizeToFit];
 
-    NSView* nsView = NULL;
-    switch (parent_view->type) {
-        case MAC_VIEW_TYPE_NORMAL:
-            nsView = (__bridge Mac_NSView_Normal *)(parent_view->view.n_view._this);
-            break;
-        case MAC_VIEW_TYPE_CORE_G:
-            nsView = (__bridge Mac_NSView_Core_G *)(parent_view->view.r_view._this);
-            break;
-        case MAC_VIEW_TYPE_METAL:
-            nsView = (__bridge Mac_NSView_Metal *)(parent_view->view.m_view._this);
-            break;
-        default:
-            free(button); // Free the allocated memory if the view type is unknown
-            return NULL;
-    }
+    NSView* nsView = getViewFromMacView(parent_view);
     [nsView addSubview:nsButton];
 
     return button;
@@ -258,21 +224,7 @@ Mac_Button* MAC_ButtonSpbIta(MSize size, MPoint position, MImage image, Mac_View
     [nsButton setEnabled:YES];
     [nsButton sizeToFit];
 
-    NSView* nsView = NULL;
-    switch (parent_view->type) {
-        case MAC_VIEW_TYPE_NORMAL:
-            nsView = (__bridge Mac_NSView_Normal *)(parent_view->view.n_view._this);
-            break;
-        case MAC_VIEW_TYPE_CORE_G:
-            nsView = (__bridge Mac_NSView_Core_G *)(parent_view->view.r_view._this);
-            break;
-        case MAC_VIEW_TYPE_METAL:
-            nsView = (__bridge Mac_NSView_Metal *)(parent_view->view.m_view._this);
-            break;
-        default:
-            free(button); // Free the allocated memory if the view type is unknown
-            return NULL;
-    }
+    NSView* nsView = getViewFromMacView(parent_view);
     [nsView addSubview:nsButton];
 
     return button;
@@ -299,28 +251,13 @@ Mac_Button* MAC_ButtonScbTta(MSize size, MPoint position, MTitle title, Mac_View
     NSMac_Button* nsButton = [[NSMac_Button alloc] button_scb_tta:bTitle];
     button->_this = (__bridge void *)nsButton;
 
-    
     [nsButton setFrame: NSMakeRect(position.x, position.y, size.width, size.height)];
     nsButton.tag = (NSInteger)button; // Set the tag property
     button->tag = (int)nsButton.tag;
     [nsButton setEnabled:YES];
     [nsButton sizeToFit];
 
-    NSView* nsView = NULL;
-    switch (parent_view->type) {
-        case MAC_VIEW_TYPE_NORMAL:
-            nsView = (__bridge Mac_NSView_Normal *)(parent_view->view.n_view._this);
-            break;
-        case MAC_VIEW_TYPE_CORE_G:
-            nsView = (__bridge Mac_NSView_Core_G *)(parent_view->view.r_view._this);
-            break;
-        case MAC_VIEW_TYPE_METAL:
-            nsView = (__bridge Mac_NSView_Metal *)(parent_view->view.m_view._this);
-            break;
-        default:
-            free(button); // Free the allocated memory if the view type is unknown
-            return NULL;
-    }
+    NSView* nsView = getViewFromMacView(parent_view);
     [nsView addSubview:nsButton];
 
     return button;
@@ -354,21 +291,7 @@ Mac_Button* MAC_ButtonSrbTta(MSize size, MPoint position, MTitle title, Mac_View
     [nsButton setEnabled:YES];
     [nsButton sizeToFit];
 
-    NSView* nsView = NULL;
-    switch (parent_view->type) {
-        case MAC_VIEW_TYPE_NORMAL:
-            nsView = (__bridge Mac_NSView_Normal *)(parent_view->view.n_view._this);
-            break;
-        case MAC_VIEW_TYPE_CORE_G:
-            nsView = (__bridge Mac_NSView_Core_G *)(parent_view->view.r_view._this);
-            break;
-        case MAC_VIEW_TYPE_METAL:
-            nsView = (__bridge Mac_NSView_Metal *)(parent_view->view.m_view._this);
-            break;
-        default:
-            free(button); // Free the allocated memory if the view type is unknown
-            return NULL;
-    }
+    NSView* nsView = getViewFromMacView(parent_view);
     [nsView addSubview:nsButton];
 
     return button;

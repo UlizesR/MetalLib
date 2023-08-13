@@ -11,6 +11,7 @@
 
 */
 
+#include "MACA/mac_text.h"
 #include <MACA/maca.h>
 
 #include <stdio.h>
@@ -161,6 +162,8 @@ int main(int argc, const char * argv[]) {
     Mac_View* gui_view = MAC_AddSubView(window->content_view, MAC_VIEW_TYPE_NORMAL, 240, 185, 560, 415, 0, MAC_COLOR_GRAY_3,  NULL);
     MAC_HideView(gui_view);
 
+    Mac_Text* gui_text = MAC_AddText(gui_view, (MPoint){100, 140},(MSize){50,25}, MAC_COLOR_WHITE, "GUI", 20);
+    
     Mac_Button* button1;
     Mac_Button* button2;
 
@@ -258,8 +261,10 @@ int main(int argc, const char * argv[]) {
         if (!isWindowOpen(window)) {
             running = false;
         }
-    }
+    }   
 
+
+    MAC_DestroyText(gui_text);
     MAC_DestroyShape((Mac_Shape*)quad);
     MAC_DestroyShape((Mac_Shape*)quad2);
     MAC_DestroyShape((Mac_Shape*)quad3);

@@ -14,6 +14,7 @@ set(SOURCES
         MACA/src/mac_window.m
         MACA/src/mac_init.m
         MACA/src/mac_events.m
+        MACA/src/mac_text.m
         MACA/src/Gui/mac_buttons.m
         MACA/src/Gui/mac_sliders.m
         MACA/src/Graphics/mac_view.m

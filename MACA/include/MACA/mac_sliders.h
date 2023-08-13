@@ -3,6 +3,7 @@
 
 #include "mac_colors.h"
 #include "mac_defs.h"
+#include "mac_gui.h"
 
 #include <MacTypes.h>
 
@@ -24,7 +25,6 @@
 extern "C" {
 #endif
 
-typedef struct Mac_Slider Mac_Slider;
 typedef void (*SliderAction)(Mac_Slider*, void* user_data);
 
 typedef enum {

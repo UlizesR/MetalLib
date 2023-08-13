@@ -15,3 +15,4 @@
 #include "mac_events.h"
 #include "mac_buttons.h"
 #include "mac_sliders.h"
+#include "mac_text.h"

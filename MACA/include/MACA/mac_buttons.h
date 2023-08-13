@@ -1,6 +1,8 @@
 #pragma once
 
 #include "mac_defs.h"
+#include "mac_gui.h"
+
 #include <stdint.h>
 #include <stdbool.h>
 #include <MacTypes.h>
@@ -78,8 +80,6 @@ typedef enum
     MAC_BUTTON_TYPE_ACCELERATOR                = 8,
     MAC_BUTTON_TYPE_MULTI_LEVEL_ACCELERATOR    = 9,
 } Mac_Button_Type_Flags;
-
-typedef struct Mac_Button Mac_Button;
 
 /*
     Function pointer for the button action
