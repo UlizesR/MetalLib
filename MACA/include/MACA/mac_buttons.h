@@ -11,7 +11,7 @@
 #import <Cocoa/Cocoa.h>
 #import <objc/runtime.h> // Include for associated objects
 
-@interface NSMac_Button : NSButton
+@interface NSM_Button : NSButton
 @end
 
 #endif
@@ -38,21 +38,21 @@ extern "C" {
 */
 typedef enum 
 {
-    MAC_BUTTON_STYLE_NONE               = 0,
-    MAC_BUTTON_STYLE_ROUNDED            = 1,
-    MAC_BUTTON_STYLE_REGULAR_SQUARE     = 2,
-    MAC_BUTTON_STYLE_DISCLOSURE         = 5,
-    MAC_BUTTON_STYLE_SHADOWLESS_SQUARE  = 6,
-    MAC_BUTTON_STYLE_CIRCULAR           = 7,
-    MAC_BUTTON_STYLE_TEXTURED_SQUARE    = 8,
-    MAC_BUTTON_STYLE_HELP_BUTTON        = 9,
-    MAC_BUTTON_STYLE_SMALL_SQUARE       = 10,
-    MAC_BUTTON_STYLE_TEXTURED_ROUNDED   = 11,
-    MAC_BUTTON_STYLE_ROUND_RECT         = 12,
-    MAC_BUTTON_STYLE_RECESSED           = 13,
-    MAC_BUTTON_STYLE_ROUNDED_DISCLOSURE = 14,
-    MAC_BUTTON_STYLE_INLINE             = 15,
-} Mac_Button_Style_Flags;
+    M_BUTTON_STYLE_NONE               = 0,
+    M_BUTTON_STYLE_ROUNDED            = 1,
+    M_BUTTON_STYLE_REGULAR_SQUARE     = 2,
+    M_BUTTON_STYLE_DISCLOSURE         = 5,
+    M_BUTTON_STYLE_SHADOWLESS_SQUARE  = 6,
+    M_BUTTON_STYLE_CIRCULAR           = 7,
+    M_BUTTON_STYLE_TEXTURED_SQUARE    = 8,
+    M_BUTTON_STYLE_HELP_BUTTON        = 9,
+    M_BUTTON_STYLE_SMALL_SQUARE       = 10,
+    M_BUTTON_STYLE_TEXTURED_ROUNDED   = 11,
+    M_BUTTON_STYLE_ROUND_RECT         = 12,
+    M_BUTTON_STYLE_RECESSED           = 13,
+    M_BUTTON_STYLE_ROUNDED_DISCLOSURE = 14,
+    M_BUTTON_STYLE_INLINE             = 15,
+} M_Button_Style_Flags;
 
 /*
     This is base of the current NSButtonCell.h button types
@@ -69,33 +69,33 @@ typedef enum
 */
 typedef enum 
 {
-    MAC_BUTTON_TYPE_MOMENTARY_LIGHT            = 0,
-    MAC_BUTTON_TYPE_PUSH_ON_PUSH_OFF           = 1,
-    MAC_BUTTON_TYPE_TOGGLE                     = 2,
-    MAC_BUTTON_TYPE_SWITCH                     = 3,
-    MAC_BUTTON_TYPE_RADIO                      = 4,
-    MAC_BUTTON_TYPE_MOMENTARY_CHANGE           = 5,
-    MAC_BUTTON_TYPE_ON_OFF                     = 6,
-    MAC_BUTTON_TYPE_MOMENTARY_PUSH_IN          = 7,
-    MAC_BUTTON_TYPE_ACCELERATOR                = 8,
-    MAC_BUTTON_TYPE_MULTI_LEVEL_ACCELERATOR    = 9,
-} Mac_Button_Type_Flags;
+    M_BUTTON_TYPE_MOMENTARY_LIGHT            = 0,
+    M_BUTTON_TYPE_PUSH_ON_PUSH_OFF           = 1,
+    M_BUTTON_TYPE_TOGGLE                     = 2,
+    M_BUTTON_TYPE_SWITCH                     = 3,
+    M_BUTTON_TYPE_RADIO                      = 4,
+    M_BUTTON_TYPE_MOMENTARY_CHANGE           = 5,
+    M_BUTTON_TYPE_ON_OFF                     = 6,
+    M_BUTTON_TYPE_MOMENTARY_PUSH_IN          = 7,
+    M_BUTTON_TYPE_ACCELERATOR                = 8,
+    M_BUTTON_TYPE_MULTI_LEVEL_ACCELERATOR    = 9,
+} M_Button_Type_Flags;
 
 /*
     Function pointer for the button action
     takes a pointer to the button that was clicked
 
 */
-typedef void (*ButtonAction)(Mac_Button*, void* user_data);
+typedef void (*ButtonAction)(M_Button*, void* user_data);
 
 /*
     This is the struct that holds all the information for the button
 */
-struct Mac_Button {
+struct M_Button {
     MSize size;             // The size of the button
     MPoint position;        // The position of the button
     MTitle title;           // The title of the button
-    Mac_View* parent_view;  // The parent view of the button
+    M_View* parent_view;  // The parent view of the button
     ButtonAction action;    // The action of the button
     void* user_data;        // The data that is being targeted by the button
     int tag;                // The tag of the button
@@ -104,7 +104,7 @@ struct Mac_Button {
 };
 
 /*!
-    Creates a button with the MAC_BUTTON_STYLE_REGULAR_SQUARE style
+    Creates a button with the M_BUTTON_STYLE_REGULAR_SQUARE style
     its size are base on the font size and the title length
     @param size The size of the button.
     @param position The position of the button.
@@ -119,7 +119,7 @@ struct Mac_Button {
     @param user_data The data that is being targeted by the button
     @return A pointer to the button.
 */
-Mac_Button* MAC_ButtonRS(MSize size, MPoint position, MImage image, MTitle title,  UInt32 type, int font_size, bool isBordered, bool bordered_when_hovered, Mac_View* parent_view, ButtonAction action, void* user_data);
+M_Button* M_ButtonRS(MSize size, MPoint position, MImage image, MTitle title,  UInt32 type, int font_size, bool isBordered, bool bordered_when_hovered, M_View* parent_view, ButtonAction action, void* user_data);
 
 /*!
     Creates a standard push button with a title and image.
@@ -132,7 +132,7 @@ Mac_Button* MAC_ButtonRS(MSize size, MPoint position, MImage image, MTitle title
     @param user_data The data that is being targeted by the button
     @return A pointer to the button.
 */
-Mac_Button* MAC_ButtonSpbTita(MSize size, MPoint position, MTitle title, MImage image, Mac_View* parent_view, ButtonAction action, void* user_data);
+M_Button* M_ButtonSpbTita(MSize size, MPoint position, MTitle title, MImage image, M_View* parent_view, ButtonAction action, void* user_data);
 
 /*!
     Creates a standard push button with the provided title.
@@ -144,7 +144,7 @@ Mac_Button* MAC_ButtonSpbTita(MSize size, MPoint position, MTitle title, MImage 
     @param user_data The data that is being targeted by the button
     @return A pointer to the button.
 */
-Mac_Button* MAC_ButtontSpbTta(MSize size, MPoint position, MTitle title, Mac_View* parent_view, ButtonAction action, void* user_data);
+M_Button* M_ButtontSpbTta(MSize size, MPoint position, MTitle title, M_View* parent_view, ButtonAction action, void* user_data);
 
 /*!
     Creates a standard push button with the provided image.
@@ -156,7 +156,7 @@ Mac_Button* MAC_ButtontSpbTta(MSize size, MPoint position, MTitle title, Mac_Vie
     @param user_data The data that is being targeted by the button
     @return A pointer to the button.
 */
-Mac_Button* MAC_ButtonSpbIta(MSize size, MPoint position, MImage image, Mac_View* parent_view, ButtonAction action, void* user_data);
+M_Button* M_ButtonSpbIta(MSize size, MPoint position, MImage image, M_View* parent_view, ButtonAction action, void* user_data);
 
 /*!
     Creates a standard checkbox with the provided title.
@@ -167,7 +167,7 @@ Mac_Button* MAC_ButtonSpbIta(MSize size, MPoint position, MImage image, Mac_View
     @param action The action message sent by the control.
     @return An initialized button object.
  */
-Mac_Button* MAC_ButtonScbTta(MSize size, MPoint position, MTitle title, Mac_View* parent_view, ButtonAction action, void* user_data);
+M_Button* M_ButtonScbTta(MSize size, MPoint position, MTitle title, M_View* parent_view, ButtonAction action, void* user_data);
 
 /*!
     Creates a standard radio with the provided image.
@@ -178,7 +178,7 @@ Mac_Button* MAC_ButtonScbTta(MSize size, MPoint position, MTitle title, Mac_View
     @param action The action message sent by the control.
     @return An initialized button object.
 */
-Mac_Button* MAC_ButtonSrbTta(MSize size, MPoint position, MTitle title, Mac_View* parent_view, ButtonAction action, void* user_data);
+M_Button* M_ButtonSrbTta(MSize size, MPoint position, MTitle title, M_View* parent_view, ButtonAction action, void* user_data);
 
 /*!
     Creates a standard radio with the provided image.
@@ -189,19 +189,19 @@ Mac_Button* MAC_ButtonSrbTta(MSize size, MPoint position, MTitle title, Mac_View
     @param action The action message sent by the control.
     @return An initialized button object.
 */
-void MAC_HideButton(Mac_Button* button);
+void M_HideButton(M_Button* button);
 
 /*!
     Shows a button.
     @param button The button to show.
 */
-void MAC_ShowButton(Mac_Button* button);
+void M_ShowButton(M_Button* button);
 
 /*!
     Destroys a button.
     @param button The button to destroy.
 */
-void MAC_DestroyButton(Mac_Button* button);
+void M_DestroyButton(M_Button* button);
 
 #ifdef __cplusplus
 }

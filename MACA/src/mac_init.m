@@ -2,9 +2,9 @@
 #include "MACA/mac_init.h"
 #include <stdio.h>
 
-int MAC_Init(UInt32 flags)
+int M_Init(UInt32 flags)
 {
-    Mac_Delegate *delegate = initDelegate();
+    M_Delegate *delegate = initDelegate();
     if (delegate == nil) {
         return -1; // Consistent with the header file
     }
@@ -12,7 +12,7 @@ int MAC_Init(UInt32 flags)
     return 0;
 }
 
-void MAC_Quit()
+void M_Quit()
 {
     printf("Terminating App");
     terminateDelegate();

@@ -7,7 +7,7 @@
 #ifdef __OBJC__
 #import <Cocoa/Cocoa.h>
 
-@interface NSMac_Text : NSTextField
+@interface NSM_Text : NSTextField
 @end
 
 #endif
@@ -16,11 +16,11 @@
 extern "C" {
 #endif
 
-struct Mac_Text {
+struct M_Text {
     MPoint pos;              // Position of the text
     MSize size;              // Size of the text
-    Mac_Color color;         // Color of the text
-    Mac_View* parent_view;   // Parent view
+    M_Color color;         // Color of the text
+    M_View* parent_view;   // Parent view
     int id;                  // ID of the text
     MText text;              // Text to display
     int font;                // Font to use
@@ -38,14 +38,14 @@ struct Mac_Text {
     @param font The font to use.
     @return The created text object.
 */
-Mac_Text* MAC_AddText(Mac_View* parent_view, MPoint pos, MSize size, Mac_Color color, MText text, int font);
+M_Text* M_AddText(M_View* parent_view, MPoint pos, MSize size, M_Color color, MText text, int font);
 
 /*!
     Updates the text of a text object.
     @param text The text object to update.
     @param newText The new text to display.
 */
-void MAC_UpdateText(Mac_Text* text, MText newText);
+void M_UpdateText(M_Text* text, MText newText);
 
 /*!
     MText is of typedef const char*
@@ -54,19 +54,19 @@ void MAC_UpdateText(Mac_Text* text, MText newText);
     @param font The font size.
     @return The size of the text object.
 */
-MSize MAC_GetTextSize(MText text, int font);
+MSize M_GetTextSize(MText text, int font);
 
 /*!
     Removes a text object from the view.
     @param text The text object to remove.
 */
-void MAC_RemoveText(Mac_Text* text);
+void M_RemoveText(M_Text* text);
 
 /*!
     Destroys a text object.
     @param text The text object to destroy.
 */
-void MAC_DestroyText(Mac_Text* text);
+void M_DestroyText(M_Text* text);
 
 #ifdef __cplusplus
 }

@@ -9,34 +9,34 @@
 #import <Cocoa/Cocoa.h>
 #import <MetalKit/MetalKit.h>
 
-NSView* getViewFromMacView(Mac_View* parent_view);
+NSView* getViewFromMacView(M_View* parent_view);
 
-@interface Mac_NSView_Normal: NSView;
+@interface M_NSView_Normal: NSView;
 @end
 
 typedef struct {
     MFPoint init_pos;
     MFPoint end_pos;
     float line_width;
-    Mac_Color color;
+    M_Color color;
 } DrawingCommand;
 
 @interface DrawableShape : NSObject
 @property (nonatomic) CGPathRef path;
-@property (nonatomic) Mac_Color color;
+@property (nonatomic) M_Color color;
 @property (nonatomic) float lineWidth;
 @property (nonatomic) BOOL filled;
 @property (nonatomic) int id;
 - (void)updateLineWithInitPos:(MFPoint)init_pos endPos:(MFPoint)end_pos;
 @end
 
-@interface Mac_NSView_Core_G: NSView;
+@interface M_NSView_Core_G: NSView;
 @property (nonatomic, strong) NSMutableArray<DrawableShape*>* shapes;
 @property (nonatomic, strong) NSMutableArray<NSValue*>* drawingCommands;
-- (void)setLineWithInitPos:(MFPoint)init_pos endPos:(MFPoint)end_pos lineWidth:(float)line_width shapeID:(int)id color:(Mac_Color)color;
+- (void)setLineWithInitPos:(MFPoint)init_pos endPos:(MFPoint)end_pos lineWidth:(float)line_width shapeID:(int)id color:(M_Color)color;
 @end
 
-@interface Mac_NSView_Metal: MTKView;
+@interface M_NSView_Metal: MTKView;
 @end
 
 #endif
@@ -46,56 +46,56 @@ extern "C" {
 #endif
 
 typedef enum {
-    MAC_VIEW_TYPE_NORMAL    = 1,
-    MAC_VIEW_TYPE_CORE_G    = 2,
-    MAC_VIEW_TYPE_METAL     = 4,
-} Mac_View_Type;
+    M_VIEW_TYPE_NORMAL    = 1,
+    M_VIEW_TYPE_CORE_G    = 2,
+    M_VIEW_TYPE_METAL     = 4,
+} M_View_Type;
 
-struct Mac_NView                    // Normal view for apps
+struct M_NView                    // Normal view for apps
 {
     int id;                         // The id of the view
     MSize size;                     // The size of the view
-    Mac_Color background_color;     // The background color of the view
+    M_Color background_color;     // The background color of the view
     MPoint position;                // The position of this view
-    Mac_Window *window_parent;      // The parent window of this view
+    M_Window *window_parent;      // The parent window of this view
     bool is_content_view;           // Whether this view is the content view of the window or not
     void* _this;                    // The pointer to this view
 };
 
-struct Mac_RView                    // normal view to render core graphics
+struct M_RView                    // normal view to render core graphics
 {
     int id;                         // The id of the view
     MSize size;                     // The size of the view
-    Mac_Color background_color;     // The background color of the view
+    M_Color background_color;     // The background color of the view
     MPoint position;                // The position of this view
-    Mac_Window *window_parent;      // The parent window of this view
-    Mac_Renderer *renderer;         // The renderer that owns this view
+    M_Window *window_parent;      // The parent window of this view
+    M_Renderer *renderer;         // The renderer that owns this view
     bool is_content_view;           // Whether this view is the content view of the window or not
     void* _this;                    // The pointer to this view
 };
 
-struct Mac_MView                    // metal view to render metal graphics
+struct M_MView                    // metal view to render metal graphics
 {
     int id;                         // The id of the view
     MSize size;                     // The size of the view
-    Mac_Color background_color;     // The background color of the view
+    M_Color background_color;     // The background color of the view
     MPoint position;                // The position of this view
-    Mac_Window *window_parent;      // The parent window of this view
-    Mac_Renderer *renderer;         // The renderer that owns this view
+    M_Window *window_parent;      // The parent window of this view
+    M_Renderer *renderer;         // The renderer that owns this view
     bool is_content_view;           // Whether this view is the content view of the window or not
     void* _this;                    // The pointer to this view
 };
 
 union UView                      // The union of all views
 {
-    Mac_NView n_view;
-    Mac_RView r_view;
-    Mac_MView m_view;
+    M_NView n_view;
+    M_RView r_view;
+    M_MView m_view;
 };
 
-struct Mac_View
+struct M_View
 {
-    Mac_View_Type type;             // The type of the view
+    M_View_Type type;             // The type of the view
     union UView view;               // The view
     float corner_radius;            // The corner radius of the view
 }; // The view
@@ -113,7 +113,7 @@ struct Mac_View
     @param renderer: the renderer that owns this view
     @return: the created sub view
 */
-Mac_View* MAC_AddSubView(Mac_View* parent, UInt32 type, int width, int height, int x, int y, float corner_radius, Mac_Color background_color, Mac_Renderer* renderer);
+M_View* M_AddSubView(M_View* parent, UInt32 type, int width, int height, int x, int y, float corner_radius, M_Color background_color, M_Renderer* renderer);
 
 /*!
     Creates a given window's content view with the given parameters.
@@ -122,38 +122,38 @@ Mac_View* MAC_AddSubView(Mac_View* parent, UInt32 type, int width, int height, i
     @param type: the type of the view
     @return: the created content view
 */
-Mac_View* MAC_AddContentView(Mac_Window* parent, Mac_Color background_color, UInt32 type, Mac_Renderer* renderer);
+M_View* M_AddContentView(M_Window* parent, M_Color background_color, UInt32 type, M_Renderer* renderer);
 
 /*!
     Changes the Color of the given view.
     @param view: the view to be changed
     @param color: the new color of the view
 */
-void MAC_ChangeViewBGColor(Mac_View* view, Mac_Color color);
+void M_ChangeViewBGColor(M_View* view, M_Color color);
 
 /*!
     Hides the given view.
     @param view: the view to be hidden
 */
-void MAC_HideView(Mac_View* view);
+void M_HideView(M_View* view);
 
 /*!
     Shows the given view.
     @param view: the view to be shown
 */
-void MAC_ShowView(Mac_View* view);
+void M_ShowView(M_View* view);
 
 /*!
     Destroys the given view.
     @param view: the view to be destroyed
 */
-void MAC_DestroyView(Mac_View* view);
+void M_DestroyView(M_View* view);
 
 /*!
     Destroys the given content view.
     @param contentView: the content view to be destroyed
 */
-void MAC_DestroyContentView(Mac_View* contentView);
+void M_DestroyContentView(M_View* contentView);
 
 
 #ifdef __cplusplus

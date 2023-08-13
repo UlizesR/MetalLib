@@ -5,16 +5,16 @@
 
 #import <Cocoa/Cocoa.h>
 
-@implementation Mac_Window_Delegate
+@implementation M_Window_Delegate
 
 @end
 
 static int windowIDCounter = 0;
 
-Mac_Window* MAC_CreateWindow(int width, int height, bool is_main_window, MTitle title, UInt32 flags) 
+M_Window* M_CreateWindow(int width, int height, bool is_main_window, MTitle title, UInt32 flags) 
 {
     // Allocate memory for the window
-    Mac_Window *window = (Mac_Window*)malloc(sizeof(Mac_Window));
+    M_Window *window = (M_Window*)malloc(sizeof(M_Window));
     // Check if the allocation was successful
     if (window == NULL) {
         fprintf(stderr, "Error: Failed to allocate memory for the window\n");
@@ -33,7 +33,7 @@ Mac_Window* MAC_CreateWindow(int width, int height, bool is_main_window, MTitle 
     window->content_view = NULL;
     // Create the corresponding Objective-C window object
     NSWindow *nsWindow;
-    Mac_Window_Delegate *windowDelegate = [[Mac_Window_Delegate alloc] init];
+    M_Window_Delegate *windowDelegate = [[M_Window_Delegate alloc] init];
     // Check if the window is the main window
     if (is_main_window)
     {
@@ -52,25 +52,25 @@ Mac_Window* MAC_CreateWindow(int width, int height, bool is_main_window, MTitle 
         nsWindow.delegate = windowDelegate;
         window->delegate = (__bridge void *)nsWindow;
         // Set the parent window
-        window->parent = (Mac_Window *)globalDelegate.mainWindow;
+        window->parent = (M_Window *)globalDelegate.mainWindow;
         // Add the window to the global delegate's child windows array
         [globalDelegate.childWindows addObject:(__bridge id _Nonnull)(window)];
-        Mac_Window *parentWindow = (Mac_Window *)globalDelegate.mainWindow;
+        M_Window *parentWindow = (M_Window *)globalDelegate.mainWindow;
         parentWindow->num_children++;                                
     }
     // Set the window title
     [nsWindow setTitle:[NSString stringWithUTF8String:title]];
     // Set the window flags
-    if (flags & MAC_WINDOW_RESIZABLE)
+    if (flags & M_WINDOW_RESIZABLE)
     {   
         [nsWindow setStyleMask:[nsWindow styleMask] | NSWindowStyleMaskResizable];
         [nsWindow setMinSize:NSMakeSize(width, height)];
     }
-    if (flags & MAC_WINDOW_MINIMIZED)
+    if (flags & M_WINDOW_MINIMIZED)
     {
         [nsWindow setStyleMask:[nsWindow styleMask] | NSWindowStyleMaskMiniaturizable];
     }
-    if (flags & MAC_WINDOW_FULLSCREEN)
+    if (flags & M_WINDOW_FULLSCREEN)
     {
         [nsWindow setStyleMask:[nsWindow styleMask] | NSWindowStyleMaskFullScreen];
     }
@@ -82,7 +82,7 @@ Mac_Window* MAC_CreateWindow(int width, int height, bool is_main_window, MTitle 
     return window;
 }
 
-void MAC_CloseWindow(Mac_Window* window) {
+void M_CloseWindow(M_Window* window) {
     if (window == NULL) {
         return;
     }
@@ -91,7 +91,7 @@ void MAC_CloseWindow(Mac_Window* window) {
 
     // If this is the main window, close all child windows
     if (window->is_main_window) {
-        Mac_Delegate* delegate = initDelegate();
+        M_Delegate* delegate = initDelegate();
         NSArray<NSWindow *> *childWindows = delegate.childWindows;
         for (NSWindow *childWindow in childWindows) {
             if ([childWindow isVisible]) {
@@ -101,7 +101,7 @@ void MAC_CloseWindow(Mac_Window* window) {
     }
 }
 
-bool isWindowOpen(Mac_Window* window) {
+bool isWindowOpen(M_Window* window) {
     if (window == NULL) {
         return false;
     }
@@ -109,21 +109,21 @@ bool isWindowOpen(Mac_Window* window) {
     return [nsWindow isMiniaturized] || [nsWindow isVisible];
 }
 
-void MAC_DestroyWindow(Mac_Window* window) {
+void M_DestroyWindow(M_Window* window) {
     if (window == NULL) {
         return;
     }
-    MAC_CloseWindow(window);
+    M_CloseWindow(window);
 
     // Destroy the content view
-    MAC_DestroyContentView(window->content_view);
+    M_DestroyContentView(window->content_view);
 
     // Destroy child windows if this is the main window
     if (window->is_main_window) {
         NSArray<NSWindow *> *childWindows = globalDelegate.childWindows;
         for (NSWindow *childWindow in childWindows) {
-            Mac_Window* childMacWindow = (__bridge Mac_Window *)(childWindow.delegate);
-            MAC_DestroyWindow(childMacWindow);
+            M_Window* childMacWindow = (__bridge M_Window *)(childWindow.delegate);
+            M_DestroyWindow(childMacWindow);
         }
     }
     free(window);

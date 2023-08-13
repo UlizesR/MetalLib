@@ -3,7 +3,7 @@
 #ifdef __OBJC__
 #import <Cocoa/Cocoa.h>
 
-@interface Mac_Delegate : NSObject <NSApplicationDelegate>
+@interface M_Delegate : NSObject <NSApplicationDelegate>
 
 @property (nonatomic, strong) NSWindow *mainWindow;
 @property (nonatomic, strong) NSView* mainWindowContentView;
@@ -15,9 +15,9 @@
     initializes the delegate for the entire app
     @return the delegate
 */
-Mac_Delegate* initDelegate();
+M_Delegate* initDelegate();
 
-extern Mac_Delegate* globalDelegate;
+extern M_Delegate* globalDelegate;
 
 #endif
 

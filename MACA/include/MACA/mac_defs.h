@@ -27,14 +27,14 @@ typedef const char* MImage; // for images paths
 typedef const char* MFile;  // for file paths
 typedef const char* MText;  // for text
 
-typedef struct Mac_NView Mac_NView;     // Normal view for apps
-typedef struct Mac_RView Mac_RView;     // normal view to render core graphics
-typedef struct Mac_MView Mac_MView;     // metal view to render metal graphics
+typedef struct M_NView M_NView;     // Normal view for apps
+typedef struct M_RView M_RView;     // normal view to render core graphics
+typedef struct M_MView M_MView;     // metal view to render metal graphics
 typedef union UView UView;              // The union of all views
-typedef struct Mac_View Mac_View;       // The view (can be any of the above)
+typedef struct M_View M_View;       // The view (can be any of the above)
 
-typedef struct Mac_Window Mac_Window;     // window for apps
-typedef struct Mac_Renderer Mac_Renderer; // renderer for graphics
+typedef struct M_Window M_Window;     // window for apps
+typedef struct M_Renderer M_Renderer; // renderer for graphics
 
 #ifdef __cplusplus
 }

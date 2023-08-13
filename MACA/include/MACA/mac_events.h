@@ -8,101 +8,101 @@ extern "C" {
 #endif
 
 typedef enum {
-    MAC_NOEVENT = 0,
-    MAC_KEYBOARDEVENT,
-    MAC_MOUSEEVENT,
-    MAC_SCROLLEVENT,
-} MAC_EventType;
+    M_NOEVENT = 0,
+    M_KEYBOARDEVENT,
+    M_MOUSEEVENT,
+    M_SCROLLEVENT,
+} M_EventType;
 
 typedef enum {
-    MAC_NOSCROLL = 0,
-    MAC_SCROLL_UP,
-    MAC_SCROLL_DOWN,
-} MAC_ScrollDirection;
+    M_NOSCROLL = 0,
+    M_SCROLL_UP,
+    M_SCROLL_DOWN,
+} M_ScrollDirection;
 
 typedef enum {
     // letter keys
-    MAC_NOKEY = -1,
-    MAC_KEY_A = 0,
-    MAC_KEY_B = 11,
-    MAC_KEY_C = 8,
-    MAC_KEY_D = 2,
-    MAC_KEY_E = 14,
-    MAC_KEY_F = 3,
-    MAC_KEY_G = 5,
-    MAC_KEY_H = 4,
-    MAC_KEY_I = 34,
-    MAC_KEY_J = 38,
-    MAC_KEY_K = 40,
-    MAC_KEY_L = 37,
-    MAC_KEY_M = 46,
-    MAC_KEY_N = 45,
-    MAC_KEY_O = 31,
-    MAC_KEY_P = 35,
-    MAC_KEY_Q = 12,
-    MAC_KEY_R = 15,
-    MAC_KEY_S = 1,
-    MAC_KEY_T = 17,
-    MAC_KEY_U = 32,
-    MAC_KEY_V = 9,
-    MAC_KEY_W = 13,
-    MAC_KEY_X = 7,
-    MAC_KEY_Y = 16,
-    MAC_KEY_Z = 6,
+    M_NOKEY = -1,
+    M_KEY_A = 0,
+    M_KEY_B = 11,
+    M_KEY_C = 8,
+    M_KEY_D = 2,
+    M_KEY_E = 14,
+    M_KEY_F = 3,
+    M_KEY_G = 5,
+    M_KEY_H = 4,
+    M_KEY_I = 34,
+    M_KEY_J = 38,
+    M_KEY_K = 40,
+    M_KEY_L = 37,
+    M_KEY_M = 46,
+    M_KEY_N = 45,
+    M_KEY_O = 31,
+    M_KEY_P = 35,
+    M_KEY_Q = 12,
+    M_KEY_R = 15,
+    M_KEY_S = 1,
+    M_KEY_T = 17,
+    M_KEY_U = 32,
+    M_KEY_V = 9,
+    M_KEY_W = 13,
+    M_KEY_X = 7,
+    M_KEY_Y = 16,
+    M_KEY_Z = 6,
     // number keys
-    MAC_KEY_0 = 29,
-    MAC_KEY_1 = 18,
-    MAC_KEY_2 = 19,
-    MAC_KEY_3 = 20,
-    MAC_KEY_4 = 21,
-    MAC_KEY_5 = 23,
-    MAC_KEY_6 = 22,
-    MAC_KEY_7 = 26,
-    MAC_KEY_8 = 28,
-    MAC_KEY_9 = 25,
+    M_KEY_0 = 29,
+    M_KEY_1 = 18,
+    M_KEY_2 = 19,
+    M_KEY_3 = 20,
+    M_KEY_4 = 21,
+    M_KEY_5 = 23,
+    M_KEY_6 = 22,
+    M_KEY_7 = 26,
+    M_KEY_8 = 28,
+    M_KEY_9 = 25,
     // function keys
-    MAC_KEY_RETURN = 36,
-    MAC_KEY_ESCAPE = 53,
-    MAC_KEY_BACKSPACE = 51,
-    MAC_KEY_TAB = 48,
-    MAC_KEY_SPACE = 49,
-    MAC_KEY_CAPSLOCK = 57,
-    MAC_KEY_CTRL = 59,
-    MAC_KEY_SHIFT = 56,
-    MAC_KEY_ALT = 58,
+    M_KEY_RETURN = 36,
+    M_KEY_ESCAPE = 53,
+    M_KEY_BACKSPACE = 51,
+    M_KEY_TAB = 48,
+    M_KEY_SPACE = 49,
+    M_KEY_CAPSLOCK = 57,
+    M_KEY_CTRL = 59,
+    M_KEY_SHIFT = 56,
+    M_KEY_ALT = 58,
     // arrow keys
-    MAC_KEY_ARROW_UP = 126,
-    MAC_KEY_ARROW_DOWN = 125,
-    MAC_KEY_ARROW_LEFT = 123,
-    MAC_KEY_ARROW_RIGHT = 124,
+    M_KEY_ARROW_UP = 126,
+    M_KEY_ARROW_DOWN = 125,
+    M_KEY_ARROW_LEFT = 123,
+    M_KEY_ARROW_RIGHT = 124,
 
-} MAC_KeyCode;
+} M_KeyCode;
 
 typedef enum {
-    MAC_NOBUTTON = 0,
-    MAC_BUTTON_LEFT,
-    MAC_BUTTON_MIDDLE,
-    MAC_BUTTON_RIGHT,
-} MAC_MouseButton;
+    M_NOBUTTON = 0,
+    M_BUTTON_LEFT,
+    M_BUTTON_MIDDLE,
+    M_BUTTON_RIGHT,
+} M_MouseButton;
 
 typedef struct {
-    MAC_EventType type;
+    M_EventType type;
     // For keyboard events
-    MAC_KeyCode keycode;
+    M_KeyCode keycode;
     // For mouse events
     int x;
     int y;
-    MAC_MouseButton button;
+    M_MouseButton button;
     // For scroll events
-    MAC_ScrollDirection direction;
-} MAC_Event;
+    M_ScrollDirection direction;
+} M_Event;
 
 /*!
     Polls the event queue for events
     @param event: the event to poll
     @return: 0 on success, -1 on failure
 */
-int MAC_PollEvent(MAC_Event* event);
+int M_PollEvent(M_Event* event);
 
 #ifdef __cplusplus
 }

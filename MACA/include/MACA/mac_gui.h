@@ -7,11 +7,11 @@
 extern "C" {
 #endif
 
-typedef struct Mac_Button Mac_Button;
-typedef struct Mac_Slider Mac_Slider;
-typedef struct Mac_Text Mac_Text;
-typedef struct Mac_Graph Mac_Graph;
-typedef struct Mac_Table Mac_Table;
+typedef struct M_Button M_Button;
+typedef struct M_Slider M_Slider;
+typedef struct M_Text M_Text;
+typedef struct M_Graph M_Graph;
+typedef struct M_Table M_Table;
 
 #ifdef __cplusplus
 }

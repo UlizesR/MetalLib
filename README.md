@@ -46,7 +46,7 @@ How to make a window
 ```C
 int main(int argc, const char * argv[]) {
     // Initialize the application
-    if(MAC_Init(0) != 0) {
+    if(M_Init(0) != 0) {
         fprintf(stderr, "Failed to initialize MACA\n");
         return 1;
     }
@@ -60,18 +60,18 @@ int main(int argc, const char * argv[]) {
 3. create a window and a content view
 
 ```C
-    Mac_Window* mainWindow = MAC_CreateWindow(800, 600, true, "Main Window", 0);
-    Mac_View* contentView = MAC_AddContentView(mainWindow, MAC_COLOR_WHITE, MAC_VIEW_TYPE_NORMAL, NULL);
+    M_Window* mainWindow = M_CreateWindow(800, 600, true, "Main Window", 0);
+    M_View* contentView = M_AddContentView(mainWindow, M_COLOR_WHITE, M_VIEW_TYPE_NORMAL, NULL);
 ```
 
 4. create a running loop 
 
 ```C
     bool running = true;
-    MAC_Event event;
+    M_Event event;
     while (running) {
         // causes window to remain open
-        while (MAC_PollEvent(&event) != 0) { // Poll for events
+        while (M_PollEvent(&event) != 0) { // Poll for events
             // do event handling
         }
         // Check if the window is still open
@@ -84,7 +84,7 @@ int main(int argc, const char * argv[]) {
 5. Deallocate any allocated memory 
 
 ```C
-    MAC_DestroyView(contentView);
-    MAC_DestroyWindow(mainWindow);
-    MAC_Quit();
+    M_DestroyView(contentView);
+    M_DestroyWindow(mainWindow);
+    M_Quit();
 ```

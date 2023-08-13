@@ -10,7 +10,7 @@
 #ifdef __OBJC__
 #import <Cocoa/Cocoa.h> 
 
-@interface NSMac_Slider : NSSlider
+@interface NSM_Slider : NSSlider
 @end
 
 @interface RectangularKnobSliderCell : NSSliderCell
@@ -25,24 +25,24 @@
 extern "C" {
 #endif
 
-typedef void (*SliderAction)(Mac_Slider*, void* user_data);
+typedef void (*SliderAction)(M_Slider*, void* user_data);
 
 typedef enum {
-    MAC_SLIDER_TICK_POSITION_ABOVE = 0,
-    MAC_SLIDER_TICK_POSITION_BELOW = 1,
-} Mac_Slider_Tick_Position;
+    M_SLIDER_TICK_POSITION_ABOVE = 0,
+    M_SLIDER_TICK_POSITION_BELOW = 1,
+} M_Slider_Tick_Position;
 
 typedef enum {
-    MAC_SLIDER_TYPE_HORIZONTAL = 0,
-    MAC_SLIDER_TYPE_VERTICAL = 1,
-} Mac_Slider_Orientation;
+    M_SLIDER_TYPE_HORIZONTAL = 0,
+    M_SLIDER_TYPE_VERTICAL = 1,
+} M_Slider_Orientation;
 
 typedef enum {
-    MAC_SLIDER_STYLE_CIRCULAR = 0,
-    MAC_SLIDER_STYLE_RECTANGULAR = 1,
-} Mac_Slider_Style;
+    M_SLIDER_STYLE_CIRCULAR = 0,
+    M_SLIDER_STYLE_RECTANGULAR = 1,
+} M_Slider_Style;
 
-struct Mac_Slider
+struct M_Slider
 {
     MSize size;
     MPoint position;
@@ -53,7 +53,7 @@ struct Mac_Slider
     int tag;
     SliderAction action;
     void* user_data;
-    Mac_View *parent_view;
+    M_View *parent_view;
 };
 
 /*!
@@ -69,7 +69,7 @@ struct Mac_Slider
     @param user_data: the data that is being targeted by the slider
     @return A pointer to the slider.
 */
-Mac_Slider* MAC_HSlider(MSize size, MPoint position, float minValue, float maxValue, float increment, Mac_Color track_color, Mac_View* parent_view, SliderAction action, void* user_data);
+M_Slider* M_HSlider(MSize size, MPoint position, float minValue, float maxValue, float increment, M_Color track_color, M_View* parent_view, SliderAction action, void* user_data);
 
 /*!
     Creates a vertical slider with the given parameters.
@@ -84,7 +84,7 @@ Mac_Slider* MAC_HSlider(MSize size, MPoint position, float minValue, float maxVa
     @param user_data: the data that is being targeted by the slider
     @return A pointer to the slider.
 */
-Mac_Slider* MAC_VSlider(MSize size, MPoint position, float minValue, float maxValue, float increment, Mac_Color track_color, Mac_View* parent_view, SliderAction action, void* user_data);
+M_Slider* M_VSlider(MSize size, MPoint position, float minValue, float maxValue, float increment, M_Color track_color, M_View* parent_view, SliderAction action, void* user_data);
 
 /*!
     Creates a Horizontal slider with ticks with the given parameters.
@@ -101,7 +101,7 @@ Mac_Slider* MAC_VSlider(MSize size, MPoint position, float minValue, float maxVa
     @param user_data: the data that is being targeted by the slider
     @return A pointer to the slider.
 */
-Mac_Slider* MAC_HTickSlider(MSize size, MPoint position, float minValue, float maxValue, float increment, Mac_Color track_color, int tick_num, Mac_View* parent_view, UInt32 tick_pos, SliderAction action, void* user_data);
+M_Slider* M_HTickSlider(MSize size, MPoint position, float minValue, float maxValue, float increment, M_Color track_color, int tick_num, M_View* parent_view, UInt32 tick_pos, SliderAction action, void* user_data);
 
 /*!
     Creates a Vertical slider with ticks with the given parameters.
@@ -118,7 +118,7 @@ Mac_Slider* MAC_HTickSlider(MSize size, MPoint position, float minValue, float m
     @param user_data: the data that is being targeted by the slider
     @return A pointer to the slider.
 */
-Mac_Slider* MAC_VTickSlider(MSize size, MPoint position, float minValue, float maxValue, float increment, Mac_Color track_color, int tick_num, Mac_View* parent_view, UInt32 tick_pos, SliderAction action, void* user_data);
+M_Slider* M_VTickSlider(MSize size, MPoint position, float minValue, float maxValue, float increment, M_Color track_color, int tick_num, M_View* parent_view, UInt32 tick_pos, SliderAction action, void* user_data);
 
 /*!
     Creates a circular slider with the given parameters.
@@ -133,7 +133,7 @@ Mac_Slider* MAC_VTickSlider(MSize size, MPoint position, float minValue, float m
     @param user_data: the data that is being targeted by the slider
     @return A pointer to the slider.
 */
-Mac_Slider* MAC_CircularSlider(MSize size, MPoint position, float minValue, float maxValue, float increment, int radius, Mac_Color track_color, Mac_View* parent_view, SliderAction action, void* user_data);
+M_Slider* M_CircularSlider(MSize size, MPoint position, float minValue, float maxValue, float increment, int radius, M_Color track_color, M_View* parent_view, SliderAction action, void* user_data);
 
 /*!
     Creates a rectangular slider with the given parameters.
@@ -149,7 +149,7 @@ Mac_Slider* MAC_CircularSlider(MSize size, MPoint position, float minValue, floa
     @param user_data: the data that is being targeted by the slider
     @return A pointer to the slider.
 */
-Mac_Slider* MAC_HRectSlider(MSize size, MPoint position, float minValue, float maxValue, float increment, Mac_Color track_color, Mac_Color background_color, Mac_Color knob_color, Mac_View* parent_view, SliderAction action, void* user_data);
+M_Slider* M_HRectSlider(MSize size, MPoint position, float minValue, float maxValue, float increment, M_Color track_color, M_Color background_color, M_Color knob_color, M_View* parent_view, SliderAction action, void* user_data);
 
 /*!
     Creates a rectangular slider with the given parameters.
@@ -165,13 +165,13 @@ Mac_Slider* MAC_HRectSlider(MSize size, MPoint position, float minValue, float m
     @param user_data: the data that is being targeted by the slider
     @return A pointer to the slider.
 */
-Mac_Slider* MAC_VRectSlider(MSize size, MPoint position, float minValue, float maxValue, float increment, Mac_Color track_color, Mac_Color background_color, Mac_Color knob_color, Mac_View* parent_view, SliderAction action, void* user_data);
+M_Slider* M_VRectSlider(MSize size, MPoint position, float minValue, float maxValue, float increment, M_Color track_color, M_Color background_color, M_Color knob_color, M_View* parent_view, SliderAction action, void* user_data);
 
 /*!
     Destroys the given slider.
     @param slider: the slider to be destroyed
 */
-void MAC_DestroySlider(Mac_Slider* slider);
+void M_DestroySlider(M_Slider* slider);
 
 #ifdef __cplusplus
 }

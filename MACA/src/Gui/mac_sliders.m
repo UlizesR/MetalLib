@@ -2,11 +2,11 @@
 #include <AppKit/AppKit.h>
 #import "MACA/mac_view.h"
 
-@implementation NSMac_Slider
+@implementation NSM_Slider
 
 - (void)sliderValueChanged:(id)sender {
     NSSlider *nsSlider = (NSSlider*)sender;
-    Mac_Slider *slider = (__bridge Mac_Slider *)(nsSlider.tag);
+    M_Slider *slider = (__bridge M_Slider *)(nsSlider.tag);
     slider->value = nsSlider.floatValue;
     slider->action(slider, slider->user_data);
     [nsSlider setNeedsDisplay:YES];
@@ -46,9 +46,9 @@
 
 @end
 
-Mac_Slider* MAC_HSlider(MSize size, MPoint position, float minValue, float maxValue, float increment, Mac_Color track_color, Mac_View* parent_view, SliderAction action, void* user_data)
+M_Slider* M_HSlider(MSize size, MPoint position, float minValue, float maxValue, float increment, M_Color track_color, M_View* parent_view, SliderAction action, void* user_data)
 {
-    Mac_Slider* slider = (Mac_Slider*)malloc(sizeof(Mac_Slider));
+    M_Slider* slider = (M_Slider*)malloc(sizeof(M_Slider));
     if(slider == NULL)
     {
         printf("Error: failed to allocate memory for slider");
@@ -63,7 +63,7 @@ Mac_Slider* MAC_HSlider(MSize size, MPoint position, float minValue, float maxVa
     slider->action = action;
     slider->user_data = user_data;
 
-    NSMac_Slider* nsSlider = [[NSMac_Slider alloc] initWithFrame:NSMakeRect(position.x, position.y, size.width, size.height)];
+    NSM_Slider* nsSlider = [[NSM_Slider alloc] initWithFrame:NSMakeRect(position.x, position.y, size.width, size.height)];
     
     [nsSlider setNeedsDisplay:YES];
     [nsSlider setVertical:NO];
@@ -87,9 +87,9 @@ Mac_Slider* MAC_HSlider(MSize size, MPoint position, float minValue, float maxVa
     return slider;
 }
 
-Mac_Slider* MAC_VSlider(MSize size, MPoint position, float minValue, float maxValue, float increment, Mac_Color track_color, Mac_View* parent_view, SliderAction action, void* user_data)
+M_Slider* M_VSlider(MSize size, MPoint position, float minValue, float maxValue, float increment, M_Color track_color, M_View* parent_view, SliderAction action, void* user_data)
 {
-    Mac_Slider* slider = (Mac_Slider*)malloc(sizeof(Mac_Slider));
+    M_Slider* slider = (M_Slider*)malloc(sizeof(M_Slider));
     if(slider == NULL)
     {
         printf("Error: failed to allocate memory for slider");
@@ -104,7 +104,7 @@ Mac_Slider* MAC_VSlider(MSize size, MPoint position, float minValue, float maxVa
     slider->action = action;
     slider->user_data = user_data;
 
-    NSMac_Slider* nsSlider = [[NSMac_Slider alloc] initWithFrame:NSMakeRect(position.x, position.y, size.width, size.height)];
+    NSM_Slider* nsSlider = [[NSM_Slider alloc] initWithFrame:NSMakeRect(position.x, position.y, size.width, size.height)];
 
     [nsSlider setVertical:YES];
     [nsSlider setMinValue:minValue];
@@ -126,9 +126,9 @@ Mac_Slider* MAC_VSlider(MSize size, MPoint position, float minValue, float maxVa
     return slider;
 }
 
-Mac_Slider* MAC_HTickSlider(MSize size, MPoint position, float minValue, float maxValue, float increment, Mac_Color track_color, int tick_num, Mac_View* parent_view, UInt32 tick_pos, SliderAction action, void* user_data)
+M_Slider* M_HTickSlider(MSize size, MPoint position, float minValue, float maxValue, float increment, M_Color track_color, int tick_num, M_View* parent_view, UInt32 tick_pos, SliderAction action, void* user_data)
 {
-    Mac_Slider* slider = (Mac_Slider*)malloc(sizeof(Mac_Slider));
+    M_Slider* slider = (M_Slider*)malloc(sizeof(M_Slider));
     if(slider == NULL)
     {
         printf("Error: failed to allocate memory for slider");
@@ -143,7 +143,7 @@ Mac_Slider* MAC_HTickSlider(MSize size, MPoint position, float minValue, float m
     slider->action = action;
     slider->user_data = user_data;
 
-    NSMac_Slider* nsSlider = [[NSMac_Slider alloc] initWithFrame:NSMakeRect(position.x, position.y, size.width, size.height)];
+    NSM_Slider* nsSlider = [[NSM_Slider alloc] initWithFrame:NSMakeRect(position.x, position.y, size.width, size.height)];
     [nsSlider setVertical:NO];
     [nsSlider setMinValue:minValue];
     [nsSlider setMaxValue:maxValue];
@@ -165,9 +165,9 @@ Mac_Slider* MAC_HTickSlider(MSize size, MPoint position, float minValue, float m
     return slider;
 }
 
-Mac_Slider* MAC_VTickSlider(MSize size, MPoint position, float minValue, float maxValue, float increment, Mac_Color track_color, int tick_num, Mac_View* parent_view, UInt32 tick_pos, SliderAction action, void* user_data)
+M_Slider* M_VTickSlider(MSize size, MPoint position, float minValue, float maxValue, float increment, M_Color track_color, int tick_num, M_View* parent_view, UInt32 tick_pos, SliderAction action, void* user_data)
 {
-    Mac_Slider* slider = (Mac_Slider*)malloc(sizeof(Mac_Slider));
+    M_Slider* slider = (M_Slider*)malloc(sizeof(M_Slider));
     if(slider == NULL)
     {
         printf("Error: failed to allocate memory for slider");
@@ -182,7 +182,7 @@ Mac_Slider* MAC_VTickSlider(MSize size, MPoint position, float minValue, float m
     slider->action = action;
     slider->user_data = user_data;
 
-    NSMac_Slider* nsSlider = [[NSMac_Slider alloc] initWithFrame:NSMakeRect(position.x, position.y, size.width, size.height)];
+    NSM_Slider* nsSlider = [[NSM_Slider alloc] initWithFrame:NSMakeRect(position.x, position.y, size.width, size.height)];
     [nsSlider setVertical:YES];
     [nsSlider setMinValue:minValue];
     [nsSlider setMaxValue:maxValue];
@@ -204,9 +204,9 @@ Mac_Slider* MAC_VTickSlider(MSize size, MPoint position, float minValue, float m
     return slider;
 }
 
-Mac_Slider* MAC_CircularSlider(MSize size, MPoint position, float minValue, float maxValue, float increment, int radius, Mac_Color track_color, Mac_View* parent_view, SliderAction action, void* user_data)
+M_Slider* M_CircularSlider(MSize size, MPoint position, float minValue, float maxValue, float increment, int radius, M_Color track_color, M_View* parent_view, SliderAction action, void* user_data)
 {
-    Mac_Slider* slider = (Mac_Slider*)malloc(sizeof(Mac_Slider));
+    M_Slider* slider = (M_Slider*)malloc(sizeof(M_Slider));
     if(slider == NULL)
     {
         printf("Error: failed to allocate memory for slider");
@@ -221,7 +221,7 @@ Mac_Slider* MAC_CircularSlider(MSize size, MPoint position, float minValue, floa
     slider->action = action;
     slider->user_data = user_data;
 
-    NSMac_Slider* nsSlider = [[NSMac_Slider alloc] initWithFrame:NSMakeRect(position.x, position.y, radius * 2, radius * 2)]; // Use the radius to set the size
+    NSM_Slider* nsSlider = [[NSM_Slider alloc] initWithFrame:NSMakeRect(position.x, position.y, radius * 2, radius * 2)]; // Use the radius to set the size
     [nsSlider setSliderType:NSSliderTypeCircular];
     [nsSlider setMinValue:minValue];
     [nsSlider setMaxValue:maxValue];
@@ -241,9 +241,9 @@ Mac_Slider* MAC_CircularSlider(MSize size, MPoint position, float minValue, floa
     return slider;
 }
 
-Mac_Slider* MAC_HRectSlider(MSize size, MPoint position, float minValue, float maxValue, float increment, Mac_Color track_color, Mac_Color background_color, Mac_Color knob_color, Mac_View* parent_view, SliderAction action, void* user_data)
+M_Slider* M_HRectSlider(MSize size, MPoint position, float minValue, float maxValue, float increment, M_Color track_color, M_Color background_color, M_Color knob_color, M_View* parent_view, SliderAction action, void* user_data)
 {
-    Mac_Slider* slider = (Mac_Slider*)malloc(sizeof(Mac_Slider));
+    M_Slider* slider = (M_Slider*)malloc(sizeof(M_Slider));
     if(slider == NULL)
     {
         printf("Error: failed to allocate memory for slider");
@@ -258,7 +258,7 @@ Mac_Slider* MAC_HRectSlider(MSize size, MPoint position, float minValue, float m
     slider->action = action;
     slider->user_data = user_data;
 
-    NSMac_Slider* nsSlider = [[NSMac_Slider alloc] initWithFrame:NSMakeRect(position.x, position.y, size.width, size.height)];
+    NSM_Slider* nsSlider = [[NSM_Slider alloc] initWithFrame:NSMakeRect(position.x, position.y, size.width, size.height)];
     RectangularKnobSliderCell *customCell = [[RectangularKnobSliderCell alloc] init];
     NSColor *trackColor = [NSColor colorWithRed:track_color.r green:track_color.g blue:track_color.b alpha:track_color.a];
     NSColor *bgColor = [NSColor colorWithRed:background_color.r green:background_color.g blue:background_color.b alpha:background_color.a];
@@ -286,9 +286,9 @@ Mac_Slider* MAC_HRectSlider(MSize size, MPoint position, float minValue, float m
     return slider;
 }
 
-Mac_Slider* MAC_VRectSlider(MSize size, MPoint position, float minValue, float maxValue, float increment, Mac_Color track_color, Mac_Color background_color, Mac_Color knob_color, Mac_View* parent_view, SliderAction action, void* user_data)
+M_Slider* M_VRectSlider(MSize size, MPoint position, float minValue, float maxValue, float increment, M_Color track_color, M_Color background_color, M_Color knob_color, M_View* parent_view, SliderAction action, void* user_data)
 {
-    Mac_Slider* slider = (Mac_Slider*)malloc(sizeof(Mac_Slider));
+    M_Slider* slider = (M_Slider*)malloc(sizeof(M_Slider));
     if(slider == NULL)
     {
         printf("Error: failed to allocate memory for slider");
@@ -303,7 +303,7 @@ Mac_Slider* MAC_VRectSlider(MSize size, MPoint position, float minValue, float m
     slider->action = action;
     slider->user_data = user_data;
 
-    NSMac_Slider* nsSlider = [[NSMac_Slider alloc] initWithFrame:NSMakeRect(position.x, position.y, size.width, size.height)];
+    NSM_Slider* nsSlider = [[NSM_Slider alloc] initWithFrame:NSMakeRect(position.x, position.y, size.width, size.height)];
     RectangularKnobSliderCell *customCell = [[RectangularKnobSliderCell alloc] init];
     NSColor *trackColor = [NSColor colorWithRed:track_color.r green:track_color.g blue:track_color.b alpha:track_color.a];
     NSColor *bgColor = [NSColor colorWithRed:background_color.r green:background_color.g blue:background_color.b alpha:background_color.a];
@@ -332,7 +332,7 @@ Mac_Slider* MAC_VRectSlider(MSize size, MPoint position, float minValue, float m
 }
 
 
-void MAC_DestroySlider(Mac_Slider* slider) {
+void M_DestroySlider(M_Slider* slider) {
     if (slider != NULL) {
         free(slider);
     }

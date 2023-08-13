@@ -1,6 +1,6 @@
 #import "MACA/mac_delegate.h"
 
-@implementation Mac_Delegate
+@implementation M_Delegate
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     if (globalDelegate == nil) {
@@ -23,11 +23,11 @@
 
 @end
 
-Mac_Delegate* globalDelegate = nil;
+M_Delegate* globalDelegate = nil;
 
-Mac_Delegate* initDelegate() {
+M_Delegate* initDelegate() {
     if (globalDelegate == nil) {
-        globalDelegate = [[Mac_Delegate alloc] init];
+        globalDelegate = [[M_Delegate alloc] init];
         globalDelegate.childWindows = [NSMutableArray array]; // Initialize the child windows array
     }
     

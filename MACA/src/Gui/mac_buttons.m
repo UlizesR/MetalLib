@@ -6,12 +6,12 @@
 
 #ifdef __OBJC__
 
-@implementation NSMac_Button
+@implementation NSM_Button
 
 - (void)onClick:(id)sender 
 {
     NSButton *nsButton = (NSButton*)sender;
-    Mac_Button *button = (Mac_Button *)nsButton.tag;
+    M_Button *button = (M_Button *)nsButton.tag;
     if (button && button->action) {
         button->action(button, button->user_data); // Pass the user data
     }
@@ -20,31 +20,31 @@
 
 - (instancetype)button_spb_tita:(NSString*)title image:(NSImage*)image 
 {
-    NSMac_Button* button = [NSMac_Button buttonWithTitle:title image:image target:self action:@selector(onClick:)];
+    NSM_Button* button = [NSM_Button buttonWithTitle:title image:image target:self action:@selector(onClick:)];
     return button;
 }
 
 - (instancetype)button_spb_tta:(NSString*)title 
 {
-    NSMac_Button* button = [NSMac_Button buttonWithTitle:title target:self action:@selector(onClick:)];
+    NSM_Button* button = [NSM_Button buttonWithTitle:title target:self action:@selector(onClick:)];
     return button;
 }
 
 - (instancetype)button_spb_ita:(NSImage*)image 
 {
-    NSMac_Button* button = [NSMac_Button buttonWithImage:image target:self action:@selector(onClick:)];
+    NSM_Button* button = [NSM_Button buttonWithImage:image target:self action:@selector(onClick:)];
     return button;
 }
 
 - (instancetype)button_scb_tta:(NSString*)title 
 {
-    NSMac_Button* button = [NSMac_Button checkboxWithTitle:title target:self action:@selector(onClick:)];
+    NSM_Button* button = [NSM_Button checkboxWithTitle:title target:self action:@selector(onClick:)];
     return button;
 }
 
 - (instancetype)button_srb_tta:(NSString*)title 
 {
-    NSMac_Button* button = [NSMac_Button radioButtonWithTitle:title target:self action:@selector(onClick:)];
+    NSM_Button* button = [NSM_Button radioButtonWithTitle:title target:self action:@selector(onClick:)];
     return button;
 }
 
@@ -54,9 +54,9 @@
 
 static char MacButtonKey;
 
-Mac_Button* MAC_ButtonRS(MSize size, MPoint position, MImage image, MTitle title,  UInt32 type, int font_size, bool isBordered, bool bordered_when_hovered, Mac_View* parent_view, ButtonAction action, void* user_data)
+M_Button* M_ButtonRS(MSize size, MPoint position, MImage image, MTitle title,  UInt32 type, int font_size, bool isBordered, bool bordered_when_hovered, M_View* parent_view, ButtonAction action, void* user_data)
 {
-    Mac_Button* button = (Mac_Button*)malloc(sizeof(Mac_Button));
+    M_Button* button = (M_Button*)malloc(sizeof(M_Button));
     if(button == NULL) {
         printf("Memory allocation for button failed\n");
         return NULL;
@@ -76,7 +76,7 @@ Mac_Button* MAC_ButtonRS(MSize size, MPoint position, MImage image, MTitle title
         return NULL;
     }
 
-    MSize textSize = MAC_GetTextSize(title, font_size);
+    MSize textSize = M_GetTextSize(title, font_size);
     if (textSize.width > size.width || textSize.height > size.height) {
         printf("Text is too big for the button\n");
         free(button);
@@ -87,7 +87,7 @@ Mac_Button* MAC_ButtonRS(MSize size, MPoint position, MImage image, MTitle title
     NSImage* bImage = [[NSImage alloc] initWithContentsOfFile:[NSString stringWithUTF8String:image]];
 
     NSRect frame = NSMakeRect(position.x, position.y, size.width, size.height);
-    NSMac_Button* nsButton = [[NSMac_Button alloc] initWithFrame:frame];
+    NSM_Button* nsButton = [[NSM_Button alloc] initWithFrame:frame];
     button->_this = (__bridge void *)nsButton;
 
     if (bTitle)
@@ -128,9 +128,9 @@ Mac_Button* MAC_ButtonRS(MSize size, MPoint position, MImage image, MTitle title
     return button;
 }
 
-Mac_Button* MAC_ButtonSpbTita(MSize size, MPoint position, MTitle title, MImage image, Mac_View* parent_view, ButtonAction action, void* user_data)
+M_Button* M_ButtonSpbTita(MSize size, MPoint position, MTitle title, MImage image, M_View* parent_view, ButtonAction action, void* user_data)
 {
-    Mac_Button* button = (Mac_Button*)malloc(sizeof(Mac_Button));
+    M_Button* button = (M_Button*)malloc(sizeof(M_Button));
     if(button == NULL) {
         printf("Error: Could not allocate memory for button\n");
         return NULL;
@@ -146,7 +146,7 @@ Mac_Button* MAC_ButtonSpbTita(MSize size, MPoint position, MTitle title, MImage 
 
     NSString* bTitle = [NSString stringWithUTF8String:title];
     NSImage* bImage = [[NSImage alloc] initWithContentsOfFile:[NSString stringWithUTF8String:image]];
-    NSMac_Button* nsButton = [[NSMac_Button alloc] button_spb_tita:bTitle image:bImage];
+    NSM_Button* nsButton = [[NSM_Button alloc] button_spb_tita:bTitle image:bImage];
     button->_this = (__bridge void *)nsButton;
 
 
@@ -163,9 +163,9 @@ Mac_Button* MAC_ButtonSpbTita(MSize size, MPoint position, MTitle title, MImage 
 }
 
 
-Mac_Button* MAC_ButtonSpbTta(MSize size, MPoint position, MTitle title, Mac_View* parent_view, ButtonAction action, void* user_data)
+M_Button* M_ButtonSpbTta(MSize size, MPoint position, MTitle title, M_View* parent_view, ButtonAction action, void* user_data)
 {
-    Mac_Button* button = (Mac_Button*)malloc(sizeof(Mac_Button));
+    M_Button* button = (M_Button*)malloc(sizeof(M_Button));
     if(button == NULL) {
         printf("Error: Could not allocate memory for button\n");
         return NULL;
@@ -180,7 +180,7 @@ Mac_Button* MAC_ButtonSpbTta(MSize size, MPoint position, MTitle title, Mac_View
     button->user_data = user_data;
 
     NSString* bTitle = [NSString stringWithUTF8String:title];
-    NSMac_Button* nsButton = [[NSMac_Button alloc] button_spb_tta:bTitle];
+    NSM_Button* nsButton = [[NSM_Button alloc] button_spb_tta:bTitle];
     button->_this = (__bridge void *)nsButton;
 
 
@@ -197,9 +197,9 @@ Mac_Button* MAC_ButtonSpbTta(MSize size, MPoint position, MTitle title, Mac_View
 }
 
 
-Mac_Button* MAC_ButtonSpbIta(MSize size, MPoint position, MImage image, Mac_View* parent_view, ButtonAction action, void* user_data)
+M_Button* M_ButtonSpbIta(MSize size, MPoint position, MImage image, M_View* parent_view, ButtonAction action, void* user_data)
 {
-    Mac_Button* button = (Mac_Button*)malloc(sizeof(Mac_Button));
+    M_Button* button = (M_Button*)malloc(sizeof(M_Button));
     if(button == NULL) {
         printf("Error: Could not allocate memory for button\n");
         return NULL;
@@ -214,7 +214,7 @@ Mac_Button* MAC_ButtonSpbIta(MSize size, MPoint position, MImage image, Mac_View
     button->user_data = user_data;
 
     NSImage* bImage = [[NSImage alloc] initWithContentsOfFile:[NSString stringWithUTF8String:image]];
-    NSMac_Button* nsButton = [[NSMac_Button alloc] button_spb_ita:bImage];
+    NSM_Button* nsButton = [[NSM_Button alloc] button_spb_ita:bImage];
     button->_this = (__bridge void *)nsButton;
 
 
@@ -231,9 +231,9 @@ Mac_Button* MAC_ButtonSpbIta(MSize size, MPoint position, MImage image, Mac_View
 }
 
 
-Mac_Button* MAC_ButtonScbTta(MSize size, MPoint position, MTitle title, Mac_View* parent_view, ButtonAction action, void* user_data)
+M_Button* M_ButtonScbTta(MSize size, MPoint position, MTitle title, M_View* parent_view, ButtonAction action, void* user_data)
 {
-    Mac_Button* button = (Mac_Button*)malloc(sizeof(Mac_Button));
+    M_Button* button = (M_Button*)malloc(sizeof(M_Button));
     if(button == NULL) {
         printf("Error: Could not allocate memory for button\n");
         return NULL;
@@ -248,7 +248,7 @@ Mac_Button* MAC_ButtonScbTta(MSize size, MPoint position, MTitle title, Mac_View
     button->user_data = user_data;
     
     NSString* bTitle = [NSString stringWithUTF8String:title];
-    NSMac_Button* nsButton = [[NSMac_Button alloc] button_scb_tta:bTitle];
+    NSM_Button* nsButton = [[NSM_Button alloc] button_scb_tta:bTitle];
     button->_this = (__bridge void *)nsButton;
 
     [nsButton setFrame: NSMakeRect(position.x, position.y, size.width, size.height)];
@@ -264,9 +264,9 @@ Mac_Button* MAC_ButtonScbTta(MSize size, MPoint position, MTitle title, Mac_View
 }
 
 
-Mac_Button* MAC_ButtonSrbTta(MSize size, MPoint position, MTitle title, Mac_View* parent_view, ButtonAction action, void* user_data)
+M_Button* M_ButtonSrbTta(MSize size, MPoint position, MTitle title, M_View* parent_view, ButtonAction action, void* user_data)
 {
-    Mac_Button* button = (Mac_Button*)malloc(sizeof(Mac_Button));
+    M_Button* button = (M_Button*)malloc(sizeof(M_Button));
     if(button == NULL) {
         printf("Error: Could not allocate memory for button\n");
         return NULL;
@@ -281,7 +281,7 @@ Mac_Button* MAC_ButtonSrbTta(MSize size, MPoint position, MTitle title, Mac_View
     button->user_data = user_data;
 
     NSString* bTitle = [NSString stringWithUTF8String:title];
-    NSMac_Button* nsButton = [[NSMac_Button alloc] button_srb_tta:bTitle];
+    NSM_Button* nsButton = [[NSM_Button alloc] button_srb_tta:bTitle];
     button->_this = (__bridge void *)nsButton;
 
 
@@ -297,7 +297,7 @@ Mac_Button* MAC_ButtonSrbTta(MSize size, MPoint position, MTitle title, Mac_View
     return button;
 }
 
-void MAC_HideButton(Mac_Button* button) {
+void M_HideButton(M_Button* button) {
     if (button == NULL) {
         printf("Error: Button is NULL\n");
         return;
@@ -311,7 +311,7 @@ void MAC_HideButton(Mac_Button* button) {
     }
 }
 
-void MAC_ShowButton(Mac_Button* button) {
+void M_ShowButton(M_Button* button) {
     if (button == NULL) {
         printf("Error: Button is NULL\n");
         return;
@@ -325,7 +325,7 @@ void MAC_ShowButton(Mac_Button* button) {
     }
 }
 
-void MAC_DestroyButton(Mac_Button* button) {
+void M_DestroyButton(M_Button* button) {
     if (button != NULL) {
         free(button);
     }

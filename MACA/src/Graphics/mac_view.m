@@ -4,17 +4,17 @@
 #import <Cocoa/Cocoa.h>
 #include <stdio.h>
 
-NSView* getViewFromMacView(Mac_View* parent_view) {
+NSView* getViewFromMacView(M_View* parent_view) {
     NSView* nsView = NULL;
     switch (parent_view->type) {
-        case MAC_VIEW_TYPE_NORMAL:
-            nsView = (__bridge Mac_NSView_Normal *)(parent_view->view.n_view._this);
+        case M_VIEW_TYPE_NORMAL:
+            nsView = (__bridge M_NSView_Normal *)(parent_view->view.n_view._this);
             break;
-        case MAC_VIEW_TYPE_CORE_G:
-            nsView = (__bridge Mac_NSView_Core_G *)(parent_view->view.r_view._this);
+        case M_VIEW_TYPE_CORE_G:
+            nsView = (__bridge M_NSView_Core_G *)(parent_view->view.r_view._this);
             break;
-        case MAC_VIEW_TYPE_METAL:
-            nsView = (__bridge Mac_NSView_Metal *)(parent_view->view.m_view._this);
+        case M_VIEW_TYPE_METAL:
+            nsView = (__bridge M_NSView_Metal *)(parent_view->view.m_view._this);
             break;
         default:
             NSLog(@"Error: Unknown view type");
@@ -23,7 +23,7 @@ NSView* getViewFromMacView(Mac_View* parent_view) {
     return nsView;
 }
 
-@implementation Mac_NSView_Normal
+@implementation M_NSView_Normal
 - (void)drawRect:(NSRect)dirtyRect {
     [super drawRect:dirtyRect];
 }
@@ -36,7 +36,7 @@ extern int shapeID;
     self = [super init];
     if (self) {
         _path = NULL;
-        _color = (Mac_Color){0, 0, 0, 1}; // Default to black color
+        _color = (M_Color){0, 0, 0, 1}; // Default to black color
         _lineWidth = 1.0;
         _filled = NO;
         _id = shapeID++; // Automatically set the shape ID and increment shapeID
@@ -65,7 +65,7 @@ extern int shapeID;
 
 @end
 
-@implementation Mac_NSView_Core_G
+@implementation M_NSView_Core_G
 
 - (instancetype)initWithFrame:(NSRect)frameRect {
     self = [super initWithFrame:frameRect];
@@ -76,7 +76,7 @@ extern int shapeID;
     return self;
 }
 
-- (void)setLineWithInitPos:(MFPoint)init_pos endPos:(MFPoint)end_pos lineWidth:(float)line_width shapeID:(int)id color:(Mac_Color)color {
+- (void)setLineWithInitPos:(MFPoint)init_pos endPos:(MFPoint)end_pos lineWidth:(float)line_width shapeID:(int)id color:(M_Color)color {
     CGMutablePathRef path = CGPathCreateMutable();
     CGPathMoveToPoint(path, NULL, init_pos.x, init_pos.y);
     CGPathAddLineToPoint(path, NULL, end_pos.x, end_pos.y);
@@ -118,19 +118,19 @@ extern int shapeID;
 
 @end
 
-@implementation Mac_NSView_Metal
+@implementation M_NSView_Metal
 @end
 
 static int viewIDCounter = 0; // Initialize view ID counter
 
-Mac_View* MAC_AddSubView(Mac_View* parent, UInt32 type, int width, int height, int x, int y, float corner_radius, Mac_Color background_color, Mac_Renderer* renderer)
+M_View* M_AddSubView(M_View* parent, UInt32 type, int width, int height, int x, int y, float corner_radius, M_Color background_color, M_Renderer* renderer)
 {
     if (parent == NULL) {
         fprintf(stderr, "Error: Parent view is NULL\n");
         return NULL;
     }
 
-    Mac_View* subView = (Mac_View*)malloc(sizeof(Mac_View));
+    M_View* subView = (M_View*)malloc(sizeof(M_View));
     if (subView == NULL) {
         fprintf(stderr, "Error: Failed to allocate memory for subview\n");
         return NULL;
@@ -144,9 +144,9 @@ Mac_View* MAC_AddSubView(Mac_View* parent, UInt32 type, int width, int height, i
                                         blue:background_color.b
                                        alpha:background_color.a];
     NSView* nsview = NULL;
-    if (type == MAC_VIEW_TYPE_NORMAL)
+    if (type == M_VIEW_TYPE_NORMAL)
     {
-        Mac_NView* nview = (Mac_NView*)malloc(sizeof(Mac_NView));
+        M_NView* nview = (M_NView*)malloc(sizeof(M_NView));
         if (nview == NULL) {
             fprintf(stderr, "Error: Failed to allocate memory for normal view\n");
             free(subView);
@@ -161,7 +161,7 @@ Mac_View* MAC_AddSubView(Mac_View* parent, UInt32 type, int width, int height, i
         nview->id = viewIDCounter++;
         nview->is_content_view = false; 
 
-        nsview = [[Mac_NSView_Normal alloc] initWithFrame:frame];
+        nsview = [[M_NSView_Normal alloc] initWithFrame:frame];
         [nsview setWantsLayer:YES];
         [nsview.layer setBackgroundColor:bgColor.CGColor];
         [nsview.layer setCornerRadius:corner_radius];
@@ -170,20 +170,20 @@ Mac_View* MAC_AddSubView(Mac_View* parent, UInt32 type, int width, int height, i
         nview->_this = (__bridge void*)nsview;
         subView->view.n_view = *nview;
 
-        if (parent->type == MAC_VIEW_TYPE_NORMAL)
+        if (parent->type == M_VIEW_TYPE_NORMAL)
         {
-            Mac_NSView_Normal* parentNSView = (__bridge Mac_NSView_Normal*)parent->view.n_view._this;
+            M_NSView_Normal* parentNSView = (__bridge M_NSView_Normal*)parent->view.n_view._this;
             [parentNSView addSubview:nsview];
         }
-        else if (parent->type == MAC_VIEW_TYPE_CORE_G)
+        else if (parent->type == M_VIEW_TYPE_CORE_G)
         {
-            Mac_NSView_Core_G* parentNSView = (__bridge Mac_NSView_Core_G*)parent->view.r_view._this;
+            M_NSView_Core_G* parentNSView = (__bridge M_NSView_Core_G*)parent->view.r_view._this;
             [parentNSView addSubview:nsview];
         }
     }
-    if (type == MAC_VIEW_TYPE_CORE_G)
+    if (type == M_VIEW_TYPE_CORE_G)
     {
-        Mac_RView* rview = (Mac_RView*)malloc(sizeof(Mac_RView));
+        M_RView* rview = (M_RView*)malloc(sizeof(M_RView));
         if (rview == NULL) {
             fprintf(stderr, "Error: Failed to allocate memory for core graphics view\n");
             free(subView);
@@ -199,7 +199,7 @@ Mac_View* MAC_AddSubView(Mac_View* parent, UInt32 type, int width, int height, i
         rview->id = viewIDCounter++;
         rview->is_content_view = false;
 
-        nsview = [[Mac_NSView_Core_G alloc] initWithFrame:frame];
+        nsview = [[M_NSView_Core_G alloc] initWithFrame:frame];
         rview->_this = (__bridge void*)nsview;
         [nsview setWantsLayer:YES];
         [nsview.layer setBackgroundColor:bgColor.CGColor];
@@ -208,14 +208,14 @@ Mac_View* MAC_AddSubView(Mac_View* parent, UInt32 type, int width, int height, i
         [nsview setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
         subView->view.r_view = *rview;
 
-        if (parent->type == MAC_VIEW_TYPE_NORMAL)
+        if (parent->type == M_VIEW_TYPE_NORMAL)
         {
-            Mac_NSView_Normal* parentNSView = (__bridge Mac_NSView_Normal*)parent->view.n_view._this;
+            M_NSView_Normal* parentNSView = (__bridge M_NSView_Normal*)parent->view.n_view._this;
             [parentNSView addSubview:nsview];
         }
-        else if (parent->type == MAC_VIEW_TYPE_CORE_G)
+        else if (parent->type == M_VIEW_TYPE_CORE_G)
         {
-            Mac_NSView_Core_G* parentNSView = (__bridge Mac_NSView_Core_G*)parent->view.r_view._this;
+            M_NSView_Core_G* parentNSView = (__bridge M_NSView_Core_G*)parent->view.r_view._this;
             [parentNSView addSubview:nsview];
         }
     }
@@ -223,14 +223,14 @@ Mac_View* MAC_AddSubView(Mac_View* parent, UInt32 type, int width, int height, i
     return subView;
 }
 
-Mac_View* MAC_AddContentView(Mac_Window* parent, Mac_Color background_color, UInt32 type, Mac_Renderer* renderer)
+M_View* M_AddContentView(M_Window* parent, M_Color background_color, UInt32 type, M_Renderer* renderer)
 {
     if (parent == NULL) {
         fprintf(stderr, "Error: Parent window is NULL\n");
         return NULL;
     }
 
-    Mac_View* contentView = (Mac_View*)malloc(sizeof(Mac_View));
+    M_View* contentView = (M_View*)malloc(sizeof(M_View));
     if (contentView == NULL) {
         fprintf(stderr, "Error: Failed to allocate memory for content view\n");
         return NULL;
@@ -239,15 +239,15 @@ Mac_View* MAC_AddContentView(Mac_Window* parent, Mac_Color background_color, UIn
     contentView->type = type;
 
     NSRect frame = NSMakeRect(0, 0, parent->size.width, parent->size.height);
-    // Convert the Mac_Color to an NSColor
+    // Convert the M_Color to an NSColor
     NSColor* bgColor = [NSColor colorWithRed:background_color.r
                                         green:background_color.g
                                         blue:background_color.b
                                         alpha:background_color.a];
 
-    if (type == MAC_VIEW_TYPE_NORMAL)
+    if (type == M_VIEW_TYPE_NORMAL)
     {
-        Mac_NView* nview = (Mac_NView*)malloc(sizeof(Mac_NView));
+        M_NView* nview = (M_NView*)malloc(sizeof(M_NView));
         if (nview == NULL) {
             fprintf(stderr, "Error: Failed to allocate memory for normal view\n");
             free(contentView); // Clean up the allocated memory for contentView
@@ -262,7 +262,7 @@ Mac_View* MAC_AddContentView(Mac_Window* parent, Mac_Color background_color, UIn
         nview->id = viewIDCounter++; // Set the view ID
         nview->is_content_view = true; // Set the is_content_view flag to true
 
-        Mac_NSView_Normal* nsView = [[Mac_NSView_Normal alloc] initWithFrame:frame];
+        M_NSView_Normal* nsView = [[M_NSView_Normal alloc] initWithFrame:frame];
         if (nsView == NULL) {
             fprintf(stderr, "Error: Failed to create normal view\n");
             free(contentView); // Clean up the allocated memory for contentView
@@ -275,13 +275,13 @@ Mac_View* MAC_AddContentView(Mac_Window* parent, Mac_Color background_color, UIn
         [nsView setNeedsDisplay:YES];
         contentView->view.n_view = *nview; // Assign the created nview to the contentView's UView
 
-        // Get the NSWindow from the parent Mac_Window
+        // Get the NSWindow from the parent M_Window
         NSWindow* parentNSWindow = (__bridge NSWindow*)parent->delegate;
         [parentNSWindow setContentView:nsView]; // Set the content view of the parent window
     }
-    if (type == MAC_VIEW_TYPE_CORE_G)
+    if (type == M_VIEW_TYPE_CORE_G)
     {
-        Mac_RView* rview = (Mac_RView*)malloc(sizeof(Mac_RView));
+        M_RView* rview = (M_RView*)malloc(sizeof(M_RView));
         if (rview == NULL) {
             fprintf(stderr, "Error: Failed to allocate memory for normal view\n");
             free(contentView); // Clean up the allocated memory for contentView
@@ -297,7 +297,7 @@ Mac_View* MAC_AddContentView(Mac_Window* parent, Mac_Color background_color, UIn
         rview->renderer = renderer;
         rview->is_content_view = true; // Set the is_content_view flag to true
 
-        Mac_NSView_Core_G* nsView = [[Mac_NSView_Core_G alloc] initWithFrame:frame];
+        M_NSView_Core_G* nsView = [[M_NSView_Core_G alloc] initWithFrame:frame];
         if (nsView == NULL) {
             fprintf(stderr, "Error: Failed to create normal view\n");
             free(contentView); // Clean up the allocated memory for contentView
@@ -311,7 +311,7 @@ Mac_View* MAC_AddContentView(Mac_Window* parent, Mac_Color background_color, UIn
         [nsView setNeedsDisplay:YES];
         contentView->view.r_view = *rview; // Assign the created nview to the contentView's UView
 
-        // Get the NSWindow from the parent Mac_Window
+        // Get the NSWindow from the parent M_Window
         NSWindow* parentNSWindow = (__bridge NSWindow*)parent->delegate;
         [parentNSWindow setContentView:nsView]; // Set the content view of the parent window
     }
@@ -319,7 +319,7 @@ Mac_View* MAC_AddContentView(Mac_Window* parent, Mac_Color background_color, UIn
     return contentView;
 }
 
-void MAC_ChangeViewBGColor(Mac_View* view, Mac_Color color)
+void M_ChangeViewBGColor(M_View* view, M_Color color)
 {
     if (view == NULL)
     {
@@ -329,21 +329,21 @@ void MAC_ChangeViewBGColor(Mac_View* view, Mac_Color color)
 
     NSColor* nsColor = [NSColor colorWithRed:color.r green:color.g blue:color.b alpha:color.a];
 
-    if (view->type & MAC_VIEW_TYPE_NORMAL)
+    if (view->type & M_VIEW_TYPE_NORMAL)
     {
-        Mac_NSView_Normal* nsView = (__bridge Mac_NSView_Normal*)view->view.n_view._this;
+        M_NSView_Normal* nsView = (__bridge M_NSView_Normal*)view->view.n_view._this;
         [nsView.layer setBackgroundColor:nsColor.CGColor];
         [nsView setNeedsDisplay:YES];
     }
-    else if (view->type & MAC_VIEW_TYPE_CORE_G)
+    else if (view->type & M_VIEW_TYPE_CORE_G)
     {
-        Mac_NSView_Core_G* nsView = (__bridge Mac_NSView_Core_G*)view->view.r_view._this;
+        M_NSView_Core_G* nsView = (__bridge M_NSView_Core_G*)view->view.r_view._this;
         [nsView.layer setBackgroundColor:nsColor.CGColor];
         [nsView setNeedsDisplay:YES];
     }
-    else if (view->type & MAC_VIEW_TYPE_METAL)
+    else if (view->type & M_VIEW_TYPE_METAL)
     {
-        Mac_NSView_Metal* nsView = (__bridge Mac_NSView_Metal*)view->view.m_view._this;
+        M_NSView_Metal* nsView = (__bridge M_NSView_Metal*)view->view.m_view._this;
         [nsView.layer setBackgroundColor:nsColor.CGColor];
         [nsView setNeedsDisplay:YES];
     }
@@ -353,7 +353,7 @@ void MAC_ChangeViewBGColor(Mac_View* view, Mac_Color color)
     }
 }
 
-void MAC_HideView(Mac_View* view) 
+void M_HideView(M_View* view) 
 {
     if (view == NULL) {
         printf("ERROR: View is NULL. Cannot hide the view.\n");
@@ -362,14 +362,14 @@ void MAC_HideView(Mac_View* view)
 
     NSView* nsView = NULL;
 
-    if (view->type & MAC_VIEW_TYPE_NORMAL) {
-        nsView = (__bridge Mac_NSView_Normal*)view->view.n_view._this;
+    if (view->type & M_VIEW_TYPE_NORMAL) {
+        nsView = (__bridge M_NSView_Normal*)view->view.n_view._this;
     }
-    else if (view->type & MAC_VIEW_TYPE_CORE_G) {
-        nsView = (__bridge Mac_NSView_Core_G*)view->view.r_view._this;
+    else if (view->type & M_VIEW_TYPE_CORE_G) {
+        nsView = (__bridge M_NSView_Core_G*)view->view.r_view._this;
     }
-    else if (view->type & MAC_VIEW_TYPE_METAL) {
-        nsView = (__bridge Mac_NSView_Metal*)view->view.m_view._this;
+    else if (view->type & M_VIEW_TYPE_METAL) {
+        nsView = (__bridge M_NSView_Metal*)view->view.m_view._this;
     }
     else {
         printf("ERROR: Unsupported view type. Cannot hide the view.\n");
@@ -379,7 +379,7 @@ void MAC_HideView(Mac_View* view)
     [nsView setHidden:YES];
 }
 
-void MAC_ShowView(Mac_View *view)
+void M_ShowView(M_View *view)
 {
     if (view == NULL) {
         printf("ERROR: View is NULL. Cannot hide the view.\n");
@@ -388,14 +388,14 @@ void MAC_ShowView(Mac_View *view)
 
     NSView* nsView = NULL;
 
-    if (view->type & MAC_VIEW_TYPE_NORMAL) {
-        nsView = (__bridge Mac_NSView_Normal*)view->view.n_view._this;
+    if (view->type & M_VIEW_TYPE_NORMAL) {
+        nsView = (__bridge M_NSView_Normal*)view->view.n_view._this;
     }
-    else if (view->type & MAC_VIEW_TYPE_CORE_G) {
-        nsView = (__bridge Mac_NSView_Core_G*)view->view.r_view._this;
+    else if (view->type & M_VIEW_TYPE_CORE_G) {
+        nsView = (__bridge M_NSView_Core_G*)view->view.r_view._this;
     }
-    else if (view->type & MAC_VIEW_TYPE_METAL) {
-        nsView = (__bridge Mac_NSView_Metal*)view->view.m_view._this;
+    else if (view->type & M_VIEW_TYPE_METAL) {
+        nsView = (__bridge M_NSView_Metal*)view->view.m_view._this;
     }
     else {
         printf("ERROR: Unsupported view type. Cannot hide the view.\n");
@@ -405,34 +405,34 @@ void MAC_ShowView(Mac_View *view)
     [nsView setHidden:NO];
 }
 
-void MAC_DestroyView(Mac_View* view)
+void M_DestroyView(M_View* view)
 {
     if (view == NULL) {
         return;
     }
 
-    if (view->type == MAC_VIEW_TYPE_NORMAL) {
-        Mac_NView* nview = &view->view.n_view;
-        Mac_NSView_Normal* nsview = (__bridge Mac_NSView_Normal*)nview->_this;
+    if (view->type == M_VIEW_TYPE_NORMAL) {
+        M_NView* nview = &view->view.n_view;
+        M_NSView_Normal* nsview = (__bridge M_NSView_Normal*)nview->_this;
         [nsview removeFromSuperview]; // Remove the Objective-C view from its superview
     }
-    if (view->type == MAC_VIEW_TYPE_CORE_G) {
-        Mac_RView* rview = &view->view.r_view;
-        Mac_NSView_Core_G* nsview = (__bridge Mac_NSView_Core_G*)rview->_this;
+    if (view->type == M_VIEW_TYPE_CORE_G) {
+        M_RView* rview = &view->view.r_view;
+        M_NSView_Core_G* nsview = (__bridge M_NSView_Core_G*)rview->_this;
         [nsview removeFromSuperview]; // Remove the Objective-C view from its superview
     }
 
     free(view); // Free the view itself
 }
 
-void MAC_DestroyContentView(Mac_View* contentView) {
+void M_DestroyContentView(M_View* contentView) {
     if (contentView == NULL) {
         return;
     }
 
-    if (contentView->type == MAC_VIEW_TYPE_NORMAL) {
-        Mac_NView* nview = &contentView->view.n_view;
-        Mac_NSView_Normal* nsview = (__bridge Mac_NSView_Normal*)nview->_this;
+    if (contentView->type == M_VIEW_TYPE_NORMAL) {
+        M_NView* nview = &contentView->view.n_view;
+        M_NSView_Normal* nsview = (__bridge M_NSView_Normal*)nview->_this;
         [nsview removeFromSuperview]; // Remove the Objective-C view from its superview
         free(nview);
     }

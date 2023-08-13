@@ -2,11 +2,11 @@
 #include "MACA/mac_defs.h"
 #include "MACA/mac_view.h"
 
-@implementation NSMac_Text
+@implementation NSM_Text
 @end
 
-Mac_Text* MAC_AddText(Mac_View* parent_view, MPoint pos, MSize size, Mac_Color color, MText text, int font) {
-    Mac_Text* macText = (Mac_Text*)malloc(sizeof(Mac_Text));
+M_Text* M_AddText(M_View* parent_view, MPoint pos, MSize size, M_Color color, MText text, int font) {
+    M_Text* macText = (M_Text*)malloc(sizeof(M_Text));
     if (macText == NULL) {
         printf("Error: failed to allocate memory for text");
         return NULL;
@@ -30,7 +30,7 @@ Mac_Text* MAC_AddText(Mac_View* parent_view, MPoint pos, MSize size, Mac_Color c
     CGSize textSize = [string sizeWithAttributes:attributes];
 
     CGFloat verticalOffset = (size.height - textSize.height) / 2;
-    NSMac_Text* nsText = [[NSMac_Text alloc] initWithFrame:NSMakeRect(pos.x, pos.y + verticalOffset, size.width, textSize.height)];
+    NSM_Text* nsText = [[NSM_Text alloc] initWithFrame:NSMakeRect(pos.x, pos.y + verticalOffset, size.width, textSize.height)];
     [nsText setStringValue:string];
     [nsText setTextColor:[NSColor colorWithRed:color.r green:color.g blue:color.b alpha:color.a]];
     [nsText setFont:[NSFont systemFontOfSize:font]]; // You can customize this to use a specific font
@@ -50,36 +50,36 @@ Mac_Text* MAC_AddText(Mac_View* parent_view, MPoint pos, MSize size, Mac_Color c
 }
 
 // TODO: this function is not working properly
-MSize MAC_GetTextSize(MText text, int font) {
+MSize M_GetTextSize(MText text, int font) {
     NSString *string = [NSString stringWithUTF8String:text];
     NSDictionary *attributes = @{NSFontAttributeName: [NSFont systemFontOfSize:font]};
     CGSize size = [string sizeWithAttributes:attributes];
     return (MSize){size.width, size.height};
 }
 
-void MAC_UpdateText(Mac_Text* text, MText newText) {
+void M_UpdateText(M_Text* text, MText newText) {
     if (text == NULL) {
         printf("Error: text is NULL\n");
         return;
     }
 
-    NSMac_Text* nsText = (__bridge NSMac_Text *)(text->_this);
+    NSM_Text* nsText = (__bridge NSM_Text *)(text->_this);
     [nsText setStringValue:[NSString stringWithUTF8String:newText]];
 
-    // Update the Mac_Text structure if needed
+    // Update the M_Text structure if needed
     text->text = newText;
     text->text_length = strlen(newText);
 }
 
-void MAC_RemoveText(Mac_Text* text) {
-    NSMac_Text* nsText = (__bridge NSMac_Text *)(text->_this);
+void M_RemoveText(M_Text* text) {
+    NSM_Text* nsText = (__bridge NSM_Text *)(text->_this);
     NSView* nsView = getViewFromMacView(text->parent_view);
     [nsText removeFromSuperview];
     free(text);
     [nsView setNeedsDisplay:YES];
 }
 
-void MAC_DestroyText(Mac_Text* text) {
+void M_DestroyText(M_Text* text) {
     if (text == NULL) {
         printf("Error: text is NULL\n");
         return;

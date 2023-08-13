@@ -8,10 +8,10 @@
 
 int shapeID = 0;
 
-Mac_Point* MAC_Point(float x, float y, Mac_Color color)
+M_Point* M_CreatePoint(float x, float y, M_Color color)
 {
     // Allocate memory for point
-    Mac_Point* point = (Mac_Point*)malloc(sizeof(Mac_Point));
+    M_Point* point = (M_Point*)malloc(sizeof(M_Point));
     // Check if memory was allocated
     if (!point) 
     {
@@ -24,12 +24,12 @@ Mac_Point* MAC_Point(float x, float y, Mac_Color color)
     point->color = color;
     point->base.id = shapeID++;
     point->base.center_point = point->position;
-    point->base.shape_type = MAC_SHAPE_POINT; 
+    point->base.shape_type = M_SHAPE_POINT; 
     // Return point
     return point;
 }
 
-void MAC_DrawPoint(Mac_Renderer* renderer, Mac_Point* point)
+void M_DrawPoint(M_Renderer* renderer, M_Point* point)
 {
     // Check if renderer or point is NULL
     if (!renderer || !point) 
@@ -38,11 +38,11 @@ void MAC_DrawPoint(Mac_Renderer* renderer, Mac_Point* point)
         return;
     }
     // Check if renderer is of type Core Graphics
-    if (renderer->type == MAC_RENDERER_CORE_G)
+    if (renderer->type == M_RENDERER_CORE_G)
     {
         // Get the Core Graphics view
-        Mac_RView* rview = renderer->render_view->rview;
-        Mac_NSView_Core_G* nsView = (__bridge Mac_NSView_Core_G*)rview->_this;
+        M_RView* rview = renderer->render_view->rview;
+        M_NSView_Core_G* nsView = (__bridge M_NSView_Core_G*)rview->_this;
         // Draw the point
         CGContextRef context = [[NSGraphicsContext currentContext] CGContext];
         CGContextSetRGBFillColor(context, point->color.r, point->color.g, point->color.b, point->color.a);
@@ -52,10 +52,10 @@ void MAC_DrawPoint(Mac_Renderer* renderer, Mac_Point* point)
     }
 }
 
-Mac_Line* MAC_Line(MFPoint init_pos, MFPoint end_pos, float line_width, Mac_Color color)
+M_Line* M_CreateLine(MFPoint init_pos, MFPoint end_pos, float line_width, M_Color color)
 {
     // Allocate memory for line
-    Mac_Line* line = (Mac_Line*)malloc(sizeof(Mac_Line));
+    M_Line* line = (M_Line*)malloc(sizeof(M_Line));
     // Check if memory was allocated
     if (!line) 
     {
@@ -70,12 +70,12 @@ Mac_Line* MAC_Line(MFPoint init_pos, MFPoint end_pos, float line_width, Mac_Colo
     line->base.id = shapeID++;
     line->base.center_point.x = (init_pos.x + end_pos.x) / 2;
     line->base.center_point.y = (init_pos.y + end_pos.y) / 2;
-    line->base.shape_type = MAC_SHAPE_LINE;
+    line->base.shape_type = M_SHAPE_LINE;
     // Return line
     return line;
 }
 
-void MAC_DrawLine(Mac_Renderer* renderer, Mac_Line* line)
+void M_DrawLine(M_Renderer* renderer, M_Line* line)
 {
     // Check if renderer or line is NULL
     if (!renderer || !line) 
@@ -84,11 +84,11 @@ void MAC_DrawLine(Mac_Renderer* renderer, Mac_Line* line)
         return;
     }
     // Check if renderer is of type Core Graphics
-    if (renderer->type == MAC_RENDERER_CORE_G)
+    if (renderer->type == M_RENDERER_CORE_G)
     {
         // Get the Core Graphics view
-        Mac_RView* rview = renderer->render_view->rview;
-        Mac_NSView_Core_G* nsView = (__bridge Mac_NSView_Core_G*)rview->_this;
+        M_RView* rview = renderer->render_view->rview;
+        M_NSView_Core_G* nsView = (__bridge M_NSView_Core_G*)rview->_this;
         // Create the path for the line
         CGMutablePathRef path = CGPathCreateMutable();
         CGPathMoveToPoint(path, NULL, line->init_pos.x, line->init_pos.y);
@@ -112,10 +112,10 @@ void MAC_DrawLine(Mac_Renderer* renderer, Mac_Line* line)
     }
 }
 
-Mac_Quadrilateral* MAC_Quadrilateral(MFPoint* vertices, Mac_Color color)
+M_Quadrilateral* M_CreateQuadrilateral(MFPoint* vertices, M_Color color)
 {
     // Allocate memory for quadrilateral
-    Mac_Quadrilateral* quad = (Mac_Quadrilateral*)malloc(sizeof(Mac_Quadrilateral));
+    M_Quadrilateral* quad = (M_Quadrilateral*)malloc(sizeof(M_Quadrilateral));
     // Check if memory was allocated
     if (!quad) 
     {
@@ -148,12 +148,12 @@ Mac_Quadrilateral* MAC_Quadrilateral(MFPoint* vertices, Mac_Color color)
     quad->color = color;
     quad->base.id = shapeID++;
     
-    quad->base.shape_type = MAC_SHAPE_QUADRILATERAL;
+    quad->base.shape_type = M_SHAPE_QUADRILATERAL;
     // Return quadrilateral
     return quad;
 }
 
-void MAC_DrawQuadrilateral(Mac_Quadrilateral* quad, float line_width, Mac_Renderer* renderer)
+void M_DrawQuadrilateral(M_Quadrilateral* quad, float line_width, M_Renderer* renderer)
 {
     // Check if quadrilateral or renderer is NULL
     if (!quad || !renderer) 
@@ -162,11 +162,11 @@ void MAC_DrawQuadrilateral(Mac_Quadrilateral* quad, float line_width, Mac_Render
         return;
     }
     // Check if renderer is of type Core Graphics
-    if (renderer->type == MAC_RENDERER_CORE_G)
+    if (renderer->type == M_RENDERER_CORE_G)
     {
         // Get the Core Graphics view
-        Mac_RView* rview = renderer->render_view->rview;
-        Mac_NSView_Core_G* nsView = (__bridge Mac_NSView_Core_G*)rview->_this;
+        M_RView* rview = renderer->render_view->rview;
+        M_NSView_Core_G* nsView = (__bridge M_NSView_Core_G*)rview->_this;
         // Draw the quadrilateral
         [nsView setLineWithInitPos:quad->vertices[0] endPos:quad->vertices[1] lineWidth:line_width shapeID:quad->base.id color:quad->color];
         [nsView setLineWithInitPos:quad->vertices[1] endPos:quad->vertices[2] lineWidth:line_width shapeID:quad->base.id color:quad->color];
@@ -196,7 +196,7 @@ void MAC_DrawQuadrilateral(Mac_Quadrilateral* quad, float line_width, Mac_Render
     }
 }
 
-void MAC_FillQuadrilateral(Mac_Quadrilateral* quad, Mac_Renderer* renderer)
+void M_FillQuadrilateral(M_Quadrilateral* quad, M_Renderer* renderer)
 {
     // Check if quadrilateral or renderer is NULL
     if (!quad || !renderer) 
@@ -205,11 +205,11 @@ void MAC_FillQuadrilateral(Mac_Quadrilateral* quad, Mac_Renderer* renderer)
         return;
     }
     // Check if renderer is of type Core Graphics
-    if (renderer->type == MAC_RENDERER_CORE_G)
+    if (renderer->type == M_RENDERER_CORE_G)
     {
         // Get the Core Graphics view
-        Mac_RView* rview = renderer->render_view->rview;
-        Mac_NSView_Core_G* nsView = (__bridge Mac_NSView_Core_G*)rview->_this;
+        M_RView* rview = renderer->render_view->rview;
+        M_NSView_Core_G* nsView = (__bridge M_NSView_Core_G*)rview->_this;
         // Draw the quadrilateral
         CGMutablePathRef path = CGPathCreateMutable();
         CGPathAddRect(path, NULL, CGRectMake(quad->vertices[0].x, quad->vertices[0].y, quad->size.width, quad->size.height));
@@ -230,10 +230,10 @@ void MAC_FillQuadrilateral(Mac_Quadrilateral* quad, Mac_Renderer* renderer)
     }
 }
 
-Mac_Triangle* MAC_Triangle(MFPoint* vertices, Mac_Color color)
+M_Triangle* M_CreateTriangle(MFPoint* vertices, M_Color color)
 {
     // Allocate memory for triangle
-    Mac_Triangle* triangle = (Mac_Triangle*)malloc(sizeof(Mac_Triangle));
+    M_Triangle* triangle = (M_Triangle*)malloc(sizeof(M_Triangle));
     // Check if memory was allocated
     if (!triangle) 
     {
@@ -250,12 +250,12 @@ Mac_Triangle* MAC_Triangle(MFPoint* vertices, Mac_Color color)
     triangle->base.id = shapeID++;
     triangle->base.center_point.x = (vertices[0].x + vertices[1].x + vertices[2].x) / 3;
     triangle->base.center_point.y = (vertices[0].y + vertices[1].y + vertices[2].y) / 3;
-    triangle->base.shape_type = MAC_SHAPE_TRIANGLE;
+    triangle->base.shape_type = M_SHAPE_TRIANGLE;
     // Return triangle
     return triangle;
 }
 
-void MAC_DrawTriangle(Mac_Triangle* triangle, float line_width, Mac_Renderer* renderer)
+void M_DrawTriangle(M_Triangle* triangle, float line_width, M_Renderer* renderer)
 {
     // Check if triangle or renderer is NULL
     if (!triangle || !renderer) 
@@ -264,11 +264,11 @@ void MAC_DrawTriangle(Mac_Triangle* triangle, float line_width, Mac_Renderer* re
         return;
     }
     // Check if renderer is of type Core Graphics
-    if (renderer->type == MAC_RENDERER_CORE_G)
+    if (renderer->type == M_RENDERER_CORE_G)
     {
         // Get the Core Graphics view
-        Mac_RView* rview = renderer->render_view->rview;
-        Mac_NSView_Core_G* nsView = (__bridge Mac_NSView_Core_G*)rview->_this;
+        M_RView* rview = renderer->render_view->rview;
+        M_NSView_Core_G* nsView = (__bridge M_NSView_Core_G*)rview->_this;
         // Draw the triangle
         [nsView setLineWithInitPos:triangle->vertices[0] endPos:triangle->vertices[1] lineWidth:line_width shapeID:triangle->base.id color:triangle->color];
         [nsView setLineWithInitPos:triangle->vertices[1] endPos:triangle->vertices[2] lineWidth:line_width shapeID:triangle->base.id color:triangle->color];
@@ -296,7 +296,7 @@ void MAC_DrawTriangle(Mac_Triangle* triangle, float line_width, Mac_Renderer* re
     }
 }
 
-void MAC_FillTriangle(Mac_Triangle* triangle, Mac_Renderer* renderer)
+void M_FillTriangle(M_Triangle* triangle, M_Renderer* renderer)
 {
     // Check if triangle or renderer is NULL
     if (!triangle || !renderer) 
@@ -305,11 +305,11 @@ void MAC_FillTriangle(Mac_Triangle* triangle, Mac_Renderer* renderer)
         return;
     }
     // Check if renderer is of type Core Graphics
-    if (renderer->type == MAC_RENDERER_CORE_G)
+    if (renderer->type == M_RENDERER_CORE_G)
     {
         // Get the Core Graphics view
-        Mac_RView* rview = renderer->render_view->rview;
-        Mac_NSView_Core_G* nsView = (__bridge Mac_NSView_Core_G*)rview->_this;
+        M_RView* rview = renderer->render_view->rview;
+        M_NSView_Core_G* nsView = (__bridge M_NSView_Core_G*)rview->_this;
         // Draw the triangle
         CGMutablePathRef path = CGPathCreateMutable();
         CGPathMoveToPoint(path, NULL, triangle->vertices[0].x, triangle->vertices[0].y);
@@ -333,10 +333,10 @@ void MAC_FillTriangle(Mac_Triangle* triangle, Mac_Renderer* renderer)
     }
 }
 
-Mac_Polygon* MAC_Polygon(MFPoint* vertices, int vertex_count, Mac_Color color)
+M_Polygon* M_CreatePolygon(MFPoint* vertices, int vertex_count, M_Color color)
 {
     // Allocate memory for polygon
-    Mac_Polygon* polygon = (Mac_Polygon*)malloc(sizeof(Mac_Polygon));
+    M_Polygon* polygon = (M_Polygon*)malloc(sizeof(M_Polygon));
     // Check if memory was allocated
     if (!polygon) 
     {
@@ -350,12 +350,12 @@ Mac_Polygon* MAC_Polygon(MFPoint* vertices, int vertex_count, Mac_Color color)
     polygon->base.id = shapeID++;
     polygon->base.center_point.x = 0;
     polygon->base.center_point.y = 0;
-    polygon->base.shape_type = MAC_SHAPE_POLYGON;
+    polygon->base.shape_type = M_SHAPE_POLYGON;
     // Return polygon
     return polygon;
 }
 
-void MAC_DrawPolygon(Mac_Polygon* polygon, float line_width, Mac_Renderer* renderer)
+void M_DrawPolygon(M_Polygon* polygon, float line_width, M_Renderer* renderer)
 {
     // Check if polygon or renderer is NULL
     if (!polygon || !renderer) 
@@ -364,11 +364,11 @@ void MAC_DrawPolygon(Mac_Polygon* polygon, float line_width, Mac_Renderer* rende
         return;
     }
     // Check if renderer is of type Core Graphics
-    if (renderer->type == MAC_RENDERER_CORE_G)
+    if (renderer->type == M_RENDERER_CORE_G)
     {
         // Get the Core Graphics view
-        Mac_RView* rview = renderer->render_view->rview;
-        Mac_NSView_Core_G* nsView = (__bridge Mac_NSView_Core_G*)rview->_this;
+        M_RView* rview = renderer->render_view->rview;
+        M_NSView_Core_G* nsView = (__bridge M_NSView_Core_G*)rview->_this;
         // Draw the polygon
         for (int i = 0; i < polygon->vertex_count - 1; i++)
         {
@@ -400,7 +400,7 @@ void MAC_DrawPolygon(Mac_Polygon* polygon, float line_width, Mac_Renderer* rende
     }
 }
 
-void MAC_FillPolygon(Mac_Polygon* polygon, Mac_Renderer* renderer)
+void M_FillPolygon(M_Polygon* polygon, M_Renderer* renderer)
 {
     // Check if polygon or renderer is NULL
     if (!polygon || !renderer) 
@@ -409,11 +409,11 @@ void MAC_FillPolygon(Mac_Polygon* polygon, Mac_Renderer* renderer)
         return;
     }
     // Check if renderer is of type Core Graphics
-    if (renderer->type == MAC_RENDERER_CORE_G)
+    if (renderer->type == M_RENDERER_CORE_G)
     {
         // Get the Core Graphics view
-        Mac_RView* rview = renderer->render_view->rview;
-        Mac_NSView_Core_G* nsView = (__bridge Mac_NSView_Core_G*)rview->_this;
+        M_RView* rview = renderer->render_view->rview;
+        M_NSView_Core_G* nsView = (__bridge M_NSView_Core_G*)rview->_this;
         // Draw the polygon
         CGMutablePathRef path = CGPathCreateMutable();
         CGPathMoveToPoint(path, NULL, polygon->vertices[0].x, polygon->vertices[0].y);
@@ -439,10 +439,10 @@ void MAC_FillPolygon(Mac_Polygon* polygon, Mac_Renderer* renderer)
     }
 }
 
-Mac_Ellipse* MAC_Ellipse(MFPoint origin, float radius_x, float radius_y, Mac_Color color)
+M_Ellipse* M_CreateEllipse(MFPoint origin, float radius_x, float radius_y, M_Color color)
 {
     // Allocate memory for ellipse
-    Mac_Ellipse* ellipse = (Mac_Ellipse*)malloc(sizeof(Mac_Ellipse));
+    M_Ellipse* ellipse = (M_Ellipse*)malloc(sizeof(M_Ellipse));
     // Check if memory was allocated
     if (!ellipse) 
     {
@@ -456,12 +456,12 @@ Mac_Ellipse* MAC_Ellipse(MFPoint origin, float radius_x, float radius_y, Mac_Col
     ellipse->color = color;
     ellipse->base.id = shapeID++;
     ellipse->base.center_point = ellipse->origin;
-    ellipse->base.shape_type = MAC_SHAPE_ELLIPSE;
+    ellipse->base.shape_type = M_SHAPE_ELLIPSE;
     // Return ellipse
     return ellipse;
 }
 
-void MAC_DrawEllipse(Mac_Ellipse* ellipse, float line_width, Mac_Renderer* renderer)
+void M_DrawEllipse(M_Ellipse* ellipse, float line_width, M_Renderer* renderer)
 {
     // Check if ellipse or renderer is NULL
     if (!ellipse || !renderer) 
@@ -470,11 +470,11 @@ void MAC_DrawEllipse(Mac_Ellipse* ellipse, float line_width, Mac_Renderer* rende
         return;
     }
     // Check if renderer is of type Core Graphics
-    if (renderer->type == MAC_RENDERER_CORE_G)
+    if (renderer->type == M_RENDERER_CORE_G)
     {
         // Get the Core Graphics view
-        Mac_RView* view_to_render = renderer->render_view->rview; // Assuming the renderer has a render_view field pointing to the appropriate view
-        Mac_NSView_Core_G* nsView = (__bridge Mac_NSView_Core_G*)view_to_render->_this; // Assuming the view is of type Core Graphics
+        M_RView* view_to_render = renderer->render_view->rview; // Assuming the renderer has a render_view field pointing to the appropriate view
+        M_NSView_Core_G* nsView = (__bridge M_NSView_Core_G*)view_to_render->_this; // Assuming the view is of type Core Graphics
         // set shape path
         CGMutablePathRef path = CGPathCreateMutable();
         CGPathAddEllipseInRect(path, NULL, CGRectMake(ellipse->origin.x - ellipse->radius_x, ellipse->origin.y - ellipse->radius_y, 2 * ellipse->radius_x, 2 * ellipse->radius_y));
@@ -496,7 +496,7 @@ void MAC_DrawEllipse(Mac_Ellipse* ellipse, float line_width, Mac_Renderer* rende
     }
 }
 
-void MAC_FillEllipse(Mac_Ellipse* ellipse, Mac_Renderer* renderer)
+void M_FillEllipse(M_Ellipse* ellipse, M_Renderer* renderer)
 {
     // Check if ellipse or renderer is NULL
     if (!ellipse || !renderer) 
@@ -505,11 +505,11 @@ void MAC_FillEllipse(Mac_Ellipse* ellipse, Mac_Renderer* renderer)
         return;
     }
     // Check if renderer is of type Core Graphics
-    if (renderer->type == MAC_RENDERER_CORE_G)
+    if (renderer->type == M_RENDERER_CORE_G)
     {
         // Get the Core Graphics view
-        Mac_RView* view_to_render = renderer->render_view->rview; // Assuming the renderer has a render_view field pointing to the appropriate view
-        Mac_NSView_Core_G* nsView = (__bridge Mac_NSView_Core_G*)view_to_render->_this; // Assuming the view is of type Core Graphics
+        M_RView* view_to_render = renderer->render_view->rview; // Assuming the renderer has a render_view field pointing to the appropriate view
+        M_NSView_Core_G* nsView = (__bridge M_NSView_Core_G*)view_to_render->_this; // Assuming the view is of type Core Graphics
         // set shape path
         CGMutablePathRef path = CGPathCreateMutable();
         CGPathAddEllipseInRect(path, NULL, CGRectMake(ellipse->origin.x - ellipse->radius_x, ellipse->origin.y - ellipse->radius_y, 2 * ellipse->radius_x, 2 * ellipse->radius_y));
@@ -530,7 +530,7 @@ void MAC_FillEllipse(Mac_Ellipse* ellipse, Mac_Renderer* renderer)
     }
 }
 
-void MAC_RemoveShape(int shape_id, Mac_Renderer* renderer)
+void M_RemoveShape(int shape_id, M_Renderer* renderer)
 {
     // Check if renderer is NULL
     if (!renderer) 
@@ -539,11 +539,11 @@ void MAC_RemoveShape(int shape_id, Mac_Renderer* renderer)
         return;
     }
     // Check if renderer is of type Core Graphics
-    if (renderer->type == MAC_RENDERER_CORE_G)
+    if (renderer->type == M_RENDERER_CORE_G)
     {
         // Get the Core Graphics view
-        Mac_RView* view_to_render = renderer->render_view->rview;
-        Mac_NSView_Core_G* nsView = (__bridge Mac_NSView_Core_G*)view_to_render->_this;
+        M_RView* view_to_render = renderer->render_view->rview;
+        M_NSView_Core_G* nsView = (__bridge M_NSView_Core_G*)view_to_render->_this;
         // Get the list of shapes
         NSMutableArray<DrawableShape*>* shapes = nsView.shapes;
         if (!shapes || shapes.count == 0) return;
@@ -565,7 +565,7 @@ void MAC_RemoveShape(int shape_id, Mac_Renderer* renderer)
     shapeID--;
 }
 
-void MAC_RemoveAllShapes(Mac_Renderer* renderer)
+void M_RemoveAllShapes(M_Renderer* renderer)
 {
     // Check if renderer is NULL
     if (!renderer) 
@@ -574,11 +574,11 @@ void MAC_RemoveAllShapes(Mac_Renderer* renderer)
         return;
     }
     // Check if renderer is of type Core Graphics
-    if (renderer->type == MAC_RENDERER_CORE_G)
+    if (renderer->type == M_RENDERER_CORE_G)
     {
         // Get the Core Graphics view
-        Mac_RView* view_to_render = renderer->render_view->rview;
-        Mac_NSView_Core_G* nsView = (__bridge Mac_NSView_Core_G*)view_to_render->_this;
+        M_RView* view_to_render = renderer->render_view->rview;
+        M_NSView_Core_G* nsView = (__bridge M_NSView_Core_G*)view_to_render->_this;
         // Clear all shapes
         [nsView.shapes removeAllObjects];
         // Optionally, you can also clear the graphics context if needed
@@ -589,7 +589,7 @@ void MAC_RemoveAllShapes(Mac_Renderer* renderer)
     }
 }
 
-void MAC_DestroyShape(Mac_Shape* shape)
+void M_DestroyShape(M_Shape* shape)
 {
     if (shape != NULL) 
     {
