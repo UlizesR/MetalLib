@@ -92,9 +92,23 @@ M_Button* M_ButtonRS(MSize size, MPoint position, MImage image, MTitle title,  U
 
     if (bTitle)
     {
-        [nsButton setFont:[NSFont systemFontOfSize:font_size]];
-        [nsButton setTitle:bTitle];
-        [nsButton setAlignment:NSTextAlignmentCenter];
+        NSFont *font = [NSFont systemFontOfSize:font_size];
+        NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
+        [paragraphStyle setAlignment:NSTextAlignmentCenter];
+        [paragraphStyle setLineBreakMode:NSLineBreakByTruncatingTail];
+        
+        // Calculate the vertical offset to center the text
+        CGFloat verticalOffset = ((float)size.height - textSize.height) / 2;
+        
+        NSDictionary *attributes = @{
+            NSFontAttributeName: font,
+            NSParagraphStyleAttributeName: paragraphStyle,
+            NSBaselineOffsetAttributeName: @(verticalOffset)
+        };
+        
+        NSAttributedString *attributedTitle = [[NSAttributedString alloc] initWithString:bTitle attributes:attributes];
+        
+        [nsButton setAttributedTitle:attributedTitle];
     }
     [nsButton setBezelStyle:NSBezelStyleRegularSquare];
     [nsButton setButtonType:type];
