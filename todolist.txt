@@ -28,12 +28,14 @@ Graphics
         ☐ Paths
 ☐ Set up Metal     
     ☐ Render 3D objects
-☐ Render Text
+☐ Set up Vulkan? (maybe but not now)
+☐ Render Text @started(23-08-12 22:44)
 ☐ Render Images
 ☐ Render Video
 
 GUI
 ✔ Creadte a Button @done(23-08-10 17:19)
+✔ Create Text @done(23-08-12 22:43)
 ☐ Create a Text Field
 ☐ Create a Text View
 ✔ Create a Slider @done(23-08-11 23:50)
@@ -46,3 +48,6 @@ GUI
 ☐ Create a Status Bar
 ☐ Create a Tab Bar
 ☐ Create a Table View
+
+Tools
+☐ Create a shell command tool to create an app bundle

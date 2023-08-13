@@ -41,6 +41,13 @@ struct Mac_Text {
 Mac_Text* MAC_AddText(Mac_View* parent_view, MPoint pos, MSize size, Mac_Color color, MText text, int font);
 
 /*!
+    Updates the text of a text object.
+    @param text The text object to update.
+    @param newText The new text to display.
+*/
+void MAC_UpdateText(Mac_Text* text, MText newText);
+
+/*!
     MText is of typedef const char*
     Gets the pixel size (width, height) of a text object.
     @param text the text string to get the size of.

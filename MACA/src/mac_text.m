@@ -49,11 +49,26 @@ Mac_Text* MAC_AddText(Mac_View* parent_view, MPoint pos, MSize size, Mac_Color c
     return macText;
 }
 
+// TODO: this function is not working properly
 MSize MAC_GetTextSize(MText text, int font) {
     NSString *string = [NSString stringWithUTF8String:text];
     NSDictionary *attributes = @{NSFontAttributeName: [NSFont systemFontOfSize:font]};
     CGSize size = [string sizeWithAttributes:attributes];
     return (MSize){size.width, size.height};
+}
+
+void MAC_UpdateText(Mac_Text* text, MText newText) {
+    if (text == NULL) {
+        printf("Error: text is NULL\n");
+        return;
+    }
+
+    NSMac_Text* nsText = (__bridge NSMac_Text *)(text->_this);
+    [nsText setStringValue:[NSString stringWithUTF8String:newText]];
+
+    // Update the Mac_Text structure if needed
+    text->text = newText;
+    text->text_length = strlen(newText);
 }
 
 void MAC_RemoveText(Mac_Text* text) {

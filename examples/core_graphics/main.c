@@ -8,7 +8,6 @@
     that when the slider is moved, the quadrilateral moves with it. 
 
     The example also has a button that hides the view containing the sliders.
-
 */
 
 #include "MACA/mac_text.h"

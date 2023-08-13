@@ -153,6 +153,16 @@ void MAC_ClearRenderer(Mac_Renderer* renderer) {
         view_to_change.view.r_view = *renderer->render_view->rview;
         view_to_change.type = MAC_VIEW_TYPE_CORE_G;
     }
+    else if (renderer->type == MAC_RENDERER_METAL)
+    {
+        view_to_change.view.m_view = *renderer->render_view->mview;
+        view_to_change.type = MAC_VIEW_TYPE_METAL;
+    }
+    else
+    {
+        printf("ERROR: Unsupported renderer type.\n");
+        return;
+    }
     MAC_ChangeViewBGColor(&view_to_change, MAC_COLOR_TRANSPARENT);
 }
 
