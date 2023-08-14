@@ -68,22 +68,6 @@
     }
 }
 
-- (NSView *)tableView:(NSTableView *)tableView viewForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
-    NSTextField *textField = [tableView makeViewWithIdentifier:@"MyView" owner:self];
-    if (textField == nil) {
-        textField = [[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, tableColumn.width, 30)];
-        textField.identifier = @"MyView";
-        textField.editable = NO;
-        textField.bordered = NO;
-        textField.backgroundColor = [NSColor clearColor];
-        textField.textColor = self.textColor; // Set the text color
-    }
-    NSArray *values = self.rows[row];
-    NSInteger columnIndex = [[tableView tableColumns] indexOfObject:tableColumn];
-    textField.stringValue = values[columnIndex];
-    return textField;
-}
-
 @end
 
 static NSTableView* getNSTableViewFromMacView(M_View* tableView) {
@@ -94,7 +78,7 @@ static NSTableView* getNSTableViewFromMacView(M_View* tableView) {
     return (__bridge NSTableView *)(tableView->view.t_view._this);
 }
 
-void M_CreateTable(M_View* tableView, M_TableColumn* columns, int columnCount, M_Color textColor) {
+void M_CreateTable(M_View* tableView, M_TableColumn* columns, int columnCount) {
     NSTableView* nsTableView = getNSTableViewFromMacView(tableView);
     if (nsTableView == NULL) return;
 
@@ -104,19 +88,22 @@ void M_CreateTable(M_View* tableView, M_TableColumn* columns, int columnCount, M
     // Create columns
     for (int i = 0; i < columnCount; i++) {
         NSTableColumn* column = [[NSTableColumn alloc] initWithIdentifier:[NSString stringWithUTF8String:columns[i].title]];
-        [column setWidth:columnWidth];
+        [column setWidth:columnWidth]; // Set the calculated width
         [column.headerCell setStringValue:[NSString stringWithUTF8String:columns[i].title]];
-        [column.headerCell setTextColor:[NSColor colorWithRed:textColor.r green:textColor.g blue:textColor.b alpha:textColor.a]]; // Set text color
         [nsTableView addTableColumn:column];
     }
 
+    [nsTableView setWantsLayer:YES];
+    // [nsTableView.layer setBackgroundColor:[NSColor darkGrayColor].CGColor];
+    [nsTableView setNeedsDisplay:YES];
+
     // Set the data source and delegate
     M_TableViewDataSource *dataSource = [[M_TableViewDataSource alloc] init];
-    dataSource.textColor = [NSColor colorWithRed:textColor.r green:textColor.g blue:textColor.b alpha:textColor.a]; // Set the text color
     [nsTableView setDataSource:dataSource];
     [nsTableView setDelegate:dataSource];
+    
 
-    [nsTableView setHeaderView:[[NSTableHeaderView alloc] initWithFrame:NSMakeRect(0, 0, tableView->view.t_view.size.width, 18)]]; // Add this line to show column titles
+    [nsTableView setHeaderView:[[NSTableHeaderView alloc] initWithFrame:NSMakeRect(0, 0, tableView->view.t_view.size.width, 18)]];
 
     [nsTableView reloadData];
 }

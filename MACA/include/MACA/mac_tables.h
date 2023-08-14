@@ -53,7 +53,7 @@ extern "C" {
 #endif
 
 // Function to create a table in the given table view
-void M_CreateTable(M_View* tableView, M_TableColumn* columns, int columnCount, M_Color textColor);
+void M_CreateTable(M_View* tableView, M_TableColumn* columns, int columnCount);
 
 // Function to add a row to the table
 void M_AddRowToTable(M_View* tableView, M_TableRow* row);

@@ -7,3 +7,4 @@ build/
 ma/
 
 todolist0.txt
+examples/gui/*.dSYM/
