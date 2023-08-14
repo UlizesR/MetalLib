@@ -16,6 +16,9 @@ NSView* getViewFromMacView(M_View* parent_view) {
         case M_VIEW_TYPE_METAL:
             nsView = (__bridge M_NSView_Metal *)(parent_view->view.m_view._this);
             break;
+        case M_VIEW_TYPE_TABLE:
+            nsView = (__bridge M_NSTableView *)(parent_view->view.t_view._this);
+            break;
         default:
             NSLog(@"Error: Unknown view type");
             return NULL;
@@ -181,7 +184,7 @@ M_View* M_AddSubView(M_View* parent, UInt32 type, int width, int height, int x, 
             [parentNSView addSubview:nsview];
         }
     }
-    if (type == M_VIEW_TYPE_CORE_G)
+    else if (type == M_VIEW_TYPE_CORE_G)
     {
         M_RView* rview = (M_RView*)malloc(sizeof(M_RView));
         if (rview == NULL) {
@@ -207,6 +210,42 @@ M_View* M_AddSubView(M_View* parent, UInt32 type, int width, int height, int x, 
         [nsview setNeedsDisplay:YES];
         [nsview setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
         subView->view.r_view = *rview;
+
+        if (parent->type == M_VIEW_TYPE_NORMAL)
+        {
+            M_NSView_Normal* parentNSView = (__bridge M_NSView_Normal*)parent->view.n_view._this;
+            [parentNSView addSubview:nsview];
+        }
+        else if (parent->type == M_VIEW_TYPE_CORE_G)
+        {
+            M_NSView_Core_G* parentNSView = (__bridge M_NSView_Core_G*)parent->view.r_view._this;
+            [parentNSView addSubview:nsview];
+        }
+    }
+    else if (type == M_VIEW_TYPE_TABLE)
+    {
+        M_TView* tview = (M_TView*)malloc(sizeof(M_TView));
+        if (tview == NULL) {
+            fprintf(stderr, "Error: Failed to allocate memory for table view\n");
+            free(subView);
+            return NULL;
+        }
+        tview->size.width = width;
+        tview->size.height = height;
+        tview->position = (MPoint){x, y};
+        tview->background_color = background_color;
+        tview->window_parent = parent->view.t_view.window_parent;
+        tview->id = viewIDCounter++;
+        tview->is_content_view = false;
+
+        nsview = [[M_NSTableView alloc] initWithFrame:frame];
+        [nsview setWantsLayer:YES];
+        [nsview.layer setBackgroundColor:bgColor.CGColor];
+        [nsview.layer setCornerRadius:corner_radius];
+        [nsview setNeedsDisplay:YES];
+        [nsview setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
+        tview->_this = (__bridge void*)nsview;
+        subView->view.t_view = *tview;
 
         if (parent->type == M_VIEW_TYPE_NORMAL)
         {
@@ -279,7 +318,7 @@ M_View* M_AddContentView(M_Window* parent, M_Color background_color, UInt32 type
         NSWindow* parentNSWindow = (__bridge NSWindow*)parent->delegate;
         [parentNSWindow setContentView:nsView]; // Set the content view of the parent window
     }
-    if (type == M_VIEW_TYPE_CORE_G)
+    else if (type == M_VIEW_TYPE_CORE_G)
     {
         M_RView* rview = (M_RView*)malloc(sizeof(M_RView));
         if (rview == NULL) {
@@ -315,7 +354,53 @@ M_View* M_AddContentView(M_Window* parent, M_Color background_color, UInt32 type
         NSWindow* parentNSWindow = (__bridge NSWindow*)parent->delegate;
         [parentNSWindow setContentView:nsView]; // Set the content view of the parent window
     }
+    else if (type == M_VIEW_TYPE_TABLE)
+    {
+        M_TView* tview = (M_TView*)malloc(sizeof(M_TView));
+        if (tview == NULL) {
+            fprintf(stderr, "Error: Failed to allocate memory for table view\n");
+            free(contentView);
+            return NULL;
+        }
+        tview->size.width = parent->size.width;
+        tview->size.height = parent->size.height;
+        tview->position.x = 0;
+        tview->position.y = 0;
+        tview->background_color = background_color;
+        tview->window_parent = parent;
+        tview->id = viewIDCounter++;
+        tview->is_content_view = true;
 
+        M_NSTableView *nsView = [[M_NSTableView alloc] initWithFrame:frame];
+        if (nsView == NULL) {
+            fprintf(stderr, "Error: Failed to create table view\n");
+            free(contentView);
+            return NULL;
+        }
+
+        NSScrollView *scrollView = [[NSScrollView alloc] initWithFrame:frame];
+        if (scrollView == NULL) {
+            fprintf(stderr, "Error: Failed to create scroll view\n");
+            free(contentView);
+            return NULL;
+        }
+        [scrollView setDocumentView:nsView];
+        [scrollView setHasVerticalScroller:YES];
+        [scrollView setHasHorizontalScroller:NO];
+        [scrollView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
+        [scrollView setAutohidesScrollers:YES];
+        [nsView setWantsLayer:YES];
+        [nsView.layer setBackgroundColor:bgColor.CGColor];
+        [nsView setNeedsDisplay:YES];
+
+        tview->_this = (__bridge void*)nsView;
+        contentView->view.t_view = *tview;
+
+        // Get the NSWindow from the parent M_Window
+        NSWindow* parentNSWindow = (__bridge NSWindow*)parent->delegate;
+        [parentNSWindow setContentView:scrollView]; // Set the scroll view as the content view of the parent window
+
+    }
     return contentView;
 }
 
@@ -360,21 +445,7 @@ void M_HideView(M_View* view)
         return;
     }
 
-    NSView* nsView = NULL;
-
-    if (view->type & M_VIEW_TYPE_NORMAL) {
-        nsView = (__bridge M_NSView_Normal*)view->view.n_view._this;
-    }
-    else if (view->type & M_VIEW_TYPE_CORE_G) {
-        nsView = (__bridge M_NSView_Core_G*)view->view.r_view._this;
-    }
-    else if (view->type & M_VIEW_TYPE_METAL) {
-        nsView = (__bridge M_NSView_Metal*)view->view.m_view._this;
-    }
-    else {
-        printf("ERROR: Unsupported view type. Cannot hide the view.\n");
-        return;
-    }
+    NSView* nsView = getViewFromMacView(view);
 
     [nsView setHidden:YES];
 }
@@ -386,21 +457,7 @@ void M_ShowView(M_View *view)
         return;
     }
 
-    NSView* nsView = NULL;
-
-    if (view->type & M_VIEW_TYPE_NORMAL) {
-        nsView = (__bridge M_NSView_Normal*)view->view.n_view._this;
-    }
-    else if (view->type & M_VIEW_TYPE_CORE_G) {
-        nsView = (__bridge M_NSView_Core_G*)view->view.r_view._this;
-    }
-    else if (view->type & M_VIEW_TYPE_METAL) {
-        nsView = (__bridge M_NSView_Metal*)view->view.m_view._this;
-    }
-    else {
-        printf("ERROR: Unsupported view type. Cannot hide the view.\n");
-        return;
-    }
+    NSView* nsView = getViewFromMacView(view);
 
     [nsView setHidden:NO];
 }
@@ -433,8 +490,17 @@ void M_DestroyContentView(M_View* contentView) {
     if (contentView->type == M_VIEW_TYPE_NORMAL) {
         M_NView* nview = &contentView->view.n_view;
         M_NSView_Normal* nsview = (__bridge M_NSView_Normal*)nview->_this;
-        [nsview removeFromSuperview]; // Remove the Objective-C view from its superview
-        free(nview);
+        [nsview removeFromSuperview];
+    }
+    else if (contentView->type == M_VIEW_TYPE_CORE_G) {
+        M_RView* rview = &contentView->view.r_view;
+        M_NSView_Core_G* nsview = (__bridge M_NSView_Core_G*)rview->_this;
+        [nsview removeFromSuperview];
+    }
+    else if (contentView->type == M_VIEW_TYPE_TABLE) {
+        M_TView* tview = &contentView->view.t_view;
+        M_NSTableView* nsview = (__bridge M_NSTableView*)tview->_this;
+        [nsview removeFromSuperview];
     }
 
     free(contentView);

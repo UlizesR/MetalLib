@@ -2,6 +2,7 @@
 
 #include "mac_defs.h"
 #include "mac_colors.h"
+#include "mac_tables.h"
 
 #include <MacTypes.h>
 
@@ -49,6 +50,7 @@ typedef enum {
     M_VIEW_TYPE_NORMAL    = 1,
     M_VIEW_TYPE_CORE_G    = 2,
     M_VIEW_TYPE_METAL     = 4,
+    M_VIEW_TYPE_TABLE     = 8,
 } M_View_Type;
 
 struct M_NView                    // Normal view for apps
@@ -86,11 +88,13 @@ struct M_MView                    // metal view to render metal graphics
     void* _this;                    // The pointer to this view
 };
 
+
 union UView                      // The union of all views
 {
     M_NView n_view;
     M_RView r_view;
     M_MView m_view;
+    M_TView t_view;
 };
 
 struct M_View
