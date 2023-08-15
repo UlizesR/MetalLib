@@ -1,8 +1,8 @@
 #pragma once
 
-#include "MACA/mac_defs.h"
-#include "MACA/mac_colors.h"
-#include "MACA/mac_gui.h"
+#include "mac_defs.h"
+#include "mac_colors.h"
+#include "mac_gui.h"
 
 #ifdef __OBJC__
 #import <Cocoa/Cocoa.h>

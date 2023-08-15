@@ -17,3 +17,5 @@
 #include "mac_sliders.h"
 #include "mac_text.h"
 #include "mac_tables.h"
+#include "mac_devices.h"
+#include "mac_metal.h"

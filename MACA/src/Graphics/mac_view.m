@@ -1,5 +1,6 @@
 #import "MACA/mac_view.h"
 #import "MACA/mac_window.h"
+#import "MACA/mac_devices.h"
 
 #import <Cocoa/Cocoa.h>
 #include <stdio.h>
@@ -192,6 +193,11 @@ M_View* M_AddSubView(M_View* parent, UInt32 type, int width, int height, int x, 
             free(subView);
             return NULL;
         }
+        if (renderer == NULL) {
+            fprintf(stderr, "Error: Renderer is NULL\n");
+            free(subView);
+            return NULL;
+        }
         rview->size.width = width;
         rview->size.height = height;
         rview->position.x = x;
@@ -210,6 +216,49 @@ M_View* M_AddSubView(M_View* parent, UInt32 type, int width, int height, int x, 
         [nsview setNeedsDisplay:YES];
         [nsview setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
         subView->view.r_view = *rview;
+
+        if (parent->type == M_VIEW_TYPE_NORMAL)
+        {
+            M_NSView_Normal* parentNSView = (__bridge M_NSView_Normal*)parent->view.n_view._this;
+            [parentNSView addSubview:nsview];
+        }
+        else if (parent->type == M_VIEW_TYPE_CORE_G)
+        {
+            M_NSView_Core_G* parentNSView = (__bridge M_NSView_Core_G*)parent->view.r_view._this;
+            [parentNSView addSubview:nsview];
+        }
+    }
+    else if (type == M_VIEW_TYPE_METAL)
+    {
+        M_MView* mview = (M_MView*)malloc(sizeof(M_MView));
+        if (mview == NULL) {
+            fprintf(stderr, "Error: Failed to allocate memory for metal view\n");
+            free(subView);
+            return NULL;
+        }
+        if (renderer == NULL) {
+            fprintf(stderr, "Error: Renderer is NULL\n");
+            free(subView);
+            return NULL;
+        }
+        mview->size.width = width;
+        mview->size.height = height;
+        mview->position.x = x;
+        mview->position.y = y;
+        mview->background_color = background_color;
+        mview->window_parent = parent->view.m_view.window_parent;
+        mview->id = viewIDCounter++;
+        mview->is_content_view = false;
+        mview->device = M_DefaultDevice();
+
+        nsview = [[M_NSView_Metal alloc] initWithFrame:frame];
+        mview->_this = (__bridge void*)nsview;
+        [nsview setWantsLayer:YES];
+        [nsview.layer setBackgroundColor:bgColor.CGColor];
+        [nsview.layer setCornerRadius:corner_radius];
+        [nsview setNeedsDisplay:YES];
+        [nsview setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
+        subView->view.m_view = *mview;
 
         if (parent->type == M_VIEW_TYPE_NORMAL)
         {
@@ -257,6 +306,12 @@ M_View* M_AddSubView(M_View* parent, UInt32 type, int width, int height, int x, 
             M_NSView_Core_G* parentNSView = (__bridge M_NSView_Core_G*)parent->view.r_view._this;
             [parentNSView addSubview:nsview];
         }
+    }
+    else 
+    {
+        fprintf(stderr, "Error: Unsupported view type\n");
+        free(subView);
+        return NULL;
     }
 
     return subView;
@@ -354,6 +409,42 @@ M_View* M_AddContentView(M_Window* parent, M_Color background_color, UInt32 type
         NSWindow* parentNSWindow = (__bridge NSWindow*)parent->delegate;
         [parentNSWindow setContentView:nsView]; // Set the content view of the parent window
     }
+    else if (type == M_VIEW_TYPE_METAL)
+    {
+        M_MView* mview = (M_MView*)malloc(sizeof(M_MView));
+        if (mview == NULL) {
+            fprintf(stderr, "Error: Failed to allocate memory for metal view\n");
+            free(contentView); // Clean up the allocated memory for contentView
+            return NULL;
+        }
+        mview->size.width = parent->size.width;
+        mview->size.height = parent->size.height;
+        mview->position.x = 0;
+        mview->position.y = 0;
+        mview->background_color = background_color;
+        mview->window_parent = parent;
+        mview->id = viewIDCounter++; // Set the view ID
+        mview->is_content_view = true; // Set the is_content_view flag to true
+        mview->device = M_DefaultDevice();
+
+        M_NSView_Metal* nsView = [[M_NSView_Metal alloc] initWithFrame:frame];
+        if (nsView == NULL) {
+            fprintf(stderr, "Error: Failed to create metal view\n");
+            free(contentView); // Clean up the allocated memory for contentView
+            return NULL;
+        }
+
+        mview->_this = (__bridge void*)nsView; // Store the Objective-C instance in _this
+        [nsView setWantsLayer:YES]; // Enable layer backing
+
+        [nsView.layer setBackgroundColor:bgColor.CGColor]; // Set the background color
+        [nsView setNeedsDisplay:YES];
+        contentView->view.m_view = *mview; // Assign the created nview to the contentView's UView
+
+        // Get the NSWindow from the parent M_Window
+        NSWindow* parentNSWindow = (__bridge NSWindow*)parent->delegate;
+        [parentNSWindow setContentView:nsView]; // Set the content view of the parent window
+    }
     else if (type == M_VIEW_TYPE_TABLE)
     {
         M_TView* tview = (M_TView*)malloc(sizeof(M_TView));
@@ -414,19 +505,19 @@ void M_ChangeViewBGColor(M_View* view, M_Color color)
 
     NSColor* nsColor = [NSColor colorWithRed:color.r green:color.g blue:color.b alpha:color.a];
 
-    if (view->type & M_VIEW_TYPE_NORMAL)
+    if (view->type == M_VIEW_TYPE_NORMAL)
     {
         M_NSView_Normal* nsView = (__bridge M_NSView_Normal*)view->view.n_view._this;
         [nsView.layer setBackgroundColor:nsColor.CGColor];
         [nsView setNeedsDisplay:YES];
     }
-    else if (view->type & M_VIEW_TYPE_CORE_G)
+    else if (view->type == M_VIEW_TYPE_CORE_G)
     {
         M_NSView_Core_G* nsView = (__bridge M_NSView_Core_G*)view->view.r_view._this;
         [nsView.layer setBackgroundColor:nsColor.CGColor];
         [nsView setNeedsDisplay:YES];
     }
-    else if (view->type & M_VIEW_TYPE_METAL)
+    else if (view->type == M_VIEW_TYPE_METAL)
     {
         M_NSView_Metal* nsView = (__bridge M_NSView_Metal*)view->view.m_view._this;
         [nsView.layer setBackgroundColor:nsColor.CGColor];

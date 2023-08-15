@@ -15,12 +15,14 @@ set(SOURCES
         MACA/src/mac_init.m
         MACA/src/mac_events.m
         MACA/src/mac_text.m
+        MACA/src/mac_devices.m
         MACA/src/Gui/mac_buttons.m
         MACA/src/Gui/mac_sliders.m
         MACA/src/Gui/mac_tables.m
         MACA/src/Graphics/mac_view.m
         MACA/src/Graphics/mac_renderer.c
         MACA/src/Graphics/mac_shapes.m
+        MACA/src/Graphics/mac_metal.m
 )
 
 # Create the library

@@ -14,7 +14,7 @@ Graphics
     ☐ Create a Scroll View
     ☐ Create a Table View
     ✔ Create a Subview @done(23-08-09 22:36)
-    ☐ Create a Metal View
+    ✔ Create a Metal View @done(23-08-14 23:20)
     ☐ Create a Tab View
 ☐ Create a Layer
 ☐ Set up Core Graphics
@@ -27,6 +27,9 @@ Graphics
         ✔ Polygons @done(23-08-10 00:27)
         ☐ Paths
 ☐ Set up Metal     
+    ✔ Set up metal view @done(23-08-14 23:20)
+    ☐ Set up metal layer
+    ✔ Set up metal device @done(23-08-14 23:20)
     ☐ Render 3D objects
 ☐ Set up Vulkan? (maybe but not now)
 ☐ Render Text @started(23-08-12 22:44)
@@ -47,7 +50,7 @@ GUI
 ☐ Create a Toolbar
 ☐ Create a Status Bar
 ☐ Create a Tab Bar
-☐ Create a Table View
+✔ Create a Table View @done(23-08-14 23:20)
 
 Tools
 ☐ Create a shell command tool to create an app bundle

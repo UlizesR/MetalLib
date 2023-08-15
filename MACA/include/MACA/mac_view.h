@@ -2,13 +2,14 @@
 
 #include "mac_defs.h"
 #include "mac_colors.h"
+// include the different view types
 #include "mac_tables.h"
+#include "mac_metal.h"
 
 #include <MacTypes.h>
 
 #ifdef __OBJC__
 #import <Cocoa/Cocoa.h>
-#import <MetalKit/MetalKit.h>
 
 NSView* getViewFromMacView(M_View* parent_view);
 
@@ -37,8 +38,6 @@ typedef struct {
 - (void)setLineWithInitPos:(MFPoint)init_pos endPos:(MFPoint)end_pos lineWidth:(float)line_width shapeID:(int)id color:(M_Color)color;
 @end
 
-@interface M_NSView_Metal: MTKView;
-@end
 
 #endif
 
@@ -65,18 +64,6 @@ struct M_NView                    // Normal view for apps
 };
 
 struct M_RView                    // normal view to render core graphics
-{
-    int id;                         // The id of the view
-    MSize size;                     // The size of the view
-    M_Color background_color;     // The background color of the view
-    MPoint position;                // The position of this view
-    M_Window *window_parent;      // The parent window of this view
-    M_Renderer *renderer;         // The renderer that owns this view
-    bool is_content_view;           // Whether this view is the content view of the window or not
-    void* _this;                    // The pointer to this view
-};
-
-struct M_MView                    // metal view to render metal graphics
 {
     int id;                         // The id of the view
     MSize size;                     // The size of the view
