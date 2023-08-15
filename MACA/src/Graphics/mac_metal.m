@@ -7,7 +7,9 @@
 @implementation MtlRenderer
 {
     id<MTLDevice> _device;
-
+    id<MTLRenderPipelineState> _pipelineState;
+    // The current size of the view, used as an input to the vertex shader.
+    vector_uint2 _viewportSize;
     // The command queue used to pass commands to the device.
     id<MTLCommandQueue> _commandQueue;
 }
@@ -17,7 +19,24 @@
     self = [super init];
     if(self)
     {
+        NSError *error;
         _device = mtkView.device;
+
+        // Load all the shader files with a .metal file extension in the project.
+        id<MTLLibrary> defaultLibrary = [_device newDefaultLibrary];
+
+        id<MTLFunction> vertexFunction = [defaultLibrary newFunctionWithName:@"vertexShader"];
+        id<MTLFunction> fragmentFunction = [defaultLibrary newFunctionWithName:@"fragmentShader"];
+
+        // Configure a pipeline descriptor that is used to create a pipeline state.
+        MTLRenderPipelineDescriptor *pipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
+        pipelineStateDescriptor.label = @"Simple Pipeline";
+        pipelineStateDescriptor.vertexFunction = vertexFunction;
+        pipelineStateDescriptor.fragmentFunction = fragmentFunction;
+        pipelineStateDescriptor.colorAttachments[0].pixelFormat = mtkView.colorPixelFormat;
+
+        _pipelineState = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor
+                                                                 error:&error];
 
         // Create the command queue
         _commandQueue = [_device newCommandQueue];
@@ -54,6 +73,8 @@
 
 - (void)mtkView:(nonnull MTKView *)view drawableSizeWillChange:(CGSize)size
 {
+    _viewportSize.x = size.width;
+    _viewportSize.y = size.height;
 }
 
 @end

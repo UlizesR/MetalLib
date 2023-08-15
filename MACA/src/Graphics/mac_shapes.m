@@ -8,6 +8,39 @@
 
 int shapeID = 0;
 
+DrawableShape* createDrawableShape(CGMutablePathRef path, M_Color color, BOOL filled, int shape_id) {
+    DrawableShape* shape = [[DrawableShape alloc] init];
+    shape.path = path;
+    shape.color = color;
+    shape.filled = filled;
+    shape.id = shape_id;
+    return shape;
+}
+
+// Function to add a DrawableShape object to the view
+void addShapeToView(M_NSView_Core_G* nsView, DrawableShape* shape) {
+    if (!nsView.shapes) {
+        nsView.shapes = [NSMutableArray array];
+    }
+    [nsView.shapes addObject:shape];
+    [nsView setNeedsDisplay:YES];
+}
+
+// Function to remove a shape by ID
+void removeShapeByID(M_NSView_Core_G* nsView, int shape_id) {
+    NSMutableArray<DrawableShape*>* shapesToRemove = [NSMutableArray array];
+    for (DrawableShape* shape in nsView.shapes) {
+        if (shape.id == shape_id) {
+            [shapesToRemove addObject:shape];
+        }
+    }
+    if (shapesToRemove.count > 0) {
+        [nsView.shapes removeObjectsInArray:shapesToRemove];
+        [nsView setNeedsDisplay:YES];
+    }
+}
+
+
 M_Point* M_CreatePoint(float x, float y, M_Color color)
 {
     // Allocate memory for point
@@ -530,41 +563,6 @@ void M_FillEllipse(M_Ellipse* ellipse, M_Renderer* renderer)
     }
 }
 
-void M_RemoveShape(int shape_id, M_Renderer* renderer)
-{
-    // Check if renderer is NULL
-    if (!renderer) 
-    {
-        printf("ERROR: Renderer is NULL.\n");
-        return;
-    }
-    // Check if renderer is of type Core Graphics
-    if (renderer->type == M_RENDERER_CORE_G)
-    {
-        // Get the Core Graphics view
-        M_RView* view_to_render = renderer->render_view->rview;
-        M_NSView_Core_G* nsView = (__bridge M_NSView_Core_G*)view_to_render->_this;
-        // Get the list of shapes
-        NSMutableArray<DrawableShape*>* shapes = nsView.shapes;
-        if (!shapes || shapes.count == 0) return;
-        // Remove the shape
-        NSMutableArray<DrawableShape*>* shapesToRemove = [NSMutableArray array];
-        for (DrawableShape* shape in shapes) 
-        {
-            if (shape.id == shape_id) 
-            {
-                [shapesToRemove addObject:shape];
-            }
-        }
-        if (shapesToRemove.count > 0) 
-        {
-            [shapes removeObjectsInArray:shapesToRemove];
-            [nsView setNeedsDisplay:YES];
-        }
-    }
-    shapeID--;
-}
-
 void M_RemoveAllShapes(M_Renderer* renderer)
 {
     // Check if renderer is NULL
@@ -589,11 +587,25 @@ void M_RemoveAllShapes(M_Renderer* renderer)
     }
 }
 
-void M_DestroyShape(M_Shape* shape)
-{
-    if (shape != NULL) 
-    {
-        // You can add any specific destruction logic here based on shapeType
+void M_RemoveShape(int shape_id, M_Renderer* renderer) {
+    if (!renderer) {
+        printf("ERROR: Renderer is NULL.\n");
+        return;
+    }
+    if (renderer->type == M_RENDERER_CORE_G) {
+        M_RView* view_to_render = renderer->render_view->rview;
+        M_NSView_Core_G* nsView = (__bridge M_NSView_Core_G*)view_to_render->_this;
+        removeShapeByID(nsView, shape_id);
+    }
+    shapeID--;
+}
+
+void M_DestroyShape(M_Shape* shape) {
+    if (shape != NULL) {
+        // Free vertices if the shape is a polygon
+        if (shape->shape_type == M_SHAPE_POLYGON) {
+            free(((M_Polygon*)shape)->vertices);
+        }
         free(shape);
     }
 }
