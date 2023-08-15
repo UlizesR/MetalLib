@@ -7,7 +7,17 @@
 - (void)sliderValueChanged:(id)sender {
     NSSlider *nsSlider = (NSSlider*)sender;
     M_Slider *slider = (__bridge M_Slider *)(nsSlider.tag);
-    slider->value = nsSlider.floatValue;
+
+    // Calculate the new value based on the increment
+    float newValue = roundf(nsSlider.floatValue / slider->increment) * slider->increment;
+
+    // Ensure the value is within the min and max range
+    newValue = fmaxf(slider->minValue, fminf(slider->maxValue, newValue));
+
+    // Update the slider value
+    nsSlider.floatValue = newValue;
+    slider->value = newValue;
+
     slider->action(slider, slider->user_data);
     [nsSlider setNeedsDisplay:YES];
 }

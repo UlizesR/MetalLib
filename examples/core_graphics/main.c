@@ -83,6 +83,7 @@ void slider_action(M_Slider* slider, void* user_data)
     M_DrawQuadrilateral(quad, 2.0, control->renderer);
 
     previousValue = slider->value; // Update the previous value
+    printf("Slider value: %f\n", slider->value);
 }
 
 void slider_rotate(M_Slider* slider, void* user_data)
@@ -191,7 +192,7 @@ int main(int argc, const char * argv[]) {
     control1.renderer = renderer;
     M_DrawQuadrilateral(control1.quad, 2.0, renderer);
 
-    M_Slider* slider = M_HRectSlider((MSize){200, 25}, (MPoint){20, 100}, 0, 100, 0.0, M_COLOR_RED, M_COLOR_BLACK, M_COLOR_WHITE, gui_view, slider_action, &control1);
+    M_Slider* slider = M_HRectSlider((MSize){200, 25}, (MPoint){20, 100}, 0, 100, 5.0, M_COLOR_RED, M_COLOR_BLACK, M_COLOR_WHITE, gui_view, slider_action, &control1);
 
     ShapeControl control2;  
     MFPoint vertices2[4] = {
@@ -205,7 +206,7 @@ int main(int argc, const char * argv[]) {
     control2.renderer = renderer;
     M_DrawQuadrilateral(control2.quad, 2.0, renderer);
 
-    M_Slider* slider2 = M_HRectSlider((MSize){200, 25}, (MPoint){20, 70}, 0, 100, 0.0, M_COLOR_GREEN, M_COLOR_BLACK, M_COLOR_WHITE, gui_view, slider_action, &control2);
+    M_Slider* slider2 = M_HRectSlider((MSize){200, 25}, (MPoint){20, 70}, 0, 100, 5.0, M_COLOR_GREEN, M_COLOR_BLACK, M_COLOR_WHITE, gui_view, slider_action, &control2);
 
     ShapeControl control3;
     MFPoint vertices3[4] = {
@@ -219,7 +220,7 @@ int main(int argc, const char * argv[]) {
     control3.renderer = renderer;
     M_DrawQuadrilateral(control3.quad, 2.0, renderer);
 
-    M_Slider* slider3 = M_HRectSlider((MSize){200, 25}, (MPoint){20, 40}, 0, 100, 0.0, M_COLOR_BLUE, M_COLOR_BLACK, M_COLOR_WHITE, gui_view, slider_action, &control3);
+    M_Slider* slider3 = M_HRectSlider((MSize){200, 25}, (MPoint){20, 40}, 0, 100, 5.0, M_COLOR_BLUE, M_COLOR_BLACK, M_COLOR_WHITE, gui_view, slider_action, &control3);
 
     ShapeControl control4;
     MFPoint vertices4[4] = {
@@ -233,7 +234,7 @@ int main(int argc, const char * argv[]) {
     control4.renderer = renderer;
     M_DrawQuadrilateral(control4.quad, 2.0, renderer);
 
-    M_Slider* slider4 = M_HRectSlider((MSize){200, 25}, (MPoint){20, 10}, 0, 360, 0.0, M_COLOR_YELLOW, M_COLOR_BLACK, M_COLOR_WHITE, gui_view, slider_rotate, &control4);
+    M_Slider* slider4 = M_HRectSlider((MSize){200, 25}, (MPoint){20, 10}, 0, 360, 5.0, M_COLOR_YELLOW, M_COLOR_BLACK, M_COLOR_WHITE, gui_view, slider_rotate, &control4);
 
     for (int i = 0; i < 4; i++) {
         control1.originalVertices[i] = quad->vertices[i];
