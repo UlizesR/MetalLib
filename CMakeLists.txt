@@ -14,6 +14,7 @@ set(SOURCES
     MIA/src/m_window.m
     MIA/src/m_init.m
     MIA/src/m_devices.m
+    MIA/src/m_view.m
 )
 
 # Create the library

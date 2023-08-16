@@ -4,3 +4,4 @@
 #include "m_init.h"
 #include "m_colors.h"
 #include "m_defs.h"
+#include "m_view.h"
