@@ -1,41 +1,31 @@
 cmake_minimum_required(VERSION 3.10)
-project(MACAPI)
+project(MIA_API)
 
 # Set the C standard to C11
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_OBJC_STANDARD 11) # or another version
 
 # Add the include directories
-include_directories(MACA/include)
+include_directories(MIA/include)
 
 # Combine C and Objective-C sources
 set(SOURCES 
-        MACA/src/mac_delegate.m
-        MACA/src/mac_window.m
-        MACA/src/mac_init.m
-        MACA/src/mac_events.m
-        MACA/src/mac_text.m
-        MACA/src/mac_devices.m
-        MACA/src/Gui/mac_buttons.m
-        MACA/src/Gui/mac_sliders.m
-        MACA/src/Gui/mac_tables.m
-        MACA/src/Graphics/mac_view.m
-        MACA/src/Graphics/mac_renderer.c
-        MACA/src/Graphics/mac_shapes.m
-        MACA/src/Graphics/mac_metal.m
+    MIA/src/m_delegate.m
+    MIA/src/m_window.m
+    MIA/src/m_init.m
 )
 
 # Create the library
-add_library(MACA STATIC ${SOURCES})
+add_library(MIA STATIC ${SOURCES})
 
 # Link the necessary frameworks
-target_link_libraries(MACA "-framework Cocoa" "-framework Metalkit" objc)
+target_link_libraries(MIA "-framework Cocoa" objc)
 
 # Set the install location for the library
-install(TARGETS MACA
+install(TARGETS MIA
         ARCHIVE DESTINATION /opt/homebrew/lib)
 
 # Set the install location for the header files
-install(DIRECTORY MACA/include/MACA/
-        DESTINATION /opt/homebrew/include/MACA
+install(DIRECTORY MIA/include/MIA/
+        DESTINATION /opt/homebrew/include/MIA
         FILES_MATCHING PATTERN "*.h")

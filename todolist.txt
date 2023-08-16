@@ -1,0 +1,20 @@
+✔ Create a Delegate @done(23-08-15 22:14)
+✔ Create a Window @done(23-08-15 22:14)
+☐ Get Display Devices data
+☐ Create Frames(Views)
+☐ Create GUI Elements
+    ☐ Buttons
+    ☐ Sliders
+    ☐ Text Input
+
+☐ Create Layouts
+    ☐ Grid Layout
+    ☐ Horizontal Layout
+    ☐ Vertical Layout
+
+☐ Render Basic Graphics
+    ☐ Text
+    ☐ Images
+    ☐ Shapes
+    
+☐ Handle Events

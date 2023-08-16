@@ -1,6 +1,6 @@
 #import "MIA/m_delegate.h"
 
-@implementation M_MacDelegate // Updated class name
+@implementation M_Delegate // Updated class name
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     if (globalDelegate == nil) {
@@ -23,11 +23,11 @@
 
 @end
 
-M_MacDelegate* globalDelegate = nil; // Updated class name
+M_Delegate* globalDelegate = nil; // Updated class name
 
-M_MacDelegate* initDelegate() { // Updated class name
+M_Delegate* initDelegate() { // Updated class name
     if (globalDelegate == nil) {
-        globalDelegate = [[M_MacDelegate alloc] init]; // Updated class name
+        globalDelegate = [[M_Delegate alloc] init]; // Updated class name
         globalDelegate.childWindows = [NSMutableArray array]; // Initialize the child windows array
     }
     
@@ -36,6 +36,7 @@ M_MacDelegate* initDelegate() { // Updated class name
 
 void terminateDelegate() {
     if (globalDelegate == nil) {
+        printf("Error at terminateDelegate(): Delegate not initialized.\n");
         return;
     }
     [NSApp terminate:globalDelegate];
@@ -44,6 +45,7 @@ void terminateDelegate() {
 
 void runDelegate() {
     if (globalDelegate == nil) {
+        printf("Error at runDelegate(): Delegate not initialized.\n");
         return;
     }
     NSEvent *event;
