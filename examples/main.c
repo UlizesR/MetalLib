@@ -29,8 +29,8 @@ int main()
         M_Quit();
         return 1;
     }
-    M_View *view = M_AddContentView(window, M_COLOR_CYAN_8);
-    M_View *subview = M_AddSubView(view, 300, 250, 100, 100, 10, M_COLOR_RED_8);
+    M_AddContentView(window, M_COLOR_CYAN_8);
+    M_View *subview = M_AddSubView(window->content_view, 300, 250, 100, 100, 10, false, M_COLOR_RED_8);
 
     while(M_IsWindowOpen(window))
     {
