@@ -7,3 +7,4 @@
 #include "view.h"
 #include "internals.h"
 #include "buttons.h"
+#include "sliders.h"

@@ -16,6 +16,7 @@ set(SOURCES
     MIA/src/devices.m
     MIA/src/view.m
     MIA/src/Gui/buttons.m
+    MIA/src/Gui/sliders.m
 )
 
 # Create the library

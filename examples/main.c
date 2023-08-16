@@ -8,6 +8,12 @@ void buttonClick(void *button, void *data)
     printf("Button clicked\n");
 }
 
+void sliderAction(void *slider, void *data)
+{
+    M_Slider *sSlider = (M_Slider*)slider;
+    printf("Slider value: %f\n", sSlider->value);
+}
+
 int main()
 {
     if(M_Init(0) != 0)
@@ -25,7 +31,6 @@ int main()
     }
     M_View *view = M_AddContentView(window, M_COLOR_CYAN_8);
     M_View *subview = M_AddSubView(view, 300, 250, 100, 100, 10, M_COLOR_RED_8);
-    M_Button *button = M_ButtonSpb1((MSize){100, 25}, (MPoint){100, 100}, "button", "dot.png", subview, buttonClick, NULL);
 
     while(M_IsWindowOpen(window))
     {
