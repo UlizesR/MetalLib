@@ -13,6 +13,7 @@ set(SOURCES
     MIA/src/m_delegate.m
     MIA/src/m_window.m
     MIA/src/m_init.m
+    MIA/src/m_devices.m
 )
 
 # Create the library
