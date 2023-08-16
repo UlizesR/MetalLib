@@ -9,3 +9,4 @@
 #include "buttons.h"
 #include "sliders.h"
 #include "text.h"
+#include "tables.h"

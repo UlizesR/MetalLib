@@ -19,6 +19,7 @@ set(SOURCES
     MIA/src/text.m
     MIA/src/Gui/buttons.m
     MIA/src/Gui/sliders.m
+    MIA/src/Gui/tables.m
 )
 
 # Create the library
