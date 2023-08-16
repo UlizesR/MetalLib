@@ -5,3 +5,5 @@
 #include "colors.h"
 #include "defs.h"
 #include "view.h"
+#include "internals.h"
+#include "buttons.h"

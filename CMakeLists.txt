@@ -10,11 +10,12 @@ include_directories(MIA/include)
 
 # Combine C and Objective-C sources
 set(SOURCES 
-    MIA/src/m_delegate.m
-    MIA/src/m_window.m
-    MIA/src/m_init.m
-    MIA/src/m_devices.m
-    MIA/src/m_view.m
+    MIA/src/delegate.m
+    MIA/src/window.m
+    MIA/src/init.m
+    MIA/src/devices.m
+    MIA/src/view.m
+    MIA/src/Gui/buttons.m
 )
 
 # Create the library

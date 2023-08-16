@@ -1,9 +1,12 @@
-#include "MIA/colors.h"
-#include "MIA/view.h"
 #include <MIA/mia.h>
 
 #include <stdio.h>
 #include <stdbool.h>
+
+void buttonClick(void *button, void *data)
+{
+    printf("Button clicked\n");
+}
 
 int main()
 {
@@ -22,6 +25,7 @@ int main()
     }
     M_View *view = M_AddContentView(window, M_COLOR_CYAN_8);
     M_View *subview = M_AddSubView(view, 300, 250, 100, 100, 10, M_COLOR_RED_8);
+    M_Button *button = M_ButtonSpb1((MSize){100, 25}, (MPoint){100, 100}, "button", "dot.png", subview, buttonClick, NULL);
 
     while(M_IsWindowOpen(window))
     {
