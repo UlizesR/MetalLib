@@ -1,5 +1,5 @@
-#import "MIA/m_view.h"
-#import "MIA/m_window.h"
+#import "MIA/view.h"
+#import "MIA/window.h"
 
 #import <Cocoa/Cocoa.h>
 #include <stdio.h>
@@ -48,6 +48,7 @@ M_View* M_AddSubView(M_View* parent, int width, int height, int x, int y, float 
     [nsView.layer setCornerRadius:corner_radius];
     // redraw the view
     [nsView setNeedsDisplay:YES];
+    [nsView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
     // Add the NSView to the parent view
     NSView* parentView = (__bridge NSView*)parent->_this;
     [parentView addSubview:nsView];

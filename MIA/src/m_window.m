@@ -1,5 +1,5 @@
-#import "MIA/m_window.h"
-#import "MIA/m_delegate.h"
+#import "MIA/window.h"
+#import "MIA/delegate.h"
 
 #include <stdio.h>
 #import <Cocoa/Cocoa.h>

@@ -1,4 +1,4 @@
-#import "MIA/m_delegate.h"
+#import "MIA/delegate.h"
 
 @implementation M_Delegate // Updated class name
 

@@ -1,5 +1,5 @@
-#include "MIA/m_delegate.h"
-#include "MIA/m_init.h"
+#include "MIA/delegate.h"
+#include "MIA/init.h"
 #include <stdio.h>
 
 int M_Init(UInt32 flags)

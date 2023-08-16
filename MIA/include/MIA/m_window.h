@@ -1,7 +1,6 @@
 #pragma once
 
-#include "m_defs.h"
-#include "m_colors.h"
+#include "defs.h"
 
 #include <stdbool.h>
 #include <MacTypes.h>

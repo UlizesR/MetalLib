@@ -1,5 +1,5 @@
-#include "MIA/m_colors.h"
-#include "MIA/m_view.h"
+#include "MIA/colors.h"
+#include "MIA/view.h"
 #include <MIA/mia.h>
 
 #include <stdio.h>
