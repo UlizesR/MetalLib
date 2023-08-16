@@ -15,6 +15,7 @@ set(SOURCES
     MIA/src/init.m
     MIA/src/devices.m
     MIA/src/view.m
+    MIA/src/events.m
     MIA/src/Gui/buttons.m
     MIA/src/Gui/sliders.m
 )
