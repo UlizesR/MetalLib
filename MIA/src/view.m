@@ -12,7 +12,7 @@
 
 static int viewIDCounter = 0; // Initialize view ID counter
 
-M_View* M_AddSubView(M_View* parent, int width, int height, int x, int y, float corner_radius, M_Color background_color)
+M_View* M_AddSubView(M_View* parent, int width, int height, int x, int y, float corner_radius, bool resizable, M_Color background_color)
 {
     // Check if the parent view is NULL
     if (parent == NULL) {
@@ -48,7 +48,8 @@ M_View* M_AddSubView(M_View* parent, int width, int height, int x, int y, float 
     [nsView.layer setCornerRadius:corner_radius];
     // redraw the view
     [nsView setNeedsDisplay:YES];
-    [nsView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
+    if (resizable)
+        [nsView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
     // Add the NSView to the parent view
     NSView* parentView = (__bridge NSView*)parent->_this;
     [parentView addSubview:nsView];
@@ -58,18 +59,18 @@ M_View* M_AddSubView(M_View* parent, int width, int height, int x, int y, float 
     return subView;
 }
 
-M_View* M_AddContentView(M_Window* parent, M_Color background_color)
+void M_AddContentView(M_Window* parent, M_Color background_color)
 {
     // Check if the parent window is NULL
     if (parent == NULL) {
         fprintf(stderr, "Error: Parent window is NULL\n");
-        return NULL;
+        return;
     }
     // Allocate memory for the content view and check if it failed
     M_View* contentView = (M_View*)malloc(sizeof(M_View));
     if (contentView == NULL) {
         fprintf(stderr, "Error: Failed to allocate memory for content view\n");
-        return NULL;
+        return;
     }
     // Set the content view's properties
     contentView->background_color = background_color;
@@ -97,8 +98,6 @@ M_View* M_AddContentView(M_Window* parent, M_Color background_color)
     // Set the Objective-C view to the content view's _this property
     contentView->_this = (__bridge void*)nsView;
     parent->content_view = contentView;
-    // Return the content view
-    return contentView;
 }
 
 void M_ChangeViewBGColor(M_View* view, M_Color color)

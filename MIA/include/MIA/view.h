@@ -4,6 +4,7 @@
 #include "colors.h"
 
 #include <MacTypes.h>
+#include <stdbool.h>
 
 #ifdef __OBJC__
 #import <Cocoa/Cocoa.h>
@@ -39,7 +40,7 @@ struct M_View
     @param background_color: the background color of the view
     @return: the created sub view
 */
-M_View* M_AddSubView(M_View* parent, int width, int height, int x, int y, float corner_radius, M_Color background_color);
+M_View* M_AddSubView(M_View* parent, int width, int height, int x, int y, float corner_radius, bool resizable, M_Color background_color);
 
 /*!
     Creates a given window's content view with the given parameters.
@@ -47,7 +48,7 @@ M_View* M_AddSubView(M_View* parent, int width, int height, int x, int y, float 
     @param background_color: the background color of the view
     @return: the created content view
 */
-M_View* M_AddContentView(M_Window* parent, M_Color background_color);
+void M_AddContentView(M_Window* parent, M_Color background_color);
 
 /*!
     Changes the Color of the given view.
