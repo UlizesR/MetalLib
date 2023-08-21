@@ -9,7 +9,31 @@
 #ifdef __OBJC__
 #import <Cocoa/Cocoa.h>
 
+typedef struct {
+  MFPoint init_pos;
+  MFPoint end_pos;
+  float line_width;
+  M_Color color;
+} DrawingCommand;
+
+@interface DrawableShape : NSObject
+@property(nonatomic) CGPathRef path;
+@property(nonatomic) M_Color color;
+@property(nonatomic) float lineWidth;
+@property(nonatomic) BOOL filled;
+@property(nonatomic) int id;
+- (void)updateLineWithInitPos:(MFPoint)init_pos endPos:(MFPoint)end_pos;
+@end
+
 @interface M_NSView: NSView;
+@property(nonatomic, strong) NSMutableArray<DrawableShape *> *shapes;
+@property(nonatomic, strong) NSMutableArray<NSValue *> *drawingCommands;
+- (void)setLineWithInitPos:(MFPoint)init_pos
+                    endPos:(MFPoint)end_pos
+                 lineWidth:(float)line_width
+                   shapeID:(int)id
+                     color:(M_Color)color;
+
 @end
 
 #endif

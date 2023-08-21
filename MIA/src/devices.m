@@ -1,7 +1,6 @@
 #import "MIA/devices.h"
-#include <AppKit/AppKit.h>
-#include <stdio.h>
 #import <Cocoa/Cocoa.h>
+#include <stdio.h>
 
 M_DisplayList M_GetDisplays() {
     NSArray<NSScreen *> *screens = [NSScreen screens];
