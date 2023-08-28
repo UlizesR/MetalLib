@@ -27,17 +27,6 @@ Setting up basic window and views
 #include <stdio.h>
 #include <stdbool.h>
 
-void buttonClick(void *button, void *data)
-{
-    printf("Button clicked\n");
-}
-
-void sliderAction(void *slider, void *data)
-{
-    M_Slider *sSlider = (M_Slider*)slider;
-    printf("Slider value: %f\n", sSlider->value);
-}
-
 int main()
 {
     if(M_Init(0) != 0)

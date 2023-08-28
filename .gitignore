@@ -11,3 +11,12 @@ examples/gui/*.dSYM/
 
 maca/
 mia/
+
+AppDelegate.h
+AppDelegate.m
+build.sh
+main.m
+metal-test
+metal.h
+metal.m
+library.metal
