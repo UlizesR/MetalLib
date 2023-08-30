@@ -1,4 +1,4 @@
-# MIA API (macOS iOS applications)
+# MCL API (macOS iOS applications)
 
 ## About
 
@@ -22,7 +22,7 @@ For those of us who like to use C and C++ that is.
 Setting up basic window and views
 
 ```C
-#include <MIA/mia.h>
+#include <MCL/MCL.h>
 
 #include <stdio.h>
 #include <stdbool.h>
@@ -35,7 +35,7 @@ int main()
         return 1;
     }
 
-    M_Window* window = M_CreateWindow(800, 600, true, "MIA Window", M_WINDOW_RESIZABLE | M_WINDOW_MINIMIZED);
+    M_Window* window = M_CreateWindow(800, 600, true, "MCL Window", M_WINDOW_RESIZABLE | M_WINDOW_MINIMIZED);
     if(window == NULL)
     {
         fprintf(stderr, "Error: M_CreateWindow() failed\n");

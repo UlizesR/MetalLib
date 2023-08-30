@@ -1,14 +1,16 @@
 #include <MCL/MCL.h>
-#include <MCL/colors.h>
 #include <stdbool.h>
 #include <stdio.h>
 
+#include <iostream>
 
 int main() {
   if (M_Init(0) != 0) {
     fprintf(stderr, "Error: M_Init() failed\n");
     return 1;
   }
+
+  std::cout << "Hello World!" << std::endl;
 
   M_Window *window = M_CreateWindow(800, 600, true, "MCL Window",
                                     M_WINDOW_RESIZABLE | M_WINDOW_MINIMIZED);
