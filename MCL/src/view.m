@@ -1,5 +1,5 @@
-#import "view.h"
-#import "window.h"
+#import "MCL/view.h"
+#import "MCL/window.h"
 
 #import <Cocoa/Cocoa.h>
 #include <stdio.h>

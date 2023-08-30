@@ -1,9 +1,9 @@
 #import <Cocoa/Cocoa.h>
 #import <CoreGraphics/CoreGraphics.h>
 
-#include "defs.h"
-#import "view.h"
-#import "shapes.h"
+#include "MCL/defs.h"
+#import "MCL/shapes.h"
+#import "MCL/view.h"
 
 int shapeID = 0;
 

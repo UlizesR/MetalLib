@@ -1,10 +1,4 @@
-#include <defs.h>
-#include <delegate.h>
-#include <window.h>
-#include <view.h>
-#include <colors.h>
-#include <shapes.h>
-
+#include <MCL/MCL.h>
 #include <stdbool.h>
 #include <stdio.h>
 

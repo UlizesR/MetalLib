@@ -1,38 +1,51 @@
 cmake_minimum_required(VERSION 3.10)
-project(MIA_API)
+project(MCL_API LANGUAGES C OBJC)
+
+if(NOT APPLE)
+    message(FATAL_ERROR "Cannot install library, Apple device required")
+    return()
+endif()
 
 # Set the C standard to C11
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_OBJC_STANDARD 11) # or another version
 
-# Add the include directories
-include_directories(MIA/include)
-
 # Combine C and Objective-C sources
 set(SOURCES 
-    MIA/src/delegate.m
-    MIA/src/window.m
-    MIA/src/init.m
-    MIA/src/devices.m
-    MIA/src/view.m
-    MIA/src/events.m
-    MIA/src/text.m
-    MIA/src/Gui/buttons.m
-    MIA/src/Gui/sliders.m
-    MIA/src/Gui/tables.m
+    MCL/src/delegate.m
+    MCL/src/window.m
+    MCL/src/view.m
+    MCL/src/shapes.m
 )
 
 # Create the library
-add_library(MIA STATIC ${SOURCES})
+add_library(MCL STATIC ${SOURCES})
+
+# Specify the include directories
+target_include_directories(MCL PUBLIC 
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/MCL/include>
+    $<INSTALL_INTERFACE:include>
+)
 
 # Link the necessary frameworks
-target_link_libraries(MIA "-framework Cocoa" objc)
+target_link_libraries(MCL "-framework Cocoa" objc)
 
 # Set the install location for the library
-install(TARGETS MIA
-        ARCHIVE DESTINATION /opt/homebrew/lib)
+install(TARGETS MCL
+        EXPORT MCLTargets
+        ARCHIVE DESTINATION lib
+        PUBLIC_HEADER DESTINATION include/MCL
+)
 
 # Set the install location for the header files
-install(DIRECTORY MIA/include/MIA/
-        DESTINATION /opt/homebrew/include/MIA
-        FILES_MATCHING PATTERN "*.h")
+install(DIRECTORY MCL/include/MCL/
+        DESTINATION include/MCL
+        FILES_MATCHING PATTERN "*.h"
+)
+
+# Create an export file
+install(EXPORT MCLTargets
+    FILE MCLTargets.cmake
+    NAMESPACE MCL::
+    DESTINATION lib/cmake/MCL
+)
