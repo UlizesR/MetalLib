@@ -9,6 +9,7 @@ endif()
 # Set the C standard to C11
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_OBJC_STANDARD 11) # or another version
+set(CMAKE_CXX_STANDARD 11) # or another version
 
 # Combine C and Objective-C sources
 set(SOURCES 
