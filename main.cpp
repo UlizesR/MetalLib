@@ -7,6 +7,8 @@
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 600
 
+
+
 int main() {
   if (M_Init(0) != 0) {
     fprintf(stderr, "Error: M_Init() failed\n");
