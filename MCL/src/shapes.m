@@ -62,18 +62,28 @@ M_Point* M_CreatePoint(float x, float y, M_Color color)
 }
 
 void M_DrawPoint(M_View *p_view, M_Point *point) {
-    // Check if point is NULL
-    if (!point) {
-        printf("ERROR: point is NULL.\n");
-        return;
-    }
-    M_NSView *nsView = (__bridge M_NSView *)p_view->_this;
-    // Draw the point
-    CGContextRef context = [[NSGraphicsContext currentContext] CGContext];
-    CGContextSetRGBFillColor(context, point->color.r, point->color.g,point->color.b, point->color.a);
-    CGContextFillRect(context, CGRectMake(point->position.x, point->position.y, 1, 1));
-    // Request a redraw
-    [nsView setNeedsDisplay:YES];
+  // Check if point is NULL
+  if (!point) {
+    printf("ERROR: point is NULL.\n");
+    return;
+  }
+  M_NSView *nsView = (__bridge M_NSView *)p_view->_this;
+  // Create the path for the rectangle
+  CGMutablePathRef path = CGPathCreateMutable();
+  CGPathAddRect(path, NULL,
+                CGRectMake(point->position.x, point->position.y, 1, 1));
+  DrawableShape *shape = [[DrawableShape alloc] init];
+  shape.path = path;
+  shape.color = point->color;
+  shape.filled = YES;
+  shape.id = point->base.id;
+  // Add the shape to the list of shapes
+  if (!nsView.shapes) {
+    nsView.shapes = [NSMutableArray array];
+  }
+  [nsView.shapes addObject:shape];
+  // Request a redraw
+  [nsView setNeedsDisplay:YES];
 }
 
 M_Line* M_CreateLine(MFPoint init_pos, MFPoint end_pos, float line_width, M_Color color)
