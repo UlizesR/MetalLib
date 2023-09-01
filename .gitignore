@@ -4,19 +4,4 @@ __pycache__
 
 .o
 build/
-ma/
-
-todolist0.txt
-examples/gui/*.dSYM/
-
-maca/
-mia/
-
-AppDelegate.h
-AppDelegate.m
-build.sh
-main.m
-metal-test
-metal.h
-metal.m
-library.metal
+example/
