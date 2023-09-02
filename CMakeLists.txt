@@ -16,7 +16,9 @@ set(SOURCES
     MCL/src/delegate.m
     MCL/src/window.m
     MCL/src/view.m
-    MCL/src/shapes.m
+    MCL/src/metal.m
+    MCL/src/events.m
+    MCL/src/shaders.metal
 )
 
 # Create the library
@@ -26,10 +28,13 @@ add_library(MCL STATIC ${SOURCES})
 target_include_directories(MCL PUBLIC 
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/MCL/include>
     $<INSTALL_INTERFACE:include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/MCL/src>   # Add this line
 )
 
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/MCL/src/shaders.metal ${CMAKE_CURRENT_BINARY_DIR}/shaders.metal COPYONLY)
+
 # Link the necessary frameworks
-target_link_libraries(MCL "-framework Cocoa" objc)
+target_link_libraries(MCL "-framework Cocoa" "-framework Metal" "-framework Metalkit" objc)
 
 # Set the install location for the library
 install(TARGETS MCL

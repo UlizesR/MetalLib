@@ -1,12 +1,16 @@
 // M_events.m
 #import "MCL/events.h"
+
 #import <Cocoa/Cocoa.h>
+#import <MetalKit/MetalKit.h>
+#import <Metal/Metal.h>
 
 int M_PollEvent(M_Event *event) {
   NSEvent *nsEvent = [NSApp nextEventMatchingMask:NSEventMaskAny
                                         untilDate:[NSDate distantPast]
                                            inMode:NSDefaultRunLoopMode
                                           dequeue:YES];
+
   if (nsEvent == nil) {
     return 0;
   }

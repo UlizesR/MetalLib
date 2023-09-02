@@ -15,10 +15,8 @@
 @property(strong) id<MTLBuffer> _vertexBuffer;
 @property(strong) id<MTLBuffer> _uniformBuffer;
 @property(strong) id<MTLCommandQueue> _commandQueue;
-@end
-
-@interface M_MView : MTKView
-@property(strong) MTK_Renderer *_delegate;
+@property(strong) id<MTLRenderCommandEncoder> _renderEncoder;
+@property(strong) MTKView *_view;
 @end
 
 #endif
@@ -27,19 +25,29 @@
 extern "C" {
 #endif
 
+typedef struct MTKShape {
+  MFPoint *vertices;
+  int count;
+  M_Color color;
+} MTKShape;
+
 typedef struct M_Renderer {
-#ifdef __OBJC__
-    MTK_Renderer *_delegate;
-    M_MView *_view;
-#endif
-  void *_this; // C/C++ pointer to this struct _delegate
+    #ifdef __OBJC__
+    MTK_Renderer *_renderer;
+    MTKView *_mview;
+    #endif
+    void *_device;
+    void *_delegate;
+    void *_view;
 } M_Renderer;
 
-void M_Renderer_init(M_Renderer *renderer, M_Window *window);
+M_Renderer *M_Renderer_init(M_Window *window);
 
 void M_Renderer_destroy(M_Renderer *renderer);
 
 void M_Renderer_Clear(M_Renderer *renderer, M_Color color);
+
+void drawTriangle(M_Renderer *renderer, MFPoint vertices[], M_Color color);
 
 #ifdef __cplusplus
 }

@@ -32,6 +32,8 @@ typedef struct M_View M_View;       // The view
 
 typedef struct M_Window M_Window;     // window for apps
 
+typedef struct MTKShape MTKShape;
+
 #ifdef __cplusplus
 }
 #endif
