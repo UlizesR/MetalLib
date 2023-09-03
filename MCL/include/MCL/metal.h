@@ -25,12 +25,6 @@
 extern "C" {
 #endif
 
-typedef struct MTKShape {
-  MFPoint *vertices;
-  int count;
-  M_Color color;
-} MTKShape;
-
 typedef struct M_Renderer {
     #ifdef __OBJC__
     MTK_Renderer *_renderer;
@@ -47,7 +41,15 @@ void M_Renderer_destroy(M_Renderer *renderer);
 
 void M_Renderer_Clear(M_Renderer *renderer, M_Color color);
 
+void drawLine(M_Renderer *renderer, MFPoint vertices[], M_Color color);
+
 void drawTriangle(M_Renderer *renderer, MFPoint vertices[], M_Color color);
+
+void drawQuad(M_Renderer *renderer, MFPoint vertices[], M_Color color);
+
+void drawPolygon(M_Renderer *renderer, MFPoint vertices[], int n, M_Color color);
+
+void drawCircle(M_Renderer *renderer, MFPoint center, float radius, M_Color color);
 
 #ifdef __cplusplus
 }

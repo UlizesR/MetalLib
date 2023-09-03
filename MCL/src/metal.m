@@ -149,28 +149,30 @@ void M_Renderer_destroy(M_Renderer *renderer)
 }
 
 void M_Renderer_Clear(M_Renderer *renderer, M_Color color) {
-  MTKView *view = (__bridge MTKView *)(renderer->_view);
-  if (!view) {
-    fprintf(stderr, "Error: Failed to get MTKView from M_Renderer\n");
-    return;
-  }
-  view.clearColor = MTLClearColorMake(color.r, color.g, color.b, color.a);
-  [renderer->_renderer removeShape];
+    MTKView *view = (__bridge MTKView *)(renderer->_view);
+    if (!view) {
+        fprintf(stderr, "Error: Failed to get MTKView from M_Renderer\n");
+        return;
+    }
+    view.clearColor = MTLClearColorMake(color.r, color.g, color.b, color.a);
+    [renderer->_renderer removeShape];
 }
 
-void drawTriangle(M_Renderer *renderer, MFPoint vertices[], M_Color color) {
-
+void drawLine(M_Renderer *renderer, MFPoint vertices[], M_Color color) {
+  // Create a vertex buffer with the quad vertices
   id<MTLDevice> device = renderer->_renderer._device;
   if (!device) {
     fprintf(stderr, "Error: Failed to get MTLDevice from MTK_Renderer\n");
     return;
   }
-  id<MTLBuffer> vertexBuffer = [device newBufferWithBytes:vertices
-                          length:3 * sizeof(MFPoint)
+  id<MTLBuffer> vertexBuffer =
+      [device newBufferWithBytes:vertices
+                          length:2 * sizeof(MFPoint)
                          options:MTLResourceCPUCacheModeDefaultCache];
 
   // Create a render pass descriptor
-  MTLRenderPassDescriptor *renderPassDescriptor = renderer->_mview.currentRenderPassDescriptor;
+  MTLRenderPassDescriptor *renderPassDescriptor =
+      renderer->_mview.currentRenderPassDescriptor;
   if (renderPassDescriptor) {
     id<MTLCommandBuffer> commandBuffer = [renderer->_renderer._commandQueue commandBuffer];
 
@@ -180,9 +182,9 @@ void drawTriangle(M_Renderer *renderer, MFPoint vertices[], M_Color color) {
     [commandEncoder setRenderPipelineState:renderer->_renderer._pipelineState];
     [commandEncoder setVertexBuffer:vertexBuffer offset:0 atIndex:0];
     [commandEncoder setVertexBytes:&color length:sizeof(M_Color) atIndex:1];
-    [commandEncoder drawPrimitives:MTLPrimitiveTypeTriangle
+    [commandEncoder drawPrimitives:MTLPrimitiveTypeTriangleStrip
                        vertexStart:0
-                       vertexCount:3];
+                       vertexCount:2];
     [commandEncoder endEncoding];
 
     // Get the drawable that will be presented at the end of the frame
