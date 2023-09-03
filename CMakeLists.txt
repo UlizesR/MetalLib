@@ -19,6 +19,7 @@ set(SOURCES
     MCL/src/metal.m
     MCL/src/events.m
     MCL/src/shaders.metal
+    MCL/src/sys_info.m
 )
 
 # Create the library

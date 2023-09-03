@@ -1,22 +1,27 @@
-✔ Create a Delegate @done(23-08-15 22:14)
-✔ Create a Window @done(23-08-15 22:14)
-✔ Get Display Devices data @done(23-08-16 01:13)
-✔ Create Frames(Views) @done(23-08-16 01:44)
-☐ Create GUI Elements
-    ☐ Buttons
-    ☐ Sliders
-    ☐ Text Input
+App 
+    ☐ Create App Delegate
+    ☐ Create Window
+    ☐ Create Views (Frames)
+    ☐ Handle Input Events
 
-☐ Create Layouts
-    ☐ Grid Layout
-    ☐ Horizontal Layout
-    ☐ Vertical Layout
+GUI Elements
+    ☐ Create Buttons
+        ☐ Checkboxes
+        ☐ Radio Buttons
+        ☐     
+    ☐ Create Labels
+    ☐ Create Text Fields
+    ☐ Create Sliders
+    ☐ Create Progress Bars
+    ☐ Create Menus
+    ☐ Create Tabs
 
-☐ Render Basic Graphics
-    ☐ Text
-    ☐ Images
-    ☐ Shapes
-    
-☐ Handle Events
+Graphics
+    ☐ Set up Metal
+    ☐ Set up a Renderer
+    ☐ Render 2D Shapes
+    ☐ Render 3D Objects
 
-☐ Set up for iOS
+System
+
+Audio
