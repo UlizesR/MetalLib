@@ -14,12 +14,10 @@ set(CMAKE_CXX_STANDARD 11) # or another version
 # Combine C and Objective-C sources
 set(SOURCES 
     MCL/src/delegate.m
-    MCL/src/window.m
-    MCL/src/view.m
-    MCL/src/metal.m
-    MCL/src/events.m
-    MCL/src/shaders.metal
-    MCL/src/sys_info.m
+    MCL/src/mcl_sys/sys_info.m
+    MCL/src/mcl_sys/cpu.m
+    MCL/src/mcl_sys/memory.m
+    MCL/src/mcl_sys/gpu.m
 )
 
 # Create the library
@@ -29,10 +27,11 @@ add_library(MCL STATIC ${SOURCES})
 target_include_directories(MCL PUBLIC 
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/MCL/include>
     $<INSTALL_INTERFACE:include>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/MCL/src>   # Add this line
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/MCL/src>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/MCL/include/MCL> # Add this line
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/MCL/include/MCL/*> # Add this line
 )
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/MCL/src/shaders.metal ${CMAKE_CURRENT_BINARY_DIR}/shaders.metal COPYONLY)
 
 # Link the necessary frameworks
 target_link_libraries(MCL "-framework Cocoa" "-framework Metal" "-framework Metalkit" objc)
