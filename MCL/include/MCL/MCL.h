@@ -9,6 +9,7 @@
 #define _mcl_h_
 
 #include "delegate.h"
+#include "events.h"
 
 #include "./mcl_sys/sys_info.h"
 #include "./mcl_sys/gpu.h"
