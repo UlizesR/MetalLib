@@ -35,7 +35,7 @@ typedef struct MCL_State {
     const char* app_description;
 
     M_Window* main_window;
-    
+
 
     #ifdef __OBJC__
     M_Delegate* delegate;
@@ -57,7 +57,7 @@ void terminateDelegate();
     @param flags: the flags to initialize the library with
     @return: 0 on success, -1 on failure
 */
-int M_Init(uint32_t flags);
+int M_Init();
 
 /*!
     Quits the MACA library.

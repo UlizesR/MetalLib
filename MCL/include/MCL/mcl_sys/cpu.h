@@ -8,6 +8,8 @@
 #ifndef _mcl_cpu_h_
 #define _mcl_cpu_h_
 
+#include <mach/mach_host.h>
+
 #ifdef __OBJC__
 #import <Cocoa/Cocoa.h>
 
@@ -17,7 +19,16 @@
 extern "C" {
 #endif
 
-double M_GetCPU();
+void MCL_CPUInfo();
+
+/*
+    CPU Info related to the app itself
+*/
+void MCL_GetAppCPUUsage(double *usage);
+
+/*
+    CPU Info related to the system
+*/
 
 
 #ifdef __cplusplus
