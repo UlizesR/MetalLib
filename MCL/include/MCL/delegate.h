@@ -1,6 +1,6 @@
 /*
     File:   delegate.h
-    About: 
+    About:
         The delegate header file for MCL.
         Contains the delegate and its functions for the MCL application.
 */
@@ -28,41 +28,37 @@
 extern "C" {
 #endif
 
-typedef struct MCL_State {
-    const char* app_name;
-    const char* app_version;
-    const char* app_author;
-    const char* app_description;
+typedef struct MCL_AppInfo {
+    const char *name;
+    const char *version;
+    const char *author;
+    const char *description;
+} MCL_AppInfo;
 
-    M_Window* main_window;
-
+typedef struct MCL_App {
+    MCL_AppInfo app_info;
+    M_Window *main_window;
+    
 
     #ifdef __OBJC__
-    M_Delegate* delegate;
+    M_Delegate *delegate;
     #endif
-} MCL_State;
+} MCL_App;
+
+/*!
+    Initializes the delegate
+*/
+void MCL_InitApp(MCL_App *state);
 
 /*!
     The run loop for the app
 */
-void runDelegate();
+void MCL_RunApp();
 
 /*
     Terminates the delegate
 */
-void terminateDelegate();
-
-/*!
-    Initializes the MCL library.
-    @param flags: the flags to initialize the library with
-    @return: 0 on success, -1 on failure
-*/
-int M_Init();
-
-/*!
-    Quits the MACA library.
-*/
-void M_Quit();
+void MCL_TerminateApp();
 
 #ifdef __cplusplus
 }

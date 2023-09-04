@@ -8,7 +8,7 @@
 #ifndef _mcl_gpu_h_
 #define _mcl_gpu_h_
 
-typedef struct M_VDevice M_VDevice;
+typedef struct MCL_VDevice MCL_VDevice;
 
 #ifdef __OBJC__
 #import <Cocoa/Cocoa.h>
@@ -35,7 +35,7 @@ extern "C" {
 
 
 // The Video Device Info
-struct M_VDevice {
+struct MCL_VDevice {
   const char *name; // The name of the device
   void *device;     // The device
   int id;           // The id of the device
@@ -45,35 +45,40 @@ struct M_VDevice {
 };
 
 // The list of devices
-typedef struct M_VDeviceList {
-  M_VDevice *devices; // The list of devices
+typedef struct MCL_VDeviceList {
+  MCL_VDevice *devices; // The list of devices
   int count;          // The number of devices
-} M_VDeviceList;
+} MCL_VDeviceList;
 
 /*
     Returns the number of devices
 */
-int M_GetVDeviceCount();
+int MCL_GetVDeviceCount();
 
 /*
     Returns the list of devices
 */
-M_VDeviceList M_GetVDevices();
+MCL_VDeviceList MCL_GetVDevices();
 
 /*
     Returns the device with the given id
 */
-M_VDevice *M_SetVDevice(int id);
+MCL_VDevice *MCL_SetVDevice(int id);
+
+/*
+    prints the device info
+*/
+void MCL_VDeviceInfo();
 
 /*
     Returns the default device of the system
 */
-M_VDevice *M_GetVDevice();
+MCL_VDevice *MCL_GetVDevice();
 
 /*
     Destroys the given device
 */
-void M_DestroyVDevice(M_VDevice *device);
+void MCL_DestroyVDevice(MCL_VDevice *device);
 
 #ifdef __cplusplus
 }

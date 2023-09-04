@@ -1,4 +1,6 @@
 #import "MCL/mcl_sys/gpu.h"
+#include <objc/objc.h>
+#include <stdio.h>
 
 // Get the OBJ-C Frameworks
 #include <Foundation/Foundation.h>
@@ -64,21 +66,21 @@
 
 @end
 
-int M_GetVDeviceCount()
+int MCL_GetVDeviceCount()
 {
     NSArray<id<MTLDevice>> *devices = MTLCopyAllDevices();
     return (int)devices.count;
 }
 
-M_VDeviceList M_GetVDevices() {
+MCL_VDeviceList MCL_GetVDevices() {
     // Get the devices
     NSArray<id<MTLDevice>> *devices = MTLCopyAllDevices();
-    M_VDeviceList deviceList;
+    MCL_VDeviceList deviceList;
     // Allocate memory for the device list
-    deviceList.devices = (M_VDevice *)malloc(sizeof(M_VDevice) * devices.count);
+    deviceList.devices = (MCL_VDevice *)malloc(sizeof(MCL_VDevice) * devices.count);
     // Check if the allocation was successful
     if (!deviceList.devices) {
-        fprintf(stderr, "Error: Failed to allocate memory for M_VDeviceList\n");
+        fprintf(stderr, "Error: Failed to allocate memory for MCL_VDeviceList\n");
         return deviceList;
     }
     // Set the device list's devices
@@ -93,11 +95,11 @@ M_VDeviceList M_GetVDevices() {
     return deviceList;
 }
 
-M_VDevice *M_SetVDevice(int id) {
+MCL_VDevice *MCL_SetVDevice(int id) {
     // Allocate memory for the device and check if the allocation was successful
-    M_VDevice *device = (M_VDevice *)malloc(sizeof(M_VDevice));
+    MCL_VDevice *device = (MCL_VDevice *)malloc(sizeof(MCL_VDevice));
     if (!device) {
-        fprintf(stderr, "Error: Failed to allocate memory for M_VDevice\n");
+        fprintf(stderr, "Error: Failed to allocate memory for MCL_VDevice\n");
         return NULL;
     }
     // Initialize the device
@@ -115,30 +117,56 @@ M_VDevice *M_SetVDevice(int id) {
     return device;
 }
 
-M_VDevice *M_GetVDevice()
+void MCL_VDeviceInfo()
 {
-    // Allocate memory for the device and check if the allocation was successful
-    M_VDevice *device = (M_VDevice *)malloc(sizeof(M_VDevice));
-    if (!device) {
-        fprintf(stderr, "Error: Failed to allocate memory for M_VDevice\n");
-        return NULL;
+    NSArray<id<MTLDevice>> *devices = MTLCopyAllDevices();
+    for (id<MTLDevice> device in devices)
+    {
+        printf("(GPU) Video Device Name: %s\n", device.name.UTF8String);
+        printf("(GPU) Video Device Low Power: %s\n", device.lowPower ? "true" : "false");
+        printf("(GPU) Video Device Headless: %s\n", device.headless ? "true" : "false");
+        printf("(GPU) Video Device Registry ID: %llu\n", device.registryID);
+        // printf("(GPU) Video Device Max Threads Per Threadgroup: %llu\n", device.maxThreadsPerThreadgroup);
+        printf("(GPU) Video Device Max Threadgroup Memory Length: %lu\n", (unsigned long)device.maxThreadgroupMemoryLength);
+        printf("(GPU) Video Device Max Argument Buffer Sampler Count: %lu\n", (unsigned long)device.maxArgumentBufferSamplerCount);
+        printf("(GPU) Video Device Metal Max Buffer Length: %lu\n", (unsigned long)device.maxBufferLength);
+        printf("(GPU) Video Device Metal Max Threadgroup Memory Length: %lu\n", (unsigned long)device.maxThreadgroupMemoryLength);
+        printf("(GPU) Video Device is removable: %s\n", device.removable ? "true" : "false");
+
+        if ([device location] == MTLDeviceLocationBuiltIn) {
+          printf("(GPU) Video Device location: Built In\n");
+        } else if ([device location] == MTLDeviceLocationExternal) {
+          printf("(GPU) Video Device location: External\n");
+        } else {
+          printf("(GPU) Video Device location: Unknown\n");
+        }
+        printf("(GPU) Video Device location ID: %li\n", device.locationNumber);
     }
-    // Initialize the device
-    MVDevice *vdevice = [[MVDevice alloc] initDefaultDevice];
-    // Check if the initialization was successful
-    if (!vdevice) {
-        fprintf(stderr, "Error: Failed to initialize MVDevice\n");
-        return NULL;
-    }
-    // Set the device's properties
-    device->device = (__bridge void *)vdevice;
-    device->_device = vdevice;
-    device->id = vdevice.id;
-    device->name = [vdevice.name UTF8String];
-    return device;
 }
 
-void M_DestroyVDevice(M_VDevice *device)
+MCL_VDevice *MCL_GetVDevice() {
+  // Allocate memory for the device and check if the allocation was successful
+  MCL_VDevice *device = (MCL_VDevice *)malloc(sizeof(MCL_VDevice));
+  if (!device) {
+    fprintf(stderr, "Error: Failed to allocate memory for MCL_VDevice\n");
+    return NULL;
+  }
+  // Initialize the device
+  MVDevice *vdevice = [[MVDevice alloc] initDefaultDevice];
+  // Check if the initialization was successful
+  if (!vdevice) {
+    fprintf(stderr, "Error: Failed to initialize MVDevice\n");
+    return NULL;
+  }
+  // Set the device's properties
+  device->device = (__bridge void *)vdevice;
+  device->_device = vdevice;
+  device->id = vdevice.id;
+  device->name = [vdevice.name UTF8String];
+  return device;
+}
+
+void MCL_DestroyVDevice(MCL_VDevice *device)
 {
     free(device);
 }
