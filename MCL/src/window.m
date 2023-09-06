@@ -67,8 +67,35 @@ void MCL_AppWindow(MCL_App *app, int width, int height, const char *title)
 // TODO: Implement this function
 // MCL_Window *MCL_ChildWindow(MCL_Window *parent, int width, int height, const char *title) {}
 
-void MCL_CloseWindow(MCL_Window *window)
+void MCL_WindowHints(MCL_Window *window, uint32_t flags)
 {
+    // check if the window is not null
+    if (!window)
+    {
+        fprintf(stderr, "Failed to set the window hints! The window is null!\n");
+        return;
+    }
+    // get the ns window
+    NSWindow *nsWindow = (__bridge NSWindow *)(window->_this);
+    // set the window hints
+    // Set the window flags
+    if (flags & MCL_WINDOW_FULLSCREEN) {
+        if (flags & (MCL_WINDOW_MINIMIZED | MCL_WINDOW_RESIZABLE)) 
+        {
+            fprintf(stderr, "Error: Cannot set window to be both resizable and fullscreen\n");
+        }
+        [nsWindow setStyleMask:[nsWindow styleMask] | NSWindowStyleMaskFullScreen];
+    }
+    if (flags & MCL_WINDOW_RESIZABLE) {
+        [nsWindow setStyleMask:[nsWindow styleMask] | NSWindowStyleMaskResizable];
+        [nsWindow setMinSize:nsWindow.frame.size];
+    }
+    if (flags & MCL_WINDOW_MINIMIZED) {
+        [nsWindow setStyleMask:[nsWindow styleMask] | NSWindowStyleMaskMiniaturizable];
+    }
+}
+
+void MCL_CloseWindow(MCL_Window *window) {
     // check if the window is NULL
     if (window == NULL) {
         fprintf(stderr, "Error: Cannot close a NULL window\n");
