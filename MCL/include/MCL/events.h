@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _mcl_events_h_
+#define _mcl_events_h_
 
 #include <stdint.h>
 
@@ -107,3 +108,4 @@ void MCL_PollEvents(MCL_Event *event);
 }
 #endif
 
+#endif // _mcl_events_h_
