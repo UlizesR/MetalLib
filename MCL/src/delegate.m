@@ -39,12 +39,21 @@ int MCL_InitApp(MCL_App *app)
 {
     // initialize the app
     app->nsApp = [NSApplication sharedApplication];
-    MCL_ERROR_LOCATION(app->nsApp ? 1 : 0, "Failed to initialize the App!")
+    if (!app->nsApp) {
+        fprintf(stderr, "Failed to initialize the App!\n");
+        return MCL_FAILURE;
+    }
     // initialize the app delegate
     [[M_Delegate alloc] initWithapp:app];
-    MCL_ERROR_LOCATION(app->nsDelegate ? 1 : 0, "Failed to initialize the App Delegate!")
+    if (!app->nsDelegate) {
+        fprintf(stderr, "Failed to initialize the App Delegate!\n");
+        return MCL_FAILURE;
+    }
     // set the app delegate
     [app->nsApp setDelegate:app->nsDelegate];
+    // set the app activation policy
+    [app->nsApp setActivationPolicy:NSApplicationActivationPolicyRegular];
+    [app->nsApp activateIgnoringOtherApps:YES];
     // set the app to initialized
     app->is_init = YES;
     // if everything went well, return MCL_SUCCESS

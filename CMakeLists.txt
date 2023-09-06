@@ -14,6 +14,7 @@ set(CMAKE_CXX_STANDARD 11) # or another version
 # Combine C and Objective-C sources
 set(SOURCES 
     MCL/src/delegate.m
+    MCL/src/window.m
     MCL/src/events.m
     MCL/src/mcl_sys/sys_info.m
     MCL/src/mcl_sys/cpu.m

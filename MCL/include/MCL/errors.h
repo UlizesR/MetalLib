@@ -10,14 +10,13 @@ extern "C" {
 #endif
 
 #define MCL_SUCCESS 0
-#define MCL_ERROR 1
+#define MCL_FAILURE 1
 
 #define MCL_ERROR_LOCATION(ERROR, FORMAT, ...)                                       \
 {                                                                                \
     if (ERROR) {                                                                 \
         fprintf(stderr, "%s -> %s -> %i -> Error(%i):\n\t" FORMAT "\n",          \
               __FILE_NAME__, __FUNCTION__, __LINE__, ERROR, ##__VA_ARGS__);      \
-        return MCL_ERROR;                                                        \
     }                                                                            \
 }
 

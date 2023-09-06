@@ -38,7 +38,7 @@ typedef struct MCL_AppInfo {
     const char *description;        // The description of the app
 } MCL_AppInfo;
 
-typedef struct MCL_App {
+struct MCL_App {
     MCL_AppInfo app_info;           // Information about the app
     MCL_Window *app_window;         // The main window
     MCL_VDevice *device;            // The device the app can use
@@ -52,7 +52,7 @@ typedef struct MCL_App {
     M_Delegate *nsDelegate;         // The delegate for the app (Objective-C)
     NSApplication *nsApp;           // The app (Objective-C)
     #endif
-} MCL_App;
+};
 
 /*!
     @brief Initializes the delegate for the app

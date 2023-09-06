@@ -5,7 +5,9 @@
 extern "C" {
 #endif
 
-typedef struct MCL_View MCL_View;       // The view 
+typedef struct MCL_App MCL_App;           // The app
+
+typedef struct MCL_Frame MCL_Frame;         // The view
 
 typedef struct MCL_Window MCL_Window;     // window for apps
 

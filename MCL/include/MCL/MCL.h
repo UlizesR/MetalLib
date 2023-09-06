@@ -12,6 +12,7 @@
 #include "events.h"
 #include "defs.h"
 #include "colors.h"
+#include "window.h"
 
 #include "./mcl_sys/sys_info.h"
 #include "./mcl_sys/gpu.h"
