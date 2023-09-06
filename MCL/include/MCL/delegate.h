@@ -9,6 +9,10 @@
 #define _mcl_delegate_h_
 
 #include "defs.h"
+#include "mcl_sys/sys_info.h"
+#include "mcl_sys/gpu.h"
+
+#define MCL_APP_VERSION(major, minor, patch) #major "." #minor "." #patch
 
 #ifdef __OBJC__
 
@@ -16,8 +20,7 @@
 
 @interface M_Delegate : NSObject <NSApplicationDelegate>
 
-@property(nonatomic, strong) NSWindow *main_window;
-@property(nonatomic, strong) NSView *main_view;
+@property(nonatomic, strong) NSWindow *app_window;
 @property(strong) NSMutableArray<NSWindow *> *child_windows;
 
 @end
@@ -29,36 +32,45 @@ extern "C" {
 #endif
 
 typedef struct MCL_AppInfo {
-    const char *name;
-    const char *version;
-    const char *author;
-    const char *description;
+    const char *name;               // The name of the app
+    const char *version;            // The version of the app
+    const char *author;             // The author of the app
+    const char *description;        // The description of the app
 } MCL_AppInfo;
 
 typedef struct MCL_App {
-    MCL_AppInfo app_info;
-    M_Window *main_window;
-    
+    MCL_AppInfo app_info;           // Information about the app
+    MCL_Window *app_window;         // The main window
+    MCL_VDevice *device;            // The device the app can use
 
     #ifdef __OBJC__
-    M_Delegate *delegate;
+    /*
+        This is use for the Objective-C files.
+        This way, we don't have to translate the C structs to Objective-C objects.
+    */
+    BOOL is_init;
+    M_Delegate *nsDelegate;         // The delegate for the app (Objective-C)
+    NSApplication *nsApp;           // The app (Objective-C)
     #endif
 } MCL_App;
 
 /*!
-    Initializes the delegate
+    @brief Initializes the delegate for the app
+    @param app: the app to initialize the delegate for
 */
-void MCL_InitApp(MCL_App *state);
+int MCL_InitApp(MCL_App *app);
 
 /*!
-    The run loop for the app
+    @brief Runs the delegate
+    @param app: the app to run the delegate for
 */
-void MCL_RunApp();
+void MCL_RunApp(MCL_App *app);
 
-/*
-    Terminates the delegate
+/*!
+    @brief Terminates the delegate
+    @param app: the app to terminate the delegate for
 */
-void MCL_TerminateApp();
+void MCL_TerminateApp(MCL_App *app);
 
 #ifdef __cplusplus
 }

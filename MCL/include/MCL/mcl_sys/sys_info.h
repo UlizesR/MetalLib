@@ -8,7 +8,6 @@
 #ifndef _mcl_sys_info_h_
 #define _mcl_sys_info_h_
 
-#include "../include/MCL/defs.h"
 #include "cpu.h"
 #include "gpu.h"
 #include "memory.h"
@@ -35,6 +34,7 @@ typedef enum MCL_SysInfoflags {
 void MCL_SysInfo(uint32_t);
 
 void MCL_OSInfo();
+
 
 #ifdef __cplusplus
 }
