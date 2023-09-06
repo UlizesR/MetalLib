@@ -3,7 +3,7 @@
 ## About
 
 A C wrapper api that acts something similar to the Window's API (window.h)
-It's meant to allow macOS and iOS development using C/C++ instead of just using Objectice-C or Swift.
+It's meant to allow macOS development using C/C++ instead of just using Objectice-C or Swift.
 For those of us who like to use C and C++ that is.
 
 ## Tools and Technologies
@@ -17,43 +17,70 @@ For those of us who like to use C and C++ that is.
 
 * Cocoa
 
-## How to
+## How to use the MCL Library
 
-Setting up basic window and views
+Getting an app window going
 
-```C
+1. Include the MCL library
+```C++
 #include <MCL/MCL.h>
+```
 
-#include <stdio.h>
-#include <stdbool.h>
+2. Initilized the app state
+   
+```C++
+MCL_App app = {
+    .app_info = {
+        .name = "Example App",
+        .version = MCL_APP_VERSION(1, 0, 0),
+        .author = "me",
+        .description = "An example app",
+    },
+    .app_window = NULL,
+    .device = NULL,
+};
+```
 
-int main()
+3. Initialize the App itself
+
+```C++
+if(MCL_InitApp(&app) != 0)
 {
-    if(M_Init(0) != 0)
-    {
-        fprintf(stderr, "Error: M_Init() failed\n");
-        return 1;
-    }
-
-    M_Window* window = M_CreateWindow(800, 600, true, "MCL Window", M_WINDOW_RESIZABLE | M_WINDOW_MINIMIZED);
-    if(window == NULL)
-    {
-        fprintf(stderr, "Error: M_CreateWindow() failed\n");
-        M_Quit();
-        return 1;
-    }
-    M_AddContentView(window, M_COLOR_CYAN_8);
-    M_View *subview = M_AddSubView(window->content_view, 300, 250, 100, 100, 10, false, M_COLOR_RED_8);
-
-    while(M_IsWindowOpen(window))
-    {
-        runDelegate();
-    }
-
-    M_DestroyView(subview);
-    M_DestroyWindow(window);    
-    M_Quit();
-
-    return 0;
+    fprintf(stderr, "Failed to initialize app\n");
+    return 1;
 }
+```
+
+5. Create the app's main window
+   
+```C++
+MCL_AppWindow(&app, WINDOW_WIDTH, WINDOW_HEIGHT, app.app_info.name);
+```
+
+6. Add the run loop for the app
+
+```C++
+MCL_RunApp(&app);
+```
+
+or if you want to handle input events (for games or something)
+
+```C++
+bool is_running = true;
+MCL_Event event;
+while(MCL_IsWindowOpen(app.app_window) && is_running)
+{
+    MCL_PollEvents(&event);
+    if (event.type == MCL_KEYBOARDEVENT && event.keycode == MCL_KEY_ESCAPE) 
+    {
+        is_running = false;
+    }
+} 
+```
+
+7. Deallocate the window and terminate the app
+   
+```C++
+MCL_DestroyWindow(app.app_window);
+MCL_TerminateApp(&app);
 ```
