@@ -4,5 +4,5 @@ __pycache__
 
 .o
 build/
-example/
+test/
 old_ver/

@@ -101,7 +101,7 @@ typedef struct {
     @param event: the event to poll
     @return: 0 on success, -1 on failure
 */
-int MCL_PollEvent(MCL_Event *event);
+void MCL_PollEvents(MCL_Event *event);
 
 #ifdef __cplusplus
 }

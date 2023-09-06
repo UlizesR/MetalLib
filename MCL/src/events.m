@@ -9,14 +9,14 @@
 #define MAX_KEYS 256
 static bool keys[MAX_KEYS] = {false};
 
-int MCL_PollEvent(MCL_Event *event) {
+void MCL_PollEvents(MCL_Event *event) {
   NSEvent *nsEvent = [NSApp nextEventMatchingMask:NSEventMaskAny
                                         untilDate:[NSDate distantPast]
                                            inMode:NSDefaultRunLoopMode
                                           dequeue:YES];
 
   if (nsEvent == nil) {
-    return 0;
+    return;
   }
 
   // Process the event
@@ -25,7 +25,6 @@ int MCL_PollEvent(MCL_Event *event) {
     event->type = MCL_KEYBOARDEVENT;
     event->keycode = (MCL_KeyCode)[nsEvent keyCode];
     keys[event->keycode] = true;
-    return 1;
     break;
 
   // Handle key up events
@@ -33,7 +32,6 @@ int MCL_PollEvent(MCL_Event *event) {
     event->type = MCL_KEYBOARDEVENT;
     event->keycode = (MCL_KeyCode)[nsEvent keyCode];
     keys[event->keycode] = false;
-    return 1;
     break;
   case NSEventTypeLeftMouseDown:
     // Handle left mouse button down events
@@ -71,10 +69,8 @@ int MCL_PollEvent(MCL_Event *event) {
     break;
   default:
     // For all other events, send them back to the application
-
     event->type = MCL_NOEVENT;
     break;
   }
   [NSApp sendEvent:nsEvent];
-  return 1;
 }
