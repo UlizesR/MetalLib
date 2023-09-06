@@ -21,6 +21,7 @@ set(SOURCES
     MCL/src/mcl_sys/cpu.m
     MCL/src/mcl_sys/memory.m
     MCL/src/mcl_sys/gpu.m
+    MCL/src/gui/labels.m
 )
 
 # Create the library
