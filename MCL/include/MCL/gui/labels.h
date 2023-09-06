@@ -12,23 +12,26 @@ typedef struct MCL_Label {
     const char *text;       // The text of the label
     const char *font;       // The font of the label
     int x, y;               // The x and y coordinates of the label
+    int width, height;      // The width and height of the label
     int font_size;          // The font size of the label
     MCL_Color color;        // The color of the label
+    void *_this;            // The label itself
 } MCL_Label;    
 
 /*!
     @brief Creates a label and adds it to the frame.
+    Font soze will not equal the label's height.
     @param frame The frame to add the label to.
     @param label The label to add to the frame.
 */
-void MCL_AddLabel(MCL_Frame *frame, MCL_Label label);
+void MCL_AddLabel(MCL_Frame *frame, MCL_Label *label);
 
 /*!
     @brief Removes a label from the frame.
     @param frame The frame to remove the label from.
     @param label The label to remove from the frame.
 */
-void MCL_RemoveLabel(MCL_Frame *frame, MCL_Label label);
+void MCL_RemoveLabel(MCL_Frame *frame, MCL_Label *label);
 
 /*!
     @brief Gets the available fonts on the system.
