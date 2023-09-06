@@ -6,3 +6,5 @@ __pycache__
 build/
 test/
 old_ver/
+metal.m
+metal.h

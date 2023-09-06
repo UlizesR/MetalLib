@@ -1,7 +1,7 @@
 App 
     ✔ Create App Delegate @done(23-09-06 01:02)
     ✔ Create Window @done(23-09-06 01:02)
-    ☐ Create Views (Frames)
+    ✔ Create Views (Frames) @done(23-09-06 02:06)
     ✔ Handle Input Events @done(23-09-06 01:02)
 
 GUI Elements
