@@ -16,6 +16,7 @@ set(SOURCES
     MCL/src/delegate.m
     MCL/src/window.m
     MCL/src/events.m
+    MCL/src/frame.m
     MCL/src/mcl_sys/sys_info.m
     MCL/src/mcl_sys/cpu.m
     MCL/src/mcl_sys/memory.m

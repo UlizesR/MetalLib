@@ -30,7 +30,7 @@ struct MCL_Window {
     uint32_t flags;             // The flags of the window
     MCL_Frame *window_frame;    // The content view of the window
     bool is_main_window;        // Whether this window is the main window or not
-    void *_delegate;                // The window itself
+    void *_this;                // The window itself
 
     MCL_Window *parent;         // The parent window of this window
     MCL_Window **children;      // Pointer to an array of child windows
@@ -75,7 +75,7 @@ void MCL_CloseWindow(MCL_Window *window);
 bool MCL_IsWindowOpen(MCL_Window *window);
 
 /*!
-    @brief Destroys the given window.
+    @brief Destroys the given window. It will also destroy the window's main frame.
     @param window: the window to be destroyed
 */
 void MCL_DestroyWindow(MCL_Window *window);

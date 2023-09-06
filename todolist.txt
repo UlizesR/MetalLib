@@ -1,8 +1,8 @@
 App 
-    ☐ Create App Delegate
-    ☐ Create Window
+    ✔ Create App Delegate @done(23-09-06 01:02)
+    ✔ Create Window @done(23-09-06 01:02)
     ☐ Create Views (Frames)
-    ☐ Handle Input Events
+    ✔ Handle Input Events @done(23-09-06 01:02)
 
 GUI Elements
     ☐ Create Buttons
@@ -23,5 +23,11 @@ Graphics
     ☐ Render 3D Objects
 
 System
+    ✔ Get System Information @done(23-09-06 01:03)
+    ☐ Get System Time and Date
+    ✔ Get GPU Information @done(23-09-06 01:03)
+    ✔ Get CPU Information @done(23-09-06 01:03)
+    ☐ Get RAM Information
+    ☐ Get Storage Information
 
 Audio

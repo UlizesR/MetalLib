@@ -37,6 +37,7 @@ void MCL_AppWindow(MCL_App *app, int width, int height, const char *title)
     app->app_window->id = window_id_counter++;
     app->app_window->flags = 0;
     app->app_window->is_main_window = true;
+    app->app_window->window_frame = NULL;
     app->app_window->parent = NULL;
     app->app_window->children = NULL;
     app->app_window->num_children = 0;
@@ -58,7 +59,7 @@ void MCL_AppWindow(MCL_App *app, int width, int height, const char *title)
     WindowDelegate *wDelegate = [[WindowDelegate alloc] init];
     [app->nsDelegate.app_window setDelegate:wDelegate];
     // window->delegate = (__bridge void *)nsWindow;
-    app->app_window->_delegate = (__bridge void *)nsWindow;
+    app->app_window->_this = (__bridge void *)nsWindow;
     // set the window to visible
     [nsWindow makeKeyAndOrderFront:nil];
 }
@@ -74,7 +75,7 @@ void MCL_CloseWindow(MCL_Window *window)
         return;
     }
     // transform the window pointer to an NSWindow pointer
-    NSWindow *nsWindow = (__bridge NSWindow *)(window->_delegate);
+    NSWindow *nsWindow = (__bridge NSWindow *)(window->_this);
     // close the window
     [nsWindow close];
 }
@@ -89,8 +90,12 @@ void MCL_DestroyWindow(MCL_Window *window)
     // close the window
     MCL_CloseWindow(window);
     // release the window
-    NSWindow *nsWindow = (__bridge NSWindow *)(window->_delegate);
+    NSWindow *nsWindow = (__bridge NSWindow *)(window->_this);
     [nsWindow release];
+    // free the main frame
+    if (window->window_frame != NULL) {
+        free(window->window_frame);
+    }
     // free the window
     free(window);
 }
@@ -100,6 +105,6 @@ bool MCL_IsWindowOpen(MCL_Window *window) {
         fprintf(stderr, "Error: Cannot check if a NULL window is open\n");
         return false;
     }
-    NSWindow *nsWindow = (__bridge NSWindow *)(window->_delegate);
+    NSWindow *nsWindow = (__bridge NSWindow *)(window->_this);
     return [nsWindow isMiniaturized] || [nsWindow isVisible];
 }
