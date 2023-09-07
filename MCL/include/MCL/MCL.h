@@ -17,6 +17,7 @@
 
 // GUI
 #include "./gui/labels.h"
+#include "./gui/textbox.h"
 
 // System
 #include "./mcl_sys/sys_info.h"

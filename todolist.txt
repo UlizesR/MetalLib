@@ -10,7 +10,7 @@ GUI Elements
         ☐ Radio Buttons
         ☐     
     ✔ Create Labels @done(23-09-06 03:29)
-    ☐ Create Text Fields
+    ✔ Create Text box @done(23-09-06 20:28)
     ☐ Create Sliders
     ☐ Create Progress Bars
     ☐ Create Menus
