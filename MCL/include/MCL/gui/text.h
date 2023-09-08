@@ -8,13 +8,24 @@
 extern "C" {
 #endif
 
-typedef struct MText_s
+typedef struct MCL_Text_S
 {
     int w, h;
-} MText_s;
+} MCL_Text_S;
+
+typedef struct MCL_Text
+{
+    MCL_Text_S size;
+    const char *text;
+    const char *font;
+    int font_size;
+    MCL_Color color;
+    void *_this;
+} MCL_Text;
 
 /*!
     @brief Adds text to the frame.
+    @param sText The text that needs to be modified.
     @param frame The frame to add the text to.
     @param x The x coordinate of the text.
     @param y The y coordinate of the text.
@@ -23,7 +34,7 @@ typedef struct MText_s
     @param font_size The font size of the text.
     @param color The color of the text.
 */
-void MCL_AddText(MCL_Frame *frame,int x, int y, const char *text, const char *font, int font_size, MCL_Color color);
+void MCL_AddText(MCL_Frame *frame, MCL_Text *sText, int x, int y, const char *text, const char *font, int font_size, MCL_Color color);
 
 /*!
     @brief Gets the size of the text.
@@ -32,7 +43,14 @@ void MCL_AddText(MCL_Frame *frame,int x, int y, const char *text, const char *fo
     @param font_size The font size of the text.
     @return The size of the text.
 */
-MText_s MCL_GetTextSize(const char *text, const char *font, int font_size);
+MCL_Text_S MCL_GetTextSize(const char *text, const char *font, int font_size);
+
+/*!
+    @brief Removes text from the frame.
+    @param frame The frame to remove the text from.
+    @param sText The text to remove from the frame.
+*/
+void MCL_RemoveText(MCL_Frame *frame, MCL_Text *sText);
 
 /*!
     @brief Gets the available fonts on the system.
