@@ -16,7 +16,7 @@
 #include "frame.h"
 
 // GUI
-#include "./gui/labels.h"
+#include "./gui/text.h"
 #include "./gui/textbox.h"
 
 // System
