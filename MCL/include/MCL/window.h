@@ -75,6 +75,12 @@ void MCL_CloseWindow(MCL_Window *window);
 bool MCL_IsWindowOpen(MCL_Window *window);
 
 /*!
+    @brief Updates the given window's main frame.
+    @param window: the window to update the main frame for
+*/
+void MCL_UpdateWindow(MCL_Window *window);
+
+/*!
     @brief Destroys the given window. It will also destroy the window's main frame.
     @param window: the window to be destroyed
 */

@@ -95,7 +95,8 @@ void MCL_WindowHints(MCL_Window *window, uint32_t flags)
     }
 }
 
-void MCL_CloseWindow(MCL_Window *window) {
+void MCL_CloseWindow(MCL_Window *window) 
+{
     // check if the window is NULL
     if (window == NULL) {
         fprintf(stderr, "Error: Cannot close a NULL window\n");
@@ -105,6 +106,35 @@ void MCL_CloseWindow(MCL_Window *window) {
     NSWindow *nsWindow = (__bridge NSWindow *)(window->_this);
     // close the window
     [nsWindow close];
+}
+
+bool MCL_IsWindowOpen(MCL_Window *window) 
+{
+    // check if the window is NULL
+    if (window == NULL) {
+        fprintf(stderr, "Error: Cannot check if a NULL window is open\n");
+        return false;
+    }
+    // transform the window pointer to an NSWindow pointer
+    NSWindow *nsWindow = (__bridge NSWindow *)(window->_this);
+    // check if the window is open
+    return [nsWindow isMiniaturized] || [nsWindow isVisible];
+}
+
+void MCL_UpdateWindow(MCL_Window *window)
+{
+    // check if the window is NULL
+    if (window == NULL) {
+        fprintf(stderr, "Error: Cannot update a NULL window\n");
+        return;
+    }
+    // transform the window pointer to an NSWindow pointer
+    NSWindow *nsWindow = (__bridge NSWindow *)(window->_this);
+    // get the window's frame(view)
+    NSView *nsView = [nsWindow contentView];
+    // update the window
+    [nsView setNeedsDisplay:YES];
+    [nsView displayIfNeeded];
 }
 
 void MCL_DestroyWindow(MCL_Window *window)
@@ -125,13 +155,4 @@ void MCL_DestroyWindow(MCL_Window *window)
     }
     // free the window
     free(window);
-}
-
-bool MCL_IsWindowOpen(MCL_Window *window) {
-    if (window == NULL) {
-        fprintf(stderr, "Error: Cannot check if a NULL window is open\n");
-        return false;
-    }
-    NSWindow *nsWindow = (__bridge NSWindow *)(window->_this);
-    return [nsWindow isMiniaturized] || [nsWindow isVisible];
 }
