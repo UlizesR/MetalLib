@@ -5,25 +5,24 @@
 
 @implementation tbdelegate
 
-- (instancetype)initWithTextField:(NSTextField *)textField {
+- (instancetype)initWithTextField:(NSTextView *)textField {
   self = [super init];
   if (self) {
     _text = [NSMutableString string];
-    _textField = textField;
+    _textField = textField; 
   }
   return self;
 }
 
-- (void)controlTextDidChange:(NSNotification *)notification {
-  NSTextField *textField = [notification object];
-  [self.text setString:[textField stringValue]];
+- (void)textDidChange:(NSNotification *)notification {
+  NSTextView *textView = [notification object];
+  [self.text setString:[textView string]];
   NSLog(@"Text value: %@", self.text);
 }
 
 @end
 
-void MCL_AddTextBox(MCL_Frame *frame, MCL_TextBox *textbox) 
-{
+void MCL_AddTextBox(MCL_Frame *frame, int x, int y, int width, int height, const char *text, const char *font, int font_size, MCL_Color bg_color, MCL_Color text_color) {
   // check if frame is null
   if (!frame) {
     fprintf(stderr, "Failed to add textbox! The frame is null!\n");
@@ -32,25 +31,30 @@ void MCL_AddTextBox(MCL_Frame *frame, MCL_TextBox *textbox)
   // get the ns view
   NSView *nsView = (__bridge NSView *)(frame->_this);
 
-  // create the text field
-  NSRect textFieldFrame = NSMakeRect(0, 0, textbox->width, textbox->height);
-  NSTextField *textField = [[NSTextField alloc] initWithFrame:textFieldFrame];
-  [textField setStringValue:[NSString stringWithUTF8String:textbox->text]];
-  [textField
-      setTextColor:[NSColor colorWithCalibratedRed:textbox->text_color.r
-                                             green:textbox->text_color.g
-                                              blue:textbox->text_color.b
-                                             alpha:textbox->text_color.a]];
-  [textField setDrawsBackground:NO];
-  [textField setBordered:NO];
-  [textField setEditable:YES];
-  [textField setSelectable:YES];
-  [textField setLineBreakMode:NSLineBreakByWordWrapping]; // set the line break mode
+  // create the text view 
+  NSRect textViewFrame = NSMakeRect(0, 0, width, height);
+  NSTextView *textView = [[NSTextView alloc] initWithFrame:textViewFrame];
+  [textView setString:[NSString stringWithUTF8String:text]];
+  [textView setTextColor:[NSColor colorWithCalibratedRed:text_color.r
+                                                   green:text_color.g
+                                                    blue:text_color.b
+                                                   alpha:text_color.a]];
+  [textView setBackgroundColor:[NSColor colorWithCalibratedRed:bg_color.r
+                                                         green:bg_color.g
+                                                          blue:bg_color.b
+                                                         alpha:bg_color.a]];
+  [textView setEditable:YES];
+  [textView setSelectable:YES];
+  [textView setFont:[NSFont fontWithName:[NSString stringWithUTF8String:font]
+                                    size:font_size]];
+  [textView setHorizontallyResizable:NO];
+  [textView setVerticallyResizable:YES];
+  [textView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
 
   // create the scroll view
-  NSRect scrollViewFrame = NSMakeRect(textbox->x, textbox->y, textbox->width, textbox->height);
+  NSRect scrollViewFrame = NSMakeRect(x, y, width, height);
   NSScrollView *scrollView = [[NSScrollView alloc] initWithFrame:scrollViewFrame];
-  [scrollView setDocumentView:textField];
+  [scrollView setDocumentView:textView];
   [scrollView setHasVerticalScroller:YES];
   [scrollView setAutohidesScrollers:YES];
 
@@ -58,14 +62,7 @@ void MCL_AddTextBox(MCL_Frame *frame, MCL_TextBox *textbox)
   [nsView addSubview:scrollView];
   [nsView setNeedsDisplay:YES];
 
-  // set the _this pointer
-  textbox->_this = (__bridge void *)(scrollView);
-
   // set the text value
-  tbdelegate *delegate = [[tbdelegate alloc] initWithTextField:textField];
-  [textField setTarget:delegate];
-  [textField setAction:@selector(textDidChange:)];
-  [textField setDelegate:delegate];
-
-  textbox->text = [delegate.text UTF8String];
+  tbdelegate *delegate = [[tbdelegate alloc] initWithTextField:textView];
+  [textView setDelegate:delegate];
 }

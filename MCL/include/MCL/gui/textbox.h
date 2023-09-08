@@ -11,7 +11,7 @@
 @interface tbdelegate : NSObject <NSTextFieldDelegate, NSTextViewDelegate>
 
 @property(nonatomic, strong) NSMutableString *text;
-@property(nonatomic, strong) NSTextField *textField;
+@property(nonatomic, strong) NSTextView *textField;
 
 @end
 
@@ -21,27 +21,17 @@
 extern "C" {
 #endif
 
-typedef struct MCL_TextBox 
-{
-    int x, y;               // The x and y coordinates of the textbox
-    int width, height;      // The width and height of the textbox
-    MCL_Color bg_color;     // The background color of the textbox
-    MCL_Color text_color;   // The text color of the textbox
-    const char* text;       // The text of the textbox
-    void *_this;            // The textbox itself
-} MCL_TextBox;
-
 /*!
     @brief Creates a textbox and adds it to the frame.
     @param frame The frame to add the textbox to.
 */
-void MCL_AddTextBox(MCL_Frame *frame, MCL_TextBox *textbox);
+void MCL_AddTextBox(MCL_Frame *frame, int x, int y, int width, int height, const char* text, const char* font, int font_size, MCL_Color bg_color, MCL_Color text_color);
 
 /*!
     @brief Clears the textbox.
     @param textbox The textbox to clear.
 */
-void MCL_ClearTextBox(MCL_TextBox *textbox);
+// void MCL_ClearTextBox(MCL_TextBox *textbox);
 
 #ifdef __cplusplus
 }
