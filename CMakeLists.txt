@@ -25,6 +25,7 @@ set(SOURCES
     MCL/src/gui/text.m
     MCL/src/gui/textbox.m
     MCL/src/gui/buttons.m
+    MCL/src/gui/sliders.m
 )
 
 # Create the library
