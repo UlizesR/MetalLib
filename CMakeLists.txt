@@ -24,6 +24,7 @@ set(SOURCES
     MCL/src/mcl_sys/gpu.m
     MCL/src/gui/text.m
     MCL/src/gui/textbox.m
+    MCL/src/gui/buttons.m
 )
 
 # Create the library
