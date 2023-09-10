@@ -5,6 +5,8 @@
 extern "C" {
 #endif
 
+#define MCL_COLOR2VECTOR_F4(color) ((vector_float4){color.r, color.g, color.b, color.a})
+
 typedef struct MCL_Color
 {
     float r;

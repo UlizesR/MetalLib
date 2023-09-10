@@ -16,6 +16,9 @@
 #include "frame.h"
 #include "date_time.h"
 
+// Graphics
+#include "./graphics/renderer.h"
+
 // GUI
 #include "./gui/text.h"
 #include "./gui/textbox.h"
