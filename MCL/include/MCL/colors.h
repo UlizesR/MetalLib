@@ -1,6 +1,8 @@
 #ifndef _mcl_colors_h_
 #define _mcl_colors_h_
 
+#include <simd/simd.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif

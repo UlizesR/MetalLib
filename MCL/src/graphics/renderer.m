@@ -35,20 +35,18 @@
          "using namespace metal;\n"
          "#include <simd/simd.h>\n"
          "struct Vertex {\n"
-         "vector_float2 position;\n"
+            "vector_float2 position;\n"
             "vector_float4 color;\n"
-            "};\n"
+        "};\n"
          "struct Fragment {\n"
          "    float4 position [[position]];\n"
          "    float4 color;\n"
          "};\n"
-         "vertex Fragment vertexShader(const device Vertex *vertexArray "
-         "[[buffer(0)]], unsigned int vid_id [[vertex_id]]) {\n"
+         "vertex Fragment vertexShader(const device Vertex *vertexArray [[buffer(0)]], unsigned int vid_id [[vertex_id]]) {\n"
          "Vertex input = vertexArray[vid_id];\n"
 
          "Fragment output;\n"
-         "output.position = float4(input.position.x, input.position.y, 0, "
-         "1.0);\n"
+         "output.position = float4(input.position.x, input.position.y, 0, 1.0);\n"
          "output.color = input.color;\n"
 
          "return output;\n"
@@ -65,21 +63,21 @@
       fprintf(stderr, "Error: Failed to create MTLLibrary: %s\n",
               [[error localizedDescription] UTF8String]);
       return nil;
-    }
+    }   
     pipelineDescriptor.vertexFunction = [library newFunctionWithName:@"vertexShader"];
     pipelineDescriptor.fragmentFunction = [library newFunctionWithName:@"fragmentShader"];
     pipelineDescriptor.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
 
-    self.pipelineState = [self.device newRenderPipelineStateWithDescriptor:pipelineDescriptor error:nil];
+    self.pipelineState = [self.device newRenderPipelineStateWithDescriptor:pipelineDescriptor error:&error];
     if (!self.pipelineState) {
         fprintf(stderr, "Error: Failed to create pipeline state\n");
         return nil;
     }
 
     Vertex vertices[] = {
-             {{0.0, 0.5}, MCL_COLOR2VECTOR_F4(MCL_COLOR_CYAN_3)},
-             {{-0.5, -0.5}, MCL_COLOR2VECTOR_F4(MCL_COLOR_MAGENTA_3)},
-             {{0.5, -0.5}, MCL_COLOR2VECTOR_F4(MCL_COLOR_YELLOW_3)},
+             {{0.0, 0.5}, MCL_COLOR2VECTOR_F4(MCL_COLOR_MAGENTA_3)},
+                {{-0.5, -0.5}, MCL_COLOR2VECTOR_F4(MCL_COLOR_CYAN_3)},
+                {{0.5, -0.5}, MCL_COLOR2VECTOR_F4(MCL_COLOR_YELLOW_3)}
     };
     self.vertexBuffer = [self.device newBufferWithBytes:vertices length:sizeof(vertices) options:MTLResourceStorageModeShared];
     return self;
@@ -115,6 +113,12 @@
         fprintf(stderr, "Error: Failed to create render command encoder\n");
         return;
     }
+
+    // set render command encoder state
+    [renderCommandEncoder setRenderPipelineState:self.pipelineState];
+    [renderCommandEncoder setVertexBuffer:self.vertexBuffer offset:0 atIndex:0];
+    [renderCommandEncoder drawPrimitives:MTLPrimitiveTypeTriangle vertexStart:0 vertexCount:3];
+
     // end encoding
     [renderCommandEncoder endEncoding];
 
