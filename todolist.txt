@@ -11,20 +11,20 @@ GUI Elements
         ☐ Toggle Buttons
     ✔ Create Labels @done(23-09-06 03:29)
     ✔ Create Text box @done(23-09-06 20:28)
-    ☐ Create Sliders
+    ✔ Create Sliders @done(23-09-10 14:04)
     ☐ Create Progress Bars
     ☐ Create Menus
     ☐ Create Tabs
 
 Graphics
-    ☐ Set up Metal
-    ☐ Set up a Renderer
-    ☐ Render 2D Shapes
+    ✔ Set up Metal @done(23-09-10 14:04)
+    ✔ Set up a Renderer @done(23-09-10 14:04)
+    ✔ Render 2D Shapes @done(23-09-10 14:04)
     ☐ Render 3D Objects
 
 System
     ✔ Get System Information @done(23-09-06 01:03)
-    ☐ Get System Time and Date
+    ✔ Get System Time and Date @done(23-09-10 14:04)
     ✔ Get GPU Information @done(23-09-06 01:03)
     ✔ Get CPU Information @done(23-09-06 01:03)
     ☐ Get RAM Information

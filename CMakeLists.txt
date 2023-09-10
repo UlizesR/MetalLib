@@ -18,14 +18,18 @@ set(SOURCES
     MCL/src/events.m
     MCL/src/frame.m
     MCL/src/date_time.c
+    # system
     MCL/src/mcl_sys/sys_info.m
     MCL/src/mcl_sys/cpu.m
     MCL/src/mcl_sys/memory.m
     MCL/src/mcl_sys/gpu.m
+    # Gui
     MCL/src/gui/text.m
     MCL/src/gui/textbox.m
     MCL/src/gui/buttons.m
     MCL/src/gui/sliders.m
+    MCL/src/gui/table.m
+    # Graphics
     MCL/src/graphics/renderer.m
 )
 
