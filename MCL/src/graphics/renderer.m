@@ -7,13 +7,6 @@
 #import <Metal/Metal.h>
 #import <MetalKit/MetalKit.h>
 
-@interface MTK_Renderer : NSObject <MTKViewDelegate>
-@property (nonatomic, strong) id<MTLDevice> device;
-@property (nonatomic, strong) id<MTLCommandQueue> commandQueue;
-@property (nonatomic, strong) id<MTLBuffer> vertexBuffer;
-@property (nonatomic, strong) id<MTLRenderPipelineState> pipelineState;
-@end 
-
 @implementation MTK_Renderer
 
 - (id)init:(id<MTLDevice>)device
@@ -74,12 +67,12 @@
         return nil;
     }
 
-    Vertex vertices[] = {
-             {{0.0, 0.5}, MCL_COLOR2VECTOR_F4(MCL_COLOR_MAGENTA_3)},
-                {{-0.5, -0.5}, MCL_COLOR2VECTOR_F4(MCL_COLOR_CYAN_3)},
-                {{0.5, -0.5}, MCL_COLOR2VECTOR_F4(MCL_COLOR_YELLOW_3)}
-    };
-    self.vertexBuffer = [self.device newBufferWithBytes:vertices length:sizeof(vertices) options:MTLResourceStorageModeShared];
+    // Vertex vertices[] = {
+    //         {{0.0, 0.5}, MCL_COLOR2VECTOR_F4(MCL_COLOR_MAGENTA_5)},
+    //         {{-0.5, -0.5}, MCL_COLOR2VECTOR_F4(MCL_COLOR_CYAN_5)},
+    //         {{0.5, -0.5}, MCL_COLOR2VECTOR_F4(MCL_COLOR_YELLOW_5)}
+    // };
+    // self.vertexBuffer = [self.device newBufferWithBytes:vertices length:sizeof(vertices) options:MTLResourceStorageModeShared];
     return self;
 }
 

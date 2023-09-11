@@ -5,9 +5,26 @@
 #include "../../MCL/colors.h"
 #include "../../MCL/mcl_sys/gpu.h"
 
+#ifdef __OBJC__
+@interface MCL_NsTriangle : NSObject
+@property(nonatomic, assign) id<MTLBuffer> vertexBuffer;
+@end
+
+@interface MTK_Renderer : NSObject <MTKViewDelegate>
+@property(nonatomic, strong) id<MTLDevice> device;
+@property(nonatomic, strong) id<MTLCommandQueue> commandQueue;
+@property(nonatomic, strong) id<MTLBuffer> vertexBuffer;
+@property(nonatomic, strong) id<MTLRenderPipelineState> pipelineState;
+@property(nonatomic, strong) MCL_NsTriangle *mesh;
+@end
+
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif // __cplusplus
+
+#define MCL_FPOINT2VECTOR_F2(point) ((vector_float2){point.x, point.y})
 
 typedef struct MCL_FPoint
 {

@@ -18,6 +18,7 @@
 
 // Graphics
 #include "./graphics/renderer.h"
+#include "./graphics/shapes.h"
 
 // GUI
 #include "./gui/text.h"

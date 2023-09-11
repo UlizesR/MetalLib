@@ -28,9 +28,9 @@ set(SOURCES
     MCL/src/gui/textbox.m
     MCL/src/gui/buttons.m
     MCL/src/gui/sliders.m
-    MCL/src/gui/table.m
     # Graphics
     MCL/src/graphics/renderer.m
+    MCL/src/graphics/shapes.m
 )
 
 # Create the library
