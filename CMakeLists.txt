@@ -31,6 +31,9 @@ set(SOURCES
     # Graphics
     MCL/src/graphics/renderer.m
     MCL/src/graphics/shapes.m
+    MCL/src/graphics/scene.m
+    # Math
+    MCL/src/math/linear_algebra.m
 )
 
 # Create the library

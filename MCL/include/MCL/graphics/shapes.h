@@ -23,7 +23,7 @@ typedef struct MCL_Triangle
     * @param points The points of the triangle.
     * @param color The color of the triangle.
 */
-void MCL_DrawTriangle(MCL_Renderer *renderer, MCL_Triangle *triangle, MCL_FPoint *points, MCL_Color color);
+void MCL_DrawTriangle(MCL_Renderer *renderer, MCL_Triangle *triangle, MCL_FPoint p1, MCL_FPoint p2, MCL_FPoint p3, MCL_Color color);
 
 #ifdef __cplusplus
 }

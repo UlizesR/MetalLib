@@ -25,13 +25,14 @@
 }
 @end
 
-void MCL_DrawTriangle(MCL_Renderer *renderer, MCL_Triangle *triangle, MCL_FPoint *points, MCL_Color color)
+void MCL_DrawTriangle(MCL_Renderer *renderer, MCL_Triangle *triangle, MCL_FPoint p1, MCL_FPoint p2, MCL_FPoint p3, MCL_Color color)
 {
     // check if renderer null
     if (renderer == NULL) {
         fprintf(stderr, "Failed to draw triangle: renderer is null\n");
         return;
     }
+    MCL_FPoint points[3] = {p1, p2, p3};
     // get the mtk_render 
     MTK_Renderer *mtk_renderer = (__bridge MTK_Renderer *)(renderer->_this);
     // get the device
@@ -45,9 +46,9 @@ void MCL_DrawTriangle(MCL_Renderer *renderer, MCL_Triangle *triangle, MCL_FPoint
     mtk_renderer.mesh = ns_triangle;
     mtk_renderer.vertexBuffer = ns_triangle.vertexBuffer;
 
-    triangle->p1 = points[0];
-    triangle->p2 = points[1];
-    triangle->p3 = points[2];
+    triangle->p1 = p1;
+    triangle->p2 = p2;
+    triangle->p3 = p3;
     triangle->color = color;
     triangle->_this = (__bridge void *)(ns_triangle);
 }

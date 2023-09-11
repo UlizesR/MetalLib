@@ -4,6 +4,8 @@
 #include "../../MCL/defs.h"
 #include "../../MCL/colors.h"
 #include "../../MCL/mcl_sys/gpu.h"
+#include "scene.h"
+#include <MCL/graphics/scene.h>
 
 #ifdef __OBJC__
 @interface MCL_NsTriangle : NSObject
@@ -15,6 +17,7 @@
 @property(nonatomic, strong) id<MTLCommandQueue> commandQueue;
 @property(nonatomic, strong) id<MTLBuffer> vertexBuffer;
 @property(nonatomic, strong) id<MTLRenderPipelineState> pipelineState;
+@property(nonatomic, strong) MCL_NsScene *scene;
 @property(nonatomic, strong) MCL_NsTriangle *mesh;
 @end
 

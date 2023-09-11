@@ -73,6 +73,7 @@
     //         {{0.5, -0.5}, MCL_COLOR2VECTOR_F4(MCL_COLOR_YELLOW_5)}
     // };
     // self.vertexBuffer = [self.device newBufferWithBytes:vertices length:sizeof(vertices) options:MTLResourceStorageModeShared];
+    self.scene = [[MCL_NsScene alloc] init];
     return self;
 }
 
@@ -107,11 +108,14 @@
         return;
     }
 
-    // set render command encoder state
-    [renderCommandEncoder setRenderPipelineState:self.pipelineState];
-    [renderCommandEncoder setVertexBuffer:self.vertexBuffer offset:0 atIndex:0];
-    [renderCommandEncoder drawPrimitives:MTLPrimitiveTypeTriangle vertexStart:0 vertexCount:3];
+    if (self.mesh)
+    {
+        // set render command encoder state
+        [renderCommandEncoder setRenderPipelineState:self.pipelineState];
+        [renderCommandEncoder setVertexBuffer:self.vertexBuffer offset:0 atIndex:0];
+        [renderCommandEncoder drawPrimitives:MTLPrimitiveTypeTriangle vertexStart:0 vertexCount:3];
 
+    }
     // end encoding
     [renderCommandEncoder endEncoding];
 

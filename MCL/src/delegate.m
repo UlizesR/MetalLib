@@ -73,17 +73,28 @@ void MCL_RunApp(MCL_App *app)
 
 void MCL_TerminateApp(MCL_App *app)
 {
-    if(!app->is_init)
+    if (!app->is_init)
     {
-        fprintf(stderr, "App not initialized!\n");
+        fprintf(stderr, "Error: App not initialized\n");
         return;
     }
-    // terminate the app
+
+    NSError *error = nil;
+
+    // Terminate the app
+    // Terminate the app
+    if (error != nil)
+    {
+        fprintf(stderr, "Error: %s\n", [[error localizedDescription] UTF8String]);
+    }
     [app->nsApp terminate:app->nsApp];
-    // release the app
+
+    // Release the app
     [app->nsApp release];
-    // release the app delegate
+
+    // Release the app delegate
     [app->nsDelegate release];
-    // set the app to not initialized
+
+    // Set the app to not initialized
     app->is_init = NO;
 }
