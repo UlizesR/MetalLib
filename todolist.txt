@@ -16,12 +16,6 @@ GUI Elements
     ☐ Create Menus
     ☐ Create Tabs
 
-Graphics
-    ✔ Set up Metal @done(23-09-10 14:04)
-    ✔ Set up a Renderer @done(23-09-10 14:04)
-    ✔ Render 2D Shapes @done(23-09-10 14:04)
-    ☐ Render 3D Objects
-
 System
     ✔ Get System Information @done(23-09-06 01:03)
     ✔ Get System Time and Date @done(23-09-10 14:04)
@@ -29,5 +23,13 @@ System
     ✔ Get CPU Information @done(23-09-06 01:03)
     ☐ Get RAM Information
     ☐ Get Storage Information
+    ☐ Get Monitor Information
+
+IO 
+    ☐ Read and Write Files
+    ☐ Read and Write Images
+    ☐ Read and Write
+    ☐ Read usb devices
+    
 
 Audio
