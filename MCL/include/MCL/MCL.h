@@ -21,6 +21,7 @@
 #include "./gui/textbox.h"
 #include "./gui/buttons.h"
 #include "./gui/sliders.h"
+#include "./gui/stack.h"
 
 // System
 #include "./mcl_sys/sys_info.h"
