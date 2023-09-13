@@ -89,12 +89,47 @@ typedef struct MCL_Button
     * @param w The width of the button
     * @param h The height of the button
     * @param title The title of the button
-    * @param icon The icon of the button
     * @param action The action callback of the button
     * @param data The data to pass to the action callback
     * @return A new button
 */
-void MCL_AddButton(MCL_Frame *frame, MCL_Button *button, int x, int y, int w, int h, const char *title, const char *icon, MCL_ActionCallback action, void *data);
+void MCL_AddButton(MCL_Frame *frame, MCL_Button *button, int x, int y, int w, int h, const char *title, MCL_ActionCallback action, void *data);
+
+/*!
+    * @brief Set the Style and Type of a button.
+    * @param button The button to set the style and type of.    
+    * @param style The style of the button.
+    * @param type The type of the button.
+*/
+void MCL_SetButtonHints(MCL_Button *button, M_Button_Style_Flags style, M_Button_Type_Flags type);
+
+/*!
+    * @brief Create a new checkbox
+    * @param frame The frame to add the checkbox to
+    * @param button The checkbox to create
+    * @param x The x position of the checkbox
+    * @param y The y position of the checkbox
+    * @param w The width of the checkbox
+    * @param h The height of the checkbox
+    * @param title The title of the checkbox
+    * @param action The action callback of the checkbox
+    * @param data The data to pass to the action callback
+*/
+void MCL_AddCheckBox(MCL_Frame *frame, MCL_Button *button, int x, int y, int w, int h, const char *title, MCL_ActionCallback action, void *data);
+
+/*!
+    * @brief Create a new radio button
+    * @param frame The frame to add the radio button to
+    * @param button The radio button to create
+    * @param x The x position of the radio button
+    * @param y The y position of the radio button
+    * @param w The width of the radio button
+    * @param h The height of the radio button
+    * @param title The title of the radio button
+    * @param action The action callback of the radio button
+    * @param data The data to pass to the action callback 
+*/
+void MCL_AddRadioButton(MCL_Frame *frame, MCL_Button *button, int x, int y, int w, int h, const char *title, MCL_ActionCallback action, void *data);
 
 /*!
     * @brief Hide a button.

@@ -16,16 +16,11 @@
 #include "frame.h"
 #include "date_time.h"
 
-// Graphics
-#include "./graphics/renderer.h"
-#include "./graphics/shapes.h"
-
 // GUI
 #include "./gui/text.h"
 #include "./gui/textbox.h"
 #include "./gui/buttons.h"
 #include "./gui/sliders.h"
-#include "./gui/table.h"
 
 // System
 #include "./mcl_sys/sys_info.h"

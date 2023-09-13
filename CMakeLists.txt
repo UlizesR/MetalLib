@@ -28,12 +28,6 @@ set(SOURCES
     MCL/src/gui/textbox.m
     MCL/src/gui/buttons.m
     MCL/src/gui/sliders.m
-    # Graphics
-    MCL/src/graphics/renderer.m
-    MCL/src/graphics/shapes.m
-    MCL/src/graphics/scene.m
-    # Math
-    MCL/src/math/linear_algebra.m
 )
 
 # Create the library
