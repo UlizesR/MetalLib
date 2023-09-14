@@ -80,3 +80,11 @@ MCL_Text_S MCL_GetTextSize(const char *text, const char *font, int font_size) {
   MCL_Text_S textSize = {size.width, size.height};
   return textSize;
 }
+
+void MCL_GetAvailableFonts()
+{
+    NSArray *fontFamilies = [NSFontManager sharedFontManager].availableFontFamilies;
+    for (NSString *fontFamily in fontFamilies) {
+        printf("%s\n", [fontFamily UTF8String]);
+    }
+}
