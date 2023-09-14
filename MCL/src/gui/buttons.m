@@ -18,7 +18,33 @@
 
 @end
 
-void MCL_AddButton(MCL_Frame *frame, MCL_Button *button, int x, int y, int w, int h, const char *title, MCL_ActionCallback action, void *data) {
+void MCL_AddButtonNF(MCL_Button *button, int x, int y, int w, int h, const char *title, MCL_ActionCallback action, void *data)
+{
+    // set the button properties
+    button->x = x;
+    button->y = y;
+    button->w = w;
+    button->h = h;
+    button->title = title;
+    button->action = action;
+    button->data = data;
+    // create the ns button
+    NSRect buttonFrame = NSMakeRect(x, y, w, h);
+    MCL_NsButton *nsButton = [[MCL_NsButton alloc] initWithFrame:buttonFrame];
+    // set the ns button and its properties
+    NSString *bTitle = [NSString stringWithUTF8String:title];
+    [nsButton setTitle:[NSString stringWithUTF8String:title]];
+    [nsButton setButtonType:NSButtonTypeMomentaryPushIn];
+    [nsButton setBezelStyle:NSBezelStyleRegularSquare];
+    [nsButton setEnabled:YES];
+    [nsButton setTag:(NSInteger)button];
+    [nsButton setTarget:nsButton];
+    [nsButton setAction:@selector(onClick:)];
+    button->_this = (__bridge void *)nsButton;
+}
+
+void MCL_AddButton(MCL_Frame *frame, MCL_Button *button, int x, int y, int w, int h, const char *title, MCL_ActionCallback action, void *data)
+ {
     // check if frame is null
     if (!frame) {
         fprintf(stderr, "Failed to add text! The frame is null!\n");
@@ -62,6 +88,8 @@ void MCL_SetButtonHints(MCL_Button *button, M_Button_Style_Flags style, M_Button
     }
     // get the ns button
     NSButton *nsButton = (__bridge NSButton *)(button->_this);
+    button->style = style;
+    button->type = type;
     // set the button hints
     switch (style)
     {    

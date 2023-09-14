@@ -75,10 +75,14 @@ typedef struct MCL_Button
     const char *icon;           // icon/image
 
     MCL_ActionCallback action;  // action callback
+    M_Button_Style_Flags style; // button style
+    M_Button_Type_Flags type; // button type
     
     void *data;                 // data to pass to action callback
     void *_this;                // internal use only
 } MCL_Button;
+
+void MCL_AddButtonNF(MCL_Button *button, int x, int y, int w, int h, const char *title, MCL_ActionCallback action, void *data);
 
 /*!
     * @brief Create a new button
