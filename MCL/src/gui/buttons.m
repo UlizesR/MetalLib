@@ -12,7 +12,7 @@
     NSButton *nsButton = (NSButton *)sender;
     MCL_Button *button = (MCL_Button *)nsButton.tag;
     if (button->action) {
-        button->action(button, button->data); // Pass the user data
+        button->action(button->data); // Pass the user data
     }
 } 
 
@@ -77,6 +77,48 @@ void MCL_AddButton(MCL_Frame *frame, MCL_Button *button, int x, int y, int w, in
     // add the button to the view
     [nsView addSubview:nsButton];
     [nsView setNeedsDisplay:YES];
+}
+
+void MCL_SetButtonTarget(MCL_Button *button, void *target)
+{
+    // check if button is null
+    if (!button) {
+        fprintf(stderr, "Failed to set button target! The button is null!\n");
+        return;
+    }
+
+    // get the ns button
+    NSButton *nsButton = (__bridge NSButton *)(button->_this);
+    // get the ns target
+    id nsTarget = (__bridge id)target;
+    // check the type of the target
+    if ([nsTarget isKindOfClass:[NSButton class]]) {
+        // set the button target
+        [nsButton setTarget:nsTarget];
+        return;
+    }
+    if ([nsTarget isKindOfClass:[NSView class]]) {
+        // set the button target
+        [nsButton setTarget:nsTarget];
+        return;
+    }
+    if ([nsTarget isKindOfClass:[NSWindow class]]) {
+        // set the button target
+        [nsButton setTarget:nsTarget];
+        return;
+    }
+    if ([nsTarget isKindOfClass:[NSApplication class]]) {
+        // set the button target
+        [nsButton setTarget:nsTarget];
+        return;
+    }
+    if ([nsTarget isKindOfClass:[NSResponder class]]) {
+        // set the button target
+        [nsButton setTarget:nsTarget];
+        return;
+    }
+    // set the button target
+    [nsButton setTarget:(__bridge id)target];
 }
 
 void MCL_SetButtonHints(MCL_Button *button, M_Button_Style_Flags style, M_Button_Type_Flags type)

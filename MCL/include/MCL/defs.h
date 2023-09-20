@@ -19,7 +19,7 @@ typedef struct MCL_Frame MCL_Frame;         // The view
 typedef struct MCL_Window MCL_Window;     // window for apps
 
 // gui element action callback
-typedef void (*MCL_ActionCallback)(void* target, void *data);
+typedef void (*MCL_ActionCallback)(void *data);
 
 #ifdef __cplusplus
 }

@@ -100,6 +100,13 @@ void MCL_AddButtonNF(MCL_Button *button, int x, int y, int w, int h, const char 
 void MCL_AddButton(MCL_Frame *frame, MCL_Button *button, int x, int y, int w, int h, const char *title, MCL_ActionCallback action, void *data);
 
 /*!
+    * @brief Set the target and data of a button.
+    * @param button The button to set the target and data of.
+    * @param target The target of the button.
+*/
+void MCL_SetButtonTarget(MCL_Button *button, void *target);
+
+/*!
     * @brief Set the Style and Type of a button.
     * @param button The button to set the style and type of.    
     * @param style The style of the button.
