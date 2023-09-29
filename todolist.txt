@@ -1,26 +1,26 @@
 App 
-    ✔ Create App Delegate @done(23-09-06 01:02)
-    ✔ Create Window @done(23-09-06 01:02)
-    ✔ Create Views (Frames) @done(23-09-06 02:06)
-    ✔ Handle Input Events @done(23-09-06 01:02)
+    ☐ Create App Delegate
+    ☐ Create Window
+    ☐ Create Views (Frames)
+    ☐ Handle Input Events
 
 GUI Elements
     ☐ Create Buttons
         ☐ Checkboxes
         ☐ Radio Buttons
         ☐ Toggle Buttons
-    ✔ Create Labels @done(23-09-06 03:29)
-    ✔ Create Text box @done(23-09-06 20:28)
-    ✔ Create Sliders @done(23-09-10 14:04)
+    ☐ Create Labels
+    ☐ Create Text box
+    ☐ Create Sliders
     ☐ Create Progress Bars
     ☐ Create Menus
     ☐ Create Tabs
 
 System
-    ✔ Get System Information @done(23-09-06 01:03)
-    ✔ Get System Time and Date @done(23-09-10 14:04)
-    ✔ Get GPU Information @done(23-09-06 01:03)
-    ✔ Get CPU Information @done(23-09-06 01:03)
+    ☐ Get System Information
+    ☐ Get System Time and Date
+    ☐ Get GPU Information
+    ☐ Get CPU Information
     ☐ Get RAM Information
     ☐ Get Storage Information
     ☐ Get Monitor Information

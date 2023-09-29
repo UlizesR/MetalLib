@@ -7,6 +7,12 @@
 #include <stdbool.h>
 
 #ifdef __OBJC__
+#if TARGET_OS_IPHONE
+#import <UIKit/UIKit.h>
+
+@interface WindowDelegate : NSObject <UIApplicationDelegate>
+#endif // TARGET_OS_IPHONE
+
 #import <Cocoa/Cocoa.h>
 
 @interface WindowDelegate : NSObject <NSWindowDelegate>

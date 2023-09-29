@@ -19,9 +19,19 @@ For those of us who like to use C and C++ that is.
 
 ## How to use the MCL Library
 
+Install using cmake after clonning the repo.
+
+```cmake
+mkdir build
+cd build
+cmake ..
+
+sudo make and make install
+```
+
 Getting an app window going
 
-1. Include the MCL library
+1. Include the MCL library (Using the current version which is MCL and not MCL2)
 ```C++
 #include <MCL/MCL.h>
 ```
