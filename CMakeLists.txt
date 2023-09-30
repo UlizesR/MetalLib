@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(MCL2_API LANGUAGES C OBJC)
+project(MCL_API LANGUAGES C OBJC)
 
 if(NOT APPLE)
     message(FATAL_ERROR "Cannot install library, Apple device required")
@@ -13,41 +13,55 @@ set(CMAKE_CXX_STANDARD 11) # or another version
 
 # Combine C and Objective-C sources
 set(SOURCES 
-    MCL2/src/MCLApplication.m
+    MCL/src/delegate.m
+    MCL/src/window.m
+    MCL/src/events.m
+    MCL/src/frame.m
+    MCL/src/date_time.c
+    # system
+    MCL/src/mcl_sys/sys_info.m
+    MCL/src/mcl_sys/cpu.m
+    MCL/src/mcl_sys/memory.m
+    MCL/src/mcl_sys/gpu.m
+    # Gui
+    MCL/src/gui/text.m
+    MCL/src/gui/textbox.m
+    MCL/src/gui/buttons.m
+    MCL/src/gui/sliders.m
 )
 
 # Create the library
-add_library(MCL2 STATIC ${SOURCES})
+add_library(MCL STATIC ${SOURCES})
 
 # Specify the include directories
-target_include_directories(MCL2 PUBLIC 
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/MCL2/include>
+target_include_directories(MCL PUBLIC 
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/MCL/include>
     $<INSTALL_INTERFACE:include>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/MCL2/src>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/MCL2/include/MCLCore> 
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/MCL2/include/MCLCore/*>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/MCL/src>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/MCL/include/MCL> # Add this line
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/MCL/include/MCL/*> # Add this line
 )
 
 
 # Link the necessary frameworks
-target_link_libraries(MCL2 "-framework Cocoa" "-framework Metal" "-framework Metalkit" objc)
+target_link_libraries(MCL "-framework Cocoa" "-framework Metal" "-framework Metalkit" objc)
 
 # Set the install location for the library
-install(TARGETS MCL2
-        EXPORT MCL2Targets
+install(TARGETS MCL
+        EXPORT MCLTargets
         ARCHIVE DESTINATION lib
-        PUBLIC_HEADER DESTINATION include/MCL2
+        PUBLIC_HEADER DESTINATION include/MCL
 )
 
 # Set the install location for the header files
-install(DIRECTORY MCL2/include/
-        DESTINATION include/MCL2
+install(DIRECTORY MCL/include/MCL/
+        DESTINATION include/MCL
         FILES_MATCHING PATTERN "*.h"
 )
 
 # Create an export file
-install(EXPORT MCL2Targets
-    FILE MCL2Targets.cmake
-    NAMESPACE MCL2::
-    DESTINATION lib/cmake/MCL2
+install(EXPORT MCLTargets
+    FILE MCLTargets.cmake
+    NAMESPACE MCL::
+    DESTINATION lib/cmake/MCL
 )
