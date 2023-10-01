@@ -1,6 +1,6 @@
 App 
-    ☐ Create App Delegate
-    ☐ Create Window
+    ✔ Create App Delegate @done(23-10-01 00:05)
+    ✔ Create Window @done(23-10-01 00:05)
     ☐ Create Views (Frames)
     ☐ Handle Input Events
 
@@ -15,6 +15,7 @@ GUI Elements
     ☐ Create Progress Bars
     ☐ Create Menus
     ☐ Create Tabs
+    ☐ Create Stack Panels
 
 System
     ☐ Get System Information
