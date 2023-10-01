@@ -12,6 +12,7 @@
 #include "MCLCore.h"
 #include "MCLWindow.h"
 #include "MCLEvents.h" 
+#include "MCLView.h"
 
 // Include std headers
 #include <stdint.h>

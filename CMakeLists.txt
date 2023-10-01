@@ -16,6 +16,7 @@ set(SOURCES
     MCL2/src/MCLCore/MCLApplication.m
     MCL2/src/MCLCore/MCLWindow.m
     MCL2/src/MCLCore/MCLEvents.m
+    MCL2/src/MCLCore/MCLView.m
 )
 
 # Create the library

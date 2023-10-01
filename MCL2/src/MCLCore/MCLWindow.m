@@ -166,7 +166,7 @@ bool MCL_IsWindowOpen(MCL_Window *window)
     // transform the window pointer to an NSWindow pointer
     NSWindow *nsWindow = (__bridge NSWindow *)(window->_this);
     // check if the window is open
-    return ([nsWindow isMiniaturized] || [nsWindow isVisible]) && window->is_open;
+    return ([nsWindow isMiniaturized] || [nsWindow isVisible]);
 }
 
 void MCL_DestroyWindow(MCL_Window *window) {
