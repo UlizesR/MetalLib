@@ -15,6 +15,7 @@ set(CMAKE_CXX_STANDARD 11) # or another version
 set(SOURCES 
     MCL2/src/MCLCore/MCLApplication.m
     MCL2/src/MCLCore/MCLWindow.m
+    MCL2/src/MCLCore/MCLEvents.m
 )
 
 # Create the library

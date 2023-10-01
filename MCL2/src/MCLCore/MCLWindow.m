@@ -29,6 +29,8 @@ void MCL_AppWindow(MCL_App *app, int width, int height, const char *title) {
     app->app_window->height = height;
     app->app_window->title = title;
     app->app_window->flags = 0;
+    app->app_window->content_view = NULL;
+    app->app_window->app_window = true;
     // create the ns window
     NSRect frame = NSMakeRect(0, 0, width, height);
     NSUInteger style = NSWindowStyleMaskTitled | NSWindowStyleMaskClosable;
@@ -51,6 +53,67 @@ void MCL_AppWindow(MCL_App *app, int width, int height, const char *title) {
     // set the window to visible
     [nsWindow makeKeyAndOrderFront:nil];
 }
+
+MCL_Window *MCL_ChildWindow(MCL_Window *parent, int width, int height, const char* title)
+{
+    // check if the parent window is null
+    if (!parent)
+    {
+        fprintf(stderr, "Failed to create a child window! The parent window is null!\n");
+        return NULL;
+    }
+    else if (!parent->app_window)
+    {
+        fprintf(stderr, "Failed to create a child window! The parent window is not an app window!\n");
+        return NULL;
+    }
+    // allocate memory for the child window
+    MCL_Window *child = (MCL_Window *)malloc(sizeof(MCL_Window));
+    if (!child)
+    {
+        fprintf(stderr, "Failed to allocate memory for the child window!\n");
+        return NULL;
+    }
+    // check the width and height
+    if (width <= 0 || height <= 0)
+    {
+        fprintf(stderr, "Invalid window size! Setting the window size to half of the parent window size\n");
+        width = parent->width / 2;
+        height = parent->height / 2;
+    }
+    // set the child window properties
+    child->width = width;
+    child->height = height;
+    child->title = title;
+    child->flags = 0;
+    child->content_view = NULL;
+    child->app_window = false;
+    // create the ns window
+    NSRect frame = NSMakeRect(0, 0, width, height);
+    NSUInteger style = NSWindowStyleMaskTitled | NSWindowStyleMaskClosable;
+    NSWindow *nsWindow = [[NSWindow alloc] initWithContentRect:frame
+                                                     styleMask:style
+                                                       backing:NSBackingStoreBuffered
+                                                         defer:NO];
+    if (!nsWindow)
+    {
+        fprintf(stderr, "Failed to create a child window!\n");
+        return NULL;
+    }
+    // set the window title
+    [nsWindow setTitle:@(title)];
+    // set the parent window
+    NSWindow *nsParentWindow = (__bridge NSWindow *)(parent->_this);
+    [nsParentWindow addChildWindow:nsWindow ordered:NSWindowAbove];
+    // set the child window delegate
+    [nsWindow setDelegate:[[WindowDelegate alloc] init]];
+    // set the child window
+    child->_this = (__bridge void *)nsWindow;
+    // set the window to visible
+    [nsWindow makeKeyAndOrderFront:nil];
+    // return the child window
+    return child;
+} 
 
 void MCL_WindowHints(MCL_Window *window, uint32_t flags)
 {
@@ -103,7 +166,7 @@ bool MCL_IsWindowOpen(MCL_Window *window)
     // transform the window pointer to an NSWindow pointer
     NSWindow *nsWindow = (__bridge NSWindow *)(window->_this);
     // check if the window is open
-    return [nsWindow isMiniaturized] || [nsWindow isVisible];
+    return ([nsWindow isMiniaturized] || [nsWindow isVisible]) && window->is_open;
 }
 
 void MCL_DestroyWindow(MCL_Window *window) {

@@ -11,6 +11,7 @@
 // Include the core header file
 #include "MCLCore.h"
 #include "MCLWindow.h"
+#include "MCLEvents.h" 
 
 // Include std headers
 #include <stdint.h>

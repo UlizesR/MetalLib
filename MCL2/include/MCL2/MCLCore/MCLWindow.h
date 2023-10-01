@@ -59,6 +59,15 @@ struct MCL_Window {
 void MCL_AppWindow(MCL_App *app, int width, int height, const char *title);
 
 /*!
+    @brief Creates a child window with the given parameters.
+    @param parent: the parent window of the child window
+    @param width: the width of the window
+    @param height: the height of the window
+    @param title: the title of the window
+*/
+MCL_Window *MCL_ChildWindow(MCL_Window *parent, int width, int height, const char* title);
+
+/*!
     @brief Sets the window hints for the given window.
     @param window: the window to set the hints for
     @param flags: the flags to set for the window

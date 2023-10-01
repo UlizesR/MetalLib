@@ -2,7 +2,7 @@ App
     ✔ Create App Delegate @done(23-10-01 00:05)
     ✔ Create Window @done(23-10-01 00:05)
     ☐ Create Views (Frames)
-    ☐ Handle Input Events
+    ☐ Handle Input Eventsd
 
 GUI Elements
     ☐ Create Buttons

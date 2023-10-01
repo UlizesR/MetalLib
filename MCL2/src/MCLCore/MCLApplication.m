@@ -6,31 +6,30 @@
 
 - (instancetype)initWithApp:(MCL_App *)app;
 {
-  self = [super init];
-  if (!self) {
-    return nil;
-  }
-  app->nsDelegate = self;
-  return self;
+	self = [super init];
+	if (!self) {
+		return nil;
+	}
+	app->nsDelegate = self;
+	return self;
 }
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-  if (self == nil) {
-    return;
-  }
+	if (self == nil) {
+		return;
+	}
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
-  if (self == nil) {
-    return;
-  }
+	if (self == nil) {
+		return;
+	}
 }
 
-- (BOOL)applicationShouldTerminateAfterLastWindowClosed:
-    (NSApplication *)sender {
-  if (self == nil) {
-    return NO;
-  }
-  return YES;
+- (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)sender {
+    if (self == nil) {
+      return NO;
+    }
+    return YES;
 }
 @end
 
@@ -63,8 +62,9 @@ void MCL_RunApp(MCL_App *app) {
         fprintf(stderr, "App not initialized!\n");
         return;
     }
-    // run the app
-    [app->nsApp run];
+	// terminate the app if there are no windows 
+	while ([app->nsApp windows].count != 0) 	
+    	[app->nsApp run];
 }
 
 void MCL_TerminateApp(MCL_App *app) {
