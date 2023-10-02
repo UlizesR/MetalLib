@@ -30,4 +30,6 @@ typedef struct MCL_App MCL_App;             // The app
 typedef struct MCL_Window MCL_Window;       // The window
 typedef struct MCL_View MCL_View;           // The view
 
+typedef void (*MCL_ActionCallback)(void *data);
+
 #endif // _mcl_core_h_
