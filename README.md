@@ -17,7 +17,7 @@ For those of us who like to use C and C++ that is.
 
 * Cocoa
 
-## How to use the MCL Library
+## How to install
 
 Install using cmake after clonning the repo.
 
@@ -29,14 +29,19 @@ cmake ..
 sudo make and make install
 ```
 
+For now it uses cmake to install locally to the machine but I am planning on using Homebrew in the future.
+
+## How to use the MCL Library
+
+
 Getting an app window going
 
-1. Include the MCL library (Using the current version which is MCL and not MCL2)
+1. Include the MCL2 Core library 
 ```C++
-#include <MCL/MCL.h>
+#include <MCL2/MCLCore/MCLApplication.h>
 ```
 
-2. Initilized the app state
+1. Initilized the app state
    
 ```C++
 MCL_App app = {
@@ -47,7 +52,6 @@ MCL_App app = {
         .description = "An example app",
     },
     .app_window = NULL,
-    .device = NULL,
 };
 ```
 
@@ -61,30 +65,21 @@ if(MCL_InitApp(&app) != 0)
 }
 ```
 
-5. Create the app's main window
+5. Create the app's main window, set the window's hint and it content view (The main frame)
    
 ```C++
-MCL_AppWindow(&app, WINDOW_WIDTH, WINDOW_HEIGHT, app.app_info.name);
+MCL_AppWindow(&app, 800, 600, "Example Window");
+MCL_WindowHints(app.app_window, MCL_WINDOW_RESIZABLE | MCL_WINDOW_MINIMIZED);
+MCL_SetWindowView(app.app_window, MCL_COLOR_BLACK);
 ```
 
 6. Add the run loop for the app
 
 ```C++
-MCL_RunApp(&app);
-```
-
-or if you want to handle input events (for games or something)
-
-```C++
-bool is_running = true;
 MCL_Event event;
-while(MCL_IsWindowOpen(app.app_window) && is_running)
+while(MCL_IsWindowOpen(app.app_window))
 {
     MCL_PollEvents(&event);
-    if (event.type == MCL_KEYBOARDEVENT && event.keycode == MCL_KEY_ESCAPE) 
-    {
-        is_running = false;
-    }
 } 
 ```
 

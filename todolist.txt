@@ -5,9 +5,9 @@ App
     ✔ Handle Input Events @done(23-10-01 11:04)
 
 GUI Elements
-    ☐ Create Buttons
-        ☐ Checkboxes
-        ☐ Radio Buttons
+    ✔ Create Buttons @done(23-10-02 13:55)
+        ✔ Checkboxes @done(23-10-02 13:55)
+        ✔ Radio Buttons @done(23-10-02 13:55)
         ☐ Toggle Buttons
     ☐ Create Labels
     ☐ Create Text box
