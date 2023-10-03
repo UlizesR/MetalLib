@@ -119,3 +119,16 @@ void MCL_ShowView(MCL_View *View) {
     // show the view
     [view setHidden:NO];
 }
+
+void MCL_UpdateView(MCL_View *View) {
+    // check if the View is not null
+    if (!View) {
+        fprintf(stderr, "Failed to update the View! The View is null!\n");
+        return;
+    }
+    // get the ns view
+    NSView *view = (__bridge NSView *)View->_this;
+    // redraw the view
+    [view setNeedsDisplay:YES];
+    [view displayIfNeeded];
+}

@@ -59,6 +59,12 @@ void MCL_HideView(MCL_View *View);
 */
 void MCL_ShowView(MCL_View *View);
 
+/*!
+    @brief Updates the View
+    @param View: the View to update
+*/
+void MCL_UpdateView(MCL_View *View);
+
 #ifdef __cplusplus
 }
 #endif

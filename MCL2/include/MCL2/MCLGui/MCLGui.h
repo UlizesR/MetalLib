@@ -9,5 +9,6 @@
 #define _mcl_gui_h_
 
 #include "MCLButtons.h"
+#include "MCLStackView.h"
 
 #endif

@@ -19,6 +19,7 @@ set(SOURCES
     MCL2/src/MCLCore/MCLView.m
 
     MCL2/src/MCLGui/MCLButtons.m
+    MCL2/src/MCLGui/MCLStackView.m
 )
 
 # Create the library
