@@ -1,4 +1,4 @@
-# MCL API (macOS iOS applications)
+# MCL API (macOS applications)
 
 ## About
 
