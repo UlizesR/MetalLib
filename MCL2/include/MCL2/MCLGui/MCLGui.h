@@ -10,5 +10,6 @@
 
 #include "MCLButtons.h"
 #include "MCLStackView.h"
+#include "MCLLabel.h"
 
 #endif
