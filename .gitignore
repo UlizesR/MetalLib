@@ -5,7 +5,5 @@ __pycache__
 .o
 build/
 test/
-old_ver/
-metal.m
-metal.h
 MCL/
+MCL3/
