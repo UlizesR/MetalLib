@@ -1,13 +1,13 @@
 App 
-    ✔ Create App Delegate @done(23-10-01 00:05)
-    ✔ Create Window @done(23-10-01 00:05)
-    ✔ Create Views (Frames) @done(23-10-01 11:04)
-    ✔ Handle Input Events @done(23-10-01 11:04)
+    ✔ Create App Delegate @done(23-12-27 15:01)
+    ✔ Create Window @done(23-12-27 15:01)
+    ☐ Create Views (Frames)
+    ☐ Handle Input Events
 
 GUI Elements
-    ✔ Create Buttons @done(23-10-02 13:55)
-        ✔ Checkboxes @done(23-10-02 13:55)
-        ✔ Radio Buttons @done(23-10-02 13:55)
+    ☐ Create Buttons
+        ☐ Checkboxes
+        ☐ Radio Buttons
         ☐ Toggle Buttons
     ☐ Create Labels
     ☐ Create Text box
@@ -16,21 +16,3 @@ GUI Elements
     ☐ Create Menus
     ☐ Create Tabs
     ☐ Create Stack Panels
-
-System
-    ☐ Get System Information
-    ☐ Get System Time and Date
-    ☐ Get GPU Information
-    ☐ Get CPU Information
-    ☐ Get RAM Information
-    ☐ Get Storage Information
-    ☐ Get Monitor Information
-
-IO 
-    ☐ Read and Write Files
-    ☐ Read and Write Images
-    ☐ Read and Write
-    ☐ Read usb devices
-    
-
-Audio
