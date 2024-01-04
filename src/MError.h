@@ -1,23 +1,19 @@
-#ifndef _MDL_ERROR_H_
-#define _MDL_ERROR_H_
+#ifndef _M_ERROR_H_
+#define _M_ERROR_H_
 
-#define MDL_SUCESS 0
-#define MDL_ERROR  1
+#define M_SUCCESS 0
+#define M_ERROR  1
 
 typedef enum 
 {
-    MDL_ERROR_NONE = 0,
-    MDL_ERROR_UNKNOWN = -1,
-    MDL_ERROR_ALLOCATION = 2,
-    MDL_ERROR_NULL_POINTER = 3,
-    MDL_ERROR_INIT = 4,
+    M_ERROR_NONE = 0,
+    M_ERROR_UNKNOWN = -1,
+    M_ERROR_ALLOCATION = 2,
+    M_ERROR_NULL_POINTER = 3,
+    M_ERROR_INIT = 4,
+    M_ERROR_TERMINATE = 5,
 } MError;
 
-#define MDL_ERROR_CHECK(error, message) \
-    if (error != MDL_ERROR_NONE) \
-    { \
-        printf("Error: %s\n", message); \
-        return error; \
-    }
+// const char* MErrorMessage(MError error);
 
-#endif // _MDL_ERROR_H_
+#endif // _M_ERROR_H_

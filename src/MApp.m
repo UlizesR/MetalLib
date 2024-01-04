@@ -1,8 +1,6 @@
 #import "MApp.h"
 #import "MError.h"
 
-#include <AppKit/AppKit.h>
-
 @implementation MAppDelegate
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
@@ -22,42 +20,35 @@
     [NSApp terminate:self];
 }
 
-int MAppInit(MAppInstance *app, int argc, char **argv)
-{
-    if (!app) 
-    {
-        NSLog(@"App instance is null");
-        return MDL_ERROR_NULL_POINTER;
-    }
+@end
 
+MError MApplicationInit(MApplication *appConfig, int argc, char **argv)
+{
     MAppDelegate *appDelegate = [[MAppDelegate alloc] init];
 
     if (!appDelegate) 
     {
         NSLog(@"Failed to initialize app delegate");
-        return MDL_ERROR_INIT;
+        return M_ERROR_INIT;
     }
 
     [NSApp setDelegate:appDelegate];
     [NSApp activateIgnoringOtherApps:YES];
     [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
 
-    app->_this = (__bridge void *)appDelegate;
+    appConfig->_this = (__bridge void *)appDelegate;
 
-    return MDL_SUCESS;
+    return M_SUCCESS; 
 }
 
-int MTerminateApp(MAppInstance *app)
+void MRunApplication()
 {
-    if (!app) 
-    {
-        NSLog(@"App instance is null");
-        return MDL_ERROR_NULL_POINTER;
-    }
+    [NSApp run];
+}
 
+MError MApplicationTerminate()
+{
     [NSApp terminate:NSApp];
 
-    return MDL_SUCESS;
+    return M_SUCCESS;
 }
-
-@end

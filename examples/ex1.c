@@ -1,36 +1,42 @@
-#include "../src/MWindow.h"
 #include "../src/MApp.h"
+#include "../src/MError.h"
+#include "../src/MWindow.h"
 
 #include <stdio.h>
 
 int main(int argc, char *argv[])
 {
-    MAppInstance app = {
-        .info = {
-            ._name = "MApp Example",
-            ._version = "0.0.1",
-            ._author = "MApp",
-            ._description = "MApp Example",
-            ._url = ""
-        },
-        .main_window = NULL,
+    MApplication app = {
+        ._name = "example app",
+        ._description = "example app description",
+        ._version = "0.0.1",
+        ._author = "Mehran",
+        ._icon = NULL,
     };
 
-    if (MAppInit(&app, argc, argv))
-    {
-        printf("Failed to initialize MApp\n");
-        return 1;
+    MError err = MApplicationInit(&app, argc, argv);
+    if (err == M_ERROR_INIT)
+    {   
+        printf("Error Code %d\n", err);
+        return err;
     }
 
-    app.main_window = MCreateMainWindow(800, 600, "MApp Example");
-    if (!app.main_window)
+    MWindow *window = MCreateMainWindow(800, 600, app._name);
+    if (window == NULL)
     {
-        printf("Failed to create main window\n");
-        return 1;
+        printf("Error: The window could not be created.\n");
+        return M_ERROR_INIT;
     }
 
-    MShowWindow(app.main_window);
+    MRunApplication();
 
-    MDestroyWindow(app.main_window);
-    return MTerminateApp(&app);
+    MDestroyWindow(window);
+    err = MApplicationTerminate();
+    if (err != M_ERROR_NONE)
+    {
+        printf("Error: The application could not be terminated.\n");
+        return err;
+    }
+
+    return 0;
 }

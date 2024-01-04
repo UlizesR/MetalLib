@@ -1,40 +1,45 @@
 #import "MWindow.h"
-#import "MDefs.h"
-#import "MError.h"
 #import "MApp.h"
+#import "MError.h"
 
-#include <AppKit/AppKit.h>
+#import <Cocoa/Cocoa.h>
 
 MWindow *MCreateMainWindow(int width, int height, const char *title)
 {
-    MWindow *window = malloc(sizeof(MWindow));
-    if (!window) 
+    MWindow *window = (MWindow *)malloc(sizeof(MWindow));
+    if (window == NULL)
     {
         NSLog(@"Failed to allocate memory for window");
         return NULL;
     }
 
+    window->title = title;
     window->width = width;
     window->height = height;
-    window->title = title;
+
     window->flags = 0;
     window->parent = NULL;
     window->children = NULL;
-    window->child_count = 0;
-    window->content_view = NULL;
+    window->childCount = 0;
+
+    window->contentView = NULL;
 
     NSRect frame = NSMakeRect(0, 0, width, height);
-    NSUInteger style = NSWindowStyleMaskTitled | NSWindowStyleMaskClosable;
-    NSWindow *nsWindow = [[NSWindow alloc] initWithContentRect:frame styleMask:style backing:NSBackingStoreBuffered defer:NO];
-    if (!nsWindow) 
+    NSUInteger styleMask = NSWindowStyleMaskTitled | NSWindowStyleMaskClosable;
+
+    NSWindow *nsWindow = [[NSWindow alloc] initWithContentRect:frame styleMask:styleMask backing:NSBackingStoreBuffered defer:NO];
+
+    if (nsWindow == nil)
     {
-        NSLog(@"Failed to create NSWindow");
+        NSLog(@"Failed to create ns window");
+        free(window);
         return NULL;
     }
 
     MAppDelegate *appDelegate = [[MAppDelegate alloc] init];
-    [nsWindow setTitle:@(title)];
+
     [nsWindow setDelegate:appDelegate];
+    [nsWindow setTitle:[NSString stringWithUTF8String:title]];
     [nsWindow makeKeyAndOrderFront:nil];
 
     window->_this = (__bridge void *)nsWindow;
@@ -42,29 +47,50 @@ MWindow *MCreateMainWindow(int width, int height, const char *title)
     return window;
 }
 
-int MWindowShouldClose(MWindow *window)
+MWindow *MCreateChildWindow(MWindow *parent, int width, int height, const char *title)
 {
-    if (!window) 
-    {
-        NSLog(@"Window is null");
-        return MDL_ERROR_NULL_POINTER;
-    }
-
-    NSWindow *nsWindow = (__bridge NSWindow *)window->_this;
-    return [nsWindow isVisible] || [nsWindow isMiniaturized];
+    return NULL;
 }
 
-void MShowWindow(MWindow *window)
+void MSetWindowHints(MWindow *window, uint32_t flags)
 {
-    if (!window) 
+    if (window == NULL)
     {
         NSLog(@"Window is null");
         return;
     }
 
-    // NSWindow *nsWindow = (__bridge NSWindow *)window->_this;
-    // [NSApp sharedApplication];
-    [NSApp run];
+    window->flags = flags;
+
+    NSWindow *nsWindow = (__bridge NSWindow *)window->_this;
+
+    NSUInteger styleMask = NSWindowStyleMaskTitled | NSWindowStyleMaskClosable;
+    if (flags & MWINDOW_FLAG_RESIZABLE)
+    {
+        styleMask |= NSWindowStyleMaskResizable;
+    }
+    if (flags & MWINDOW_FLAG_MAXIMIZABLE)
+    {
+        styleMask |= NSWindowStyleMaskMiniaturizable;
+    }
+    if (flags & MWINDOW_FLAG_MINIMIZABLE)
+    {
+        styleMask |= NSWindowStyleMaskMiniaturizable;
+    }
+
+    [nsWindow setStyleMask:styleMask];
+}
+
+int MWindowShouldClose(MWindow *window)
+{
+     if (!window) 
+    {
+        NSLog(@"Window is null");
+        return M_ERROR_NULL_POINTER;
+    }
+
+    NSWindow *nsWindow = (__bridge NSWindow *)window->_this;
+    return [nsWindow isVisible] || [nsWindow isMiniaturized];
 }
 
 void MDestroyWindow(MWindow *window)

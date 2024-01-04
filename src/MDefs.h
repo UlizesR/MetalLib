@@ -1,5 +1,5 @@
-#ifndef _MDL_DEFS_H_
-#define _MDL_DEFS_H_
+#ifndef _M_DEFS_H_
+#define _M_DEFS_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -13,4 +13,4 @@ typedef struct MEvent MEvent;
 }
 #endif
 
-#endif // _MDL_DEFS_H_
+#endif // _M_DEFS_H_

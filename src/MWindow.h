@@ -1,17 +1,9 @@
-#ifndef _MDL_WINDOW_H_
-#define _MDL_WINDOW_H_
+#ifndef _M_WINDOW_H_
+#define _M_WINDOW_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#include <stdint.h>
-
+#include "MError.h"
 #include "MDefs.h"
-
-#ifdef __OBJC__
-#import <Cocoa/Cocoa.h>
-#endif 
+#include <stdint.h>
 
 struct MWindow
 {
@@ -21,18 +13,26 @@ struct MWindow
     uint32_t flags;
 
     // layer properties
-    MView *content_view;
+    MView *contentView;
     
     // Child and parent windows
     MWindow *parent;
     MWindow *children;
-    int child_count;
+    int childCount;
 
     void *_this;
 };
 
+typedef enum {
+    MWINDOW_FLAG_NONE = 0,
+    MWINDOW_FLAG_RESIZABLE = 1 << 0,
+    MWINDOW_FLAG_MINIMIZABLE = 1 << 1,
+    MWINDOW_FLAG_MAXIMIZABLE = 1 << 2,
+    MWINDOW_FLAG_FULLSCREEN = 1 << 3,
+} MWindowFlags;
+
 /*!
-    * @brief: Initialize the application and creates the main window.
+    * @brief: Creates the application's main window.
     * @param: width: Window width.
     * @param: height: Window height.
     * @param: title: Window title.
@@ -40,20 +40,34 @@ struct MWindow
 */
 MWindow *MCreateMainWindow(int width, int height, const char *title);
 
+/*!
+    * @brief: Creates a child window.
+    * @param: parent: The parent window.
+    * @param: width: Window width.
+    * @param: height: Window height.
+    * @param: title: Window title.
+    * @return: A pointer to the child window.
+
+*/
 MWindow *MCreateChildWindow(MWindow *parent, int width, int height, const char *title);
 
+/*!
+    * @brief: Sets the window's flags.
+    * @param: window: The window.
+    * @param: flags: The flags.
+*/
 void MSetWindowHints(MWindow *window, uint32_t flags);
 
+/*!
+    * @brief: Checks if the window is closed.
+    * @param: window: The window.
+*/
 int MWindowShouldClose(MWindow *window);
 
-void MShowWindow(MWindow *window);
-
-void MCloseWindow(MWindow *window);
-
+/*!
+    * @brief: Deallocates the window and its resources.
+    * @param: window: The window.
+*/
 void MDestroyWindow(MWindow *window);
 
-#ifdef __cplusplus
-}
-#endif
-
-#endif // _MDL_WINDOW_H_
+#endif // _M_WINDOW_H_

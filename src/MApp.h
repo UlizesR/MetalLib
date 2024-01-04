@@ -1,27 +1,32 @@
-#ifndef _MDL_APP_H_
-#define _MDL_APP_H_
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#include <stdint.h>
-
-#include "MDefs.h"
+#ifndef _M_APPLICATION_H_
+#define _M_APPLICATION_H_
 
 #ifdef __OBJC__
 #import <Cocoa/Cocoa.h>
 
 @interface MAppDelegate : NSObject <NSApplicationDelegate, NSWindowDelegate>
-@property (nonatomic, strong) NSWindow *window;
 @end 
 
-#endif
+#endif // __OBJC__
 
-// For setting the version of the app
-#define MDL_APP_VERSION(major, minor, patch) #major "." #minor "." #patch
+#include "MError.h"
+#include <stdint.h>
 
-typedef struct MAppInfo
+#define MAJOR_VERSION(x) ((x) << 16)
+#define MINOR_VERSION(x) ((x) << 8)
+#define PATCH_VERSION(x) (x)
+
+#define M_APP_VERSION(major, minor, patch) (MAJOR_VERSION(major) | MINOR_VERSION(minor) | PATCH_VERSION(patch))
+
+#define M_APP_VERSION_MAJOR(version) ((version) >> 16)
+#define M_APP_VERSION_MINOR(version) (((version) >> 8) & 0xFF)
+#define M_APP_VERSION_PATCH(version) ((version) & 0xFF)
+
+
+#define M_APP_GUI 0x01
+#define M_APP_CONSOLE 0x02
+
+typedef struct MApplication
 {
     const char *_name;
     const char *_version;
@@ -29,22 +34,25 @@ typedef struct MAppInfo
     const char *_description;
     const char *_url;
     const char *_icon;
-} MAppInfo;
-
-typedef struct MAppInstance
-{
-    MAppInfo info;
-    MWindow *main_window;
-    // MView *main_view;
+    uint32_t _type;
     void *_this;
-} MAppInstance;
+} MApplication;
 
-int MAppInit(MAppInstance *app, int argc, char **argv);
+/*!
+    * @brief Initializes the application.
+    * @param appConfig The application configuration.
+    * @param argc The number of arguments passed to the application.
+    * @param argv The arguments passed to the application.
+    * @return MError 
+*/
+MError MApplicationInit(MApplication *appConfig, int argc, char **argv);
 
-int MTerminateApp(MAppInstance *app);
+void MRunApplication();
 
-#ifdef __cplusplus
-}
-#endif
+/*!
+    * @brief Terminates the application.
+    * @return MError
+*/
+MError MApplicationTerminate();
 
-#endif // _MDL_APP_H_
+#endif // _M_APPLICATION_H_
