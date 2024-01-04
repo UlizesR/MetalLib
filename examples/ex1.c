@@ -1,7 +1,6 @@
-#include "../src/MApp.h"
-#include "../src/MError.h"
-#include "../src/MWindow.h"
+#include "../src/MDL.h"
 
+#include <_types/_uint32_t.h>
 #include <stdio.h>
 
 int main(int argc, char *argv[])
@@ -10,9 +9,11 @@ int main(int argc, char *argv[])
         ._name = "example app",
         ._description = "example app description",
         ._version = "0.0.1",
-        ._author = "Mehran",
+        ._author = "Uli",
         ._icon = NULL,
     };
+
+    printf("App Version: %s\n", app._version);
 
     MError err = MApplicationInit(&app, argc, argv);
     if (err == M_ERROR_INIT)
@@ -28,8 +29,14 @@ int main(int argc, char *argv[])
         return M_ERROR_INIT;
     }
 
+    MCreateContentView(window, M_COLOR_BLACK);
+    MSetWindowHints(window, MWINDOW_FLAG_RESIZABLE);
+
+    MView *sview = MCreateSubView(window->contentView, 100, 100, 200, 300, M_COLOR_RED, MTrue, 10.0f);
+
     MRunApplication();
 
+    MDestroyView(sview);
     MDestroyWindow(window);
     err = MApplicationTerminate();
     if (err != M_ERROR_NONE)

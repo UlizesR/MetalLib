@@ -101,6 +101,10 @@ void MDestroyWindow(MWindow *window)
         return;
     }
 
+    if (window->contentView)
+    {
+        free(window->contentView);
+    }
     NSWindow *nsWindow = (__bridge NSWindow *)window->_this;
     [nsWindow release];
     window->_this = NULL;

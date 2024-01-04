@@ -22,9 +22,13 @@
 #define M_APP_VERSION_MINOR(version) (((version) >> 8) & 0xFF)
 #define M_APP_VERSION_PATCH(version) ((version) & 0xFF)
 
+#define M_APP_VERSION_STR(version) #version
+
 
 #define M_APP_GUI 0x01
 #define M_APP_CONSOLE 0x02
+
+#define M_APP_TYPE(type) (type)
 
 typedef struct MApplication
 {

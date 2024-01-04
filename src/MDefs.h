@@ -9,6 +9,11 @@ typedef struct MWindow MWindow;
 typedef struct MView MView;
 typedef struct MEvent MEvent;
 
+typedef char MBool;
+
+#define MTrue 1
+#define MFalse 0
+
 #ifdef __cplusplus
 }
 #endif
