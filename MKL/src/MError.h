@@ -4,6 +4,8 @@
 #define M_SUCCESS 0
 #define M_ERROR  1
 
+#include "MDefs.h"
+
 typedef enum 
 {
     M_ERROR_NONE = 0,
@@ -14,6 +16,8 @@ typedef enum
     M_ERROR_TERMINATE = 5,
 } MError;
 
-// const char* MErrorMessage(MError error);
+const char* MErrorMessage(MError error);
+
+MAPI void MErrorPrint(MError error);
 
 #endif // _M_ERROR_H_

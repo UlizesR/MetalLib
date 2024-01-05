@@ -3,6 +3,10 @@
 
 #include <simd/simd.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define M_COLOR2VECTOR_F4(color) ((vector_float4){color.r, color.g, color.b, color.a})
 
 typedef struct MColor
@@ -115,5 +119,8 @@ typedef struct MColor
 #define M_COLOR_CYAN_9        (MColor){0.0f, 0.9f, 0.9f, 1.0f}
 #define M_COLOR_CYAN_10       (MColor){0.0f, 1.0f, 1.0f, 1.0f}
 
+#ifdef __cplusplus
+}
+#endif // __cplusplus
 
 #endif // _M_COLOR_H_

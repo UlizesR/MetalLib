@@ -1,7 +1,7 @@
 #import "MView.h"
 #include "MDefs.h"
 #import "MError.h"
-#import "MWindow.h"
+#import "MApplication.h"
 
 void MCreateContentView(MWindow *window, MColor backgroundColor)
 {
@@ -26,24 +26,21 @@ void MCreateContentView(MWindow *window, MColor backgroundColor)
     view->cornerRadius = 0;
     view->backgroundColor = backgroundColor;
     // create the ns window View
-    NSWindow *nsWindow = (__bridge NSWindow *)window->_this;
     NSColor *nsColor = [NSColor colorWithSRGBRed:backgroundColor.r
                                             green:backgroundColor.g
                                             blue:backgroundColor.b
                                             alpha:backgroundColor.a];
     NSRect frame = NSMakeRect(0, 0, window->width, window->height);
-    NSView *nsView = [[NSView alloc] initWithFrame:frame];
-    if (!nsView) {
+    view->_view = [[NSView alloc] initWithFrame:frame];
+    if (!view->_view) {
         NSLog(@"Failed to create NSView!\n");
         free(view);
         return;
     }
     // set the ns view properties
-    [nsView setWantsLayer:YES]; // set the view to use a layer so we can set the
-    [nsView.layer setBackgroundColor: nsColor.CGColor]; // set the background color
-    [nsWindow setContentView:nsView]; // set the ns view as the ns window content view
-    // set ns view
-    view->_this = (__bridge void *)nsView;
+    [view->_view setWantsLayer:YES]; // set the view to use a layer so we can set the
+    [view->_view.layer setBackgroundColor: nsColor.CGColor]; // set the background color
+    [window->_window setContentView:view->_view]; // set the ns view as the ns window content view
 
     window->contentView = view;
 
@@ -73,7 +70,7 @@ MView *MCreateSubView(MView *parent, int x, int y, int width, int height, MColor
     subView->backgroundColor = backgroundColor;
     subView->resizable = resizable;
     // create the ns sub View
-    NSView *nsParentView = (__bridge NSView *)parent->_this;
+    NSView *nsParentView = parent->_view;
     NSColor *nsColor = [NSColor colorWithSRGBRed:backgroundColor.r
                                             green:backgroundColor.g
                                             blue:backgroundColor.b
@@ -90,8 +87,7 @@ MView *MCreateSubView(MView *parent, int x, int y, int width, int height, MColor
     }
 
     [nsParentView addSubview:nsView]; // add the ns sub View to the ns parent View
-    // set ns sub View
-    subView->_this = (__bridge void *)nsView;
+    subView->_view = nsView;
 
     return subView;
 }
@@ -103,10 +99,7 @@ void MHideView(MView *View)
         NSLog(@"Failed to hide the View! The View is null!\n");
         return;
     }
-    // get the ns view
-    NSView *view = (__bridge NSView *)View->_this;
-    // hide the view
-    [view setHidden:YES];
+    [View->_view setHidden:YES];
 }
 
 void MShowView(MView *View)
@@ -116,10 +109,7 @@ void MShowView(MView *View)
         NSLog(@"Failed to show the View! The View is null!\n");
         return;
     }
-    // get the ns view
-    NSView *view = (__bridge NSView *)View->_this;
-    // show the view
-    [view setHidden:NO];
+    [View->_view setHidden:NO];
 }
 
 void MDestroyView(MView *View)
@@ -129,10 +119,7 @@ void MDestroyView(MView *View)
         NSLog(@"Failed to destroy the View! The View is null!\n");
         return;
     }
-    // get the ns view
-    NSView *view = (__bridge NSView *)View->_this;
-    // remove the view from its superview
-    [view removeFromSuperview];
+    [View->_view removeFromSuperview]; // remove the View from the parent View
     // free the View
     free(View);
 }

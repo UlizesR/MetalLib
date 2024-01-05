@@ -5,9 +5,10 @@
 extern "C" {
 #endif
 
+#define MAPI __attribute__((visibility("default")))
+
 typedef struct MWindow MWindow;
 typedef struct MView MView;
-typedef struct MEvent MEvent;
 
 typedef char MBool;
 
