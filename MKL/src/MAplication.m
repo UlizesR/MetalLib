@@ -43,8 +43,9 @@ MError MApplicationInit(MApplication *app, int argc, char **argv)
 
     [NSApp setDelegate:app->_delegate];
     [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
-    [NSApp acceptsFirstResponder];
-    [NSApp activate];
+    // [NSApp acceptsFirstResponder];
+    [NSApp activateIgnoringOtherApps:YES];
+    // [NSApp activate];
 
     return M_SUCCESS; 
 }
@@ -92,18 +93,9 @@ MWindow *MMainAppWindow(int width, int height, const char *title)
     }
 
     [window->_window setTitle:[NSString stringWithUTF8String:title]];
+    [window->_window setDelegate:window->_delegate];
     [window->_window center];
     [window->_window makeKeyAndOrderFront:nil];
-    [window->_window makeFirstResponder:window->_window];
-    [window->_window setDelegate:window->_delegate];
-
-    NSRect frame = NSMakeRect(0, 0, window->width, window->height);
-    NSView *nsView = [[NSView alloc] initWithFrame:frame];
-    if (!nsView) {
-        NSLog(@"Failed to create NSView!\n");
-        // free(view);
-        return NULL;
-    }
 
     window->title = title;
     window->width = width;

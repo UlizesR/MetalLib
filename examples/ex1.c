@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
     MCreateContentView(window, M_COLOR_BLACK);
 
     MView *sview = MCreateSubView(window->contentView, 0, 0, 200, 200, M_COLOR_RED, MTrue, 0.0f);
-
+    
     while (MWindowShouldClose(window))
     {
         MRunApplication();

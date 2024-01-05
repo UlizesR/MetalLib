@@ -6,5 +6,6 @@
 #include "MView.h"
 #include "MError.h"
 #include "MDefs.h"
+#include "MEvent.h"
 
 #endif // _MKL_H_
