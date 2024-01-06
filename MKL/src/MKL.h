@@ -1,11 +1,12 @@
-#ifndef _MKL_H_
-#define _MKL_H_
+#ifndef _MKL_HEADER_H_
+#define _MKL_HEADER_H_
 
-#include "MApplication.h"
-#include "MColor.h"
-#include "MView.h"
-#include "MError.h"
-#include "MDefs.h"
-#include "MEvent.h"
+#include "MKLWindow.h"
 
-#endif // _MKL_H_
+// include input files
+#include "Input/KeyCodes.h"
+#include "Input/Keyboard.h"
+#include "Input/Mouse.h"
+
+
+#endif // _MKL_HEADER_H_
