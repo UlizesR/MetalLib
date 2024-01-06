@@ -15,9 +15,23 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    MKLShowWindow(window);
+    MKLRenderer *renderer = MKLCreateRenderer(window);
 
+    if (renderer == NULL)
+    {
+        printf("Failed to create renderer!\n");
+        return 1;
+    }
+    MKLClearRenderer(renderer, MKL_COLOR_MAIN);
+
+    while(MKLWindowShouldClose(window))
+    {
+        MKLShowWindow(window);
+    }
+
+    MKLDestroyRenderer(renderer);
     MKLDestroyWindow(window);
-    
+    printf("Window and renderer destroyed!\n");
+
     return 0;
 }

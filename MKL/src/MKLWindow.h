@@ -37,6 +37,8 @@ MKL_PUBLIC MKLWindow *MKLCreateWindow(int width, int height, const char *title);
 
 MKL_PUBLIC void MKLShowWindow(MKLWindow *window);
 
+MKL_PUBLIC int MKLWindowShouldClose(MKLWindow *window);
+
 MKL_PUBLIC void MKLDestroyWindow(MKLWindow *window);
 
 #ifdef __cplusplus

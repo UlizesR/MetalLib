@@ -59,7 +59,7 @@
     if (self == nil) {
         return;
     }
-    [NSApp terminate:nil];
+    // [NSApp terminate:nil];
 }
 
 // - (void)keyDown:(NSEvent * _Nonnull)event 
@@ -114,7 +114,27 @@ void MKLShowWindow(MKLWindow *window)
         NSLog(@"Failed to show window. The window is NULL");
         return;
     }
-    [NSApp run];
+    NSEvent *event;
+    do {
+        event = [NSApp nextEventMatchingMask:NSEventMaskAny
+                                   untilDate:[NSDate distantPast]
+                                   inMode:NSDefaultRunLoopMode
+                                   dequeue:YES];
+        if (event) {
+            [NSApp sendEvent:event];
+            [NSApp updateWindows];
+        }
+    } while (event);
+}
+
+int MKLWindowShouldClose(MKLWindow *window)
+{
+    if (window == NULL) 
+    {
+        NSLog(@"Failed to close window. The window is NULL");
+        return 0;
+    }
+    return [window->_nswindow isVisible] || [window->_nswindow isMiniaturized];
 }
 
 void MKLDestroyWindow(MKLWindow *window)
