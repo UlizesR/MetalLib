@@ -1,51 +1,68 @@
-#ifndef _MKL_RENDERER_H_
-#define _MKL_RENDERER_H_
+#ifndef _MKL_VIEW_H_
+#define _MKL_VIEW_H_
 
-#include <_types/_uint32_t.h>
-#ifdef __OBJC__
-#import <Foundation/Foundation.h>
-#import <MetalKit/MetalKit.h>
-
-#import <simd/simd.h>
-
-@interface MklRenderer : NSObject <MTKViewDelegate>
-
-@property (nonatomic) vector_float2 bounds;
-@property (nonatomic) float deltaTime;
-@property (nonatomic) MTLClearColor clearColor;
-// command queue
-@property(nonatomic, strong, nonnull) id<MTLCommandQueue> commandQueue;
-
-- (nonnull instancetype)initRenderer:(MTKView *_Nonnull)view;
-- (void)updateScreenSize:(MTKView *_Nonnull)view;
-
-@end 
-#endif // __OBJC__
-
-#include "../MKLDefs.h"
-#include "../MKLColors.h"
-#include "MKLView.h"
-
+#include <Metal/Metal.h>
+#include <QuartzCore/QuartzCore.h>
 #include <stdint.h>
 
-// typedef struct MKLView MKLView;
-typedef struct MKLRenderer MKLRenderer;
-
-struct MKLRenderer 
-{
-    MKLWindow *window;
+#include "../MKLWindow.h"
+#include "../MKLCore.h"
+#include "../MKLColors.h"
 
 #ifdef __OBJC__
-    MklRenderer *_renderer;
+#import <MetalKit/MetalKit.h>
+
+@interface MklView : MTKView
+
+// Methods to handle events
+- (BOOL)acceptsFirstResponder;
+
+//--- Keyboard Input ---
+- (void)keyDown:(NSEvent * _Nonnull)event;
+- (void)keyUp:(NSEvent * _Nonnull)event;
+
+//--- Mouse Button Input ---
+- (void)mouseDown:(NSEvent * _Nonnull)event;
+- (void)mouseUp:(NSEvent * _Nonnull)event;
+- (void)rightMouseDown:(NSEvent * _Nonnull)event;
+- (void)rightMouseUp:(NSEvent * _Nonnull)event;
+- (void)otherMouseDown:(NSEvent * _Nonnull)event;
+- (void)otherMouseUp:(NSEvent * _Nonnull)event;
+
+//--- Mouse Movement Input ---
+- (void)mouseMoved:(NSEvent * _Nonnull)event;
+- (void)mouseDragged:(NSEvent * _Nonnull)event;
+- (void)rightMouseDragged:(NSEvent * _Nonnull)event;
+- (void)otherMouseDragged:(NSEvent * _Nonnull)event;
+
+//--- Mouse Scroll Input ---
+- (void)scrollWheel:(NSEvent * _Nonnull)event;
+
+@end
+
+#endif 
+
+typedef struct MKLRenderer
+{
+    MKLWindow *window;
+#ifdef __OBJC__
+    id<MTLDevice> _device;
+    id<MTLCommandQueue> _commandQueue;
+    id<CAMetalDrawable> _drawable;
+    CAMetalLayer *_metalLayer;
+    MTLClearColor _clearColor;
     MklView *_view;
 #endif
-};
-
-MKL_PUBLIC MKLRenderer *MKLCreateRenderer(MKLWindow *window);
-
-MKL_PUBLIC void MKLClearRenderer(MKLRenderer *renderer, MKLColor color);
-
-MKL_PUBLIC void MKLDestroyRenderer(MKLRenderer *renderer);
+} MKLRenderer;
 
 
-#endif // _MKL_RENDERER_H_
+
+MKLAPI MKLRenderer *MKLCreateRenderer(MKLWindow *window);
+
+MKLAPI void MKLClearRenderer(MKLRenderer *renderer, MKLColor color);
+
+MKLAPI void MKLDraw(MKLRenderer *renderer);
+
+MKLAPI void MKLDestroyRenderer(MKLRenderer *renderer);
+
+#endif // _MKL_VIEW_H_

@@ -21,9 +21,9 @@ extern "C" {
 
 #include <stdint.h>
 
-#include "MKLDefs.h"
+#include "MKLCore.h"
 
-struct MKLWindow
+typedef struct MKLWindow
 {
     int width, height;      // Window size
     const char *title;      // Window title
@@ -31,15 +31,15 @@ struct MKLWindow
 #ifdef __OBJC__
     NSWindow *_nswindow;    // NSWindow
 #endif 
-};
+} MKLWindow;
 
-MKL_PUBLIC MKLWindow *MKLCreateWindow(int width, int height, const char *title);
+MKLAPI MKLWindow *MKLCreateWindow(int width, int height, const char *title);
 
-MKL_PUBLIC void MKLShowWindow(MKLWindow *window);
+MKLAPI void MKLShowWindow(MKLWindow *window);
 
-MKL_PUBLIC int MKLWindowShouldClose(MKLWindow *window);
+MKLAPI int MKLWindowShouldClose(MKLWindow *window);
 
-MKL_PUBLIC void MKLDestroyWindow(MKLWindow *window);
+MKLAPI void MKLDestroyWindow(MKLWindow *window);
 
 #ifdef __cplusplus
 }

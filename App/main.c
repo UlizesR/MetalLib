@@ -26,6 +26,7 @@ int main(int argc, char *argv[])
 
     while(MKLWindowShouldClose(window))
     {
+        MKLDraw(renderer);
         MKLShowWindow(window);
     }
 

@@ -10,6 +10,6 @@
 
 // include renderer files
 #include "Renderer/MKLRenderer.h"
-#include "Renderer/MKLView.h"
+// #include "Renderer/MKLView.h"
 
 #endif // _MKL_HEADER_H_
