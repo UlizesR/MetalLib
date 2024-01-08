@@ -4,99 +4,7 @@
 #include <Metal/Metal.h>
 
 #import "MKLRenderer.h"
-#import "../Input/Mouse.h"
-#import "../Input/Keyboard.h"
-
-const char *getFilePath(const char * directory, const char * fileName, const char * fileExtension)
-{
-    // Get the path to the current file
-    NSString *currentFile = [NSString stringWithUTF8String:__FILE__];
-    NSString *currentDirectory = [currentFile stringByDeletingLastPathComponent];
-
-    // Get the parent directory of 'src'
-    currentDirectory = [currentDirectory stringByDeletingLastPathComponent];
-
-    // Append the input string to the parent directory
-    NSString *file = [NSString stringWithFormat:@"%@/%@.%@", [NSString stringWithUTF8String:directory], [NSString stringWithUTF8String:fileName], [NSString stringWithUTF8String:fileExtension]];
-    NSString *filePath = [currentDirectory stringByAppendingPathComponent:file];
-
-    return [filePath UTF8String];
-}
-
-void MKLShaderLib(MKLRenderer *renderer, const char *shaderPath)
-{
-    // if (shaderPath == NULL) 
-    // {
-        shaderPath = getFilePath("Shaders", "Shaders", "metal");
-    // }
-
-    NSError *error = nil;
-    NSString *shaderSource = [NSString stringWithContentsOfFile:[NSString stringWithUTF8String:shaderPath]
-                                                       encoding:NSUTF8StringEncoding
-                                                          error:&error];
-    if (error != nil) 
-    {
-        NSLog(@"MKLShaderLib: %@", error);
-        return;
-    }
-
-    renderer->_library = [renderer->_device newLibraryWithSource:shaderSource
-                                                          options:nil
-                                                            error:&error];
-
-    if (error != nil)
-    {
-        NSLog(@"MKLShaderLib: %@", error);
-        return;
-    }
-
-    [shaderSource release];
-}
-
-void MKLRenderPipeline(MKLRenderer *renderer)
-{
-    if (renderer == nil) 
-    {
-        NSLog(@"MKLRenderPipeline: renderer is nil");
-        return;
-    }
-
-    NSError *error = nil;
-    id<MTLFunction> vertexFunction = [renderer->_library newFunctionWithName:@"vertexShader"];
-    if (vertexFunction == nil) 
-    {
-        NSLog(@"MKLRenderPipeline: vertexFunction is nil");
-        return;
-    }
-    id<MTLFunction> fragmentFunction = [renderer->_library newFunctionWithName:@"fragmentShader"];
-    if (fragmentFunction == nil) 
-    {
-        NSLog(@"MKLRenderPipeline: fragmentFunction is nil");
-        return;
-    }
-
-    MTLRenderPipelineDescriptor *pipelineDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
-    if (pipelineDescriptor == nil) 
-    {
-        NSLog(@"MKLRenderPipeline: pipelineDescriptor is nil");
-        return;
-    }
-    pipelineDescriptor.vertexFunction = vertexFunction;
-    pipelineDescriptor.fragmentFunction = fragmentFunction;
-    pipelineDescriptor.colorAttachments[0].pixelFormat = renderer->_metalLayer.pixelFormat;
-
-    renderer->_pipelineState = [renderer->_device newRenderPipelineStateWithDescriptor:pipelineDescriptor
-                                                                                 error:&error];
-
-    if (error != nil)
-    {
-        NSLog(@"MKLRenderPipeline: %@", error);
-        return;
-    }
-
-    [pipelineDescriptor release];
-
-}
+#import "MKLLibraries.h"
 
 MKLRenderer *MKLCreateRenderer(MKLWindow *window)
 {
@@ -146,8 +54,27 @@ MKLRenderer *MKLCreateRenderer(MKLWindow *window)
 
     renderer->_commandQueue = [renderer->_device newCommandQueue];
 
-    MKLShaderLib(renderer, NULL);
-    MKLRenderPipeline(renderer);
+    MKLShaderLib(renderer, "MKL/src/Renderer/Shaders/Shaders.metal");
+    if (renderer->_library == nil)
+    {
+        NSLog(@"Failed to create Metal library");
+        free(renderer);
+        return NULL;
+    }
+    MKLVertexDescriptorLib(renderer);
+    if (renderer->_vertexDescriptor == nil)
+    {
+        NSLog(@"Failed to create Metal vertex descriptor");
+        free(renderer);
+        return NULL;
+    }
+    MKLRenderPipelineLib(renderer);
+    if (renderer->_pipelineState == nil)
+    {
+        NSLog(@"Failed to create Metal render pipeline state");
+        free(renderer);
+        return NULL;
+    }
 
     return renderer;
 }
@@ -242,5 +169,10 @@ void MKLDestroyRenderer(MKLRenderer *renderer)
     [renderer->_metalLayer release];
     [renderer->_device release];
     [renderer->_commandQueue release];
+    [renderer->_renderPassDescriptor release];
+    [renderer->_renderEncoder release];
+    [renderer->_pipelineState release];
+    [renderer->_vertexDescriptor release];
+
     free(renderer);
 }

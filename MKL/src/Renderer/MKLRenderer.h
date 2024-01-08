@@ -24,6 +24,7 @@ typedef struct MKLRenderer
     MTLRenderPassDescriptor *_renderPassDescriptor;
     id<MTLLibrary> _library;
     id<MTLBuffer> _vertexBuffer;
+    MTLVertexDescriptor *_vertexDescriptor;
     id<CAMetalDrawable> _drawable;
     id<MTLRenderPipelineState> _pipelineState;
     CAMetalLayer *_metalLayer;
@@ -32,17 +33,9 @@ typedef struct MKLRenderer
 #endif
 } MKLRenderer;
 
-const char *getFilePath(const char * directory, const char * fileName, const char * fileExtension);
-
-void MKLShaderLib(MKLRenderer *renderer, const char *shaderPath);
-
-void MKLRenderPipeline(MKLRenderer *renderer);
-
 MKLAPI MKLRenderer *MKLCreateRenderer(MKLWindow *window);
 
 MKLAPI void MKLClearRenderer(MKLRenderer *renderer, MKLColor color);
-
-// MKLAPI void MKLDraw(MKLRenderer *renderer);
 
 MKLAPI void MKLBeginDrawing(MKLRenderer *renderer);
 

@@ -23,10 +23,14 @@ buildLib: $(LIB_O_FILES)
 	echo "Building Library..."
 	mkdir -p $(BUILD_DIR)
 	clang $(LIB_DEFINES) $(LIB_INCLUDES) $(LIB_LINKERS) $^ -o $(BUILD_DIR)/lib$(LIB_NAME).dylib
+	echo "Successfully built library!"
+
 
 buildApp: $(APP_O_FILES)
 	echo "Building App..."
 	clang $(APP_DEFINES) $(APP_INCLUDES) $(APP_LINKERS) $^ -o $(BUILD_DIR)/$(APP_NAME)
+	echo "Successfully built app!"
+
 
 run:
 	echo "Running App..."
