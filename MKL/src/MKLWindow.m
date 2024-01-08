@@ -107,24 +107,14 @@ MKLWindow *MKLCreateWindow(int width, int height, const char *title)
     return window;
 }
 
-void MKLShowWindow(MKLWindow *window)
+void MKLCloseWindow(MKLWindow *window)
 {
     if (window == NULL) 
     {
         NSLog(@"Failed to show window. The window is NULL");
         return;
     }
-    NSEvent *event;
-    do {
-        event = [NSApp nextEventMatchingMask:NSEventMaskAny
-                                   untilDate:[NSDate distantPast]
-                                   inMode:NSDefaultRunLoopMode
-                                   dequeue:YES];
-        if (event) {
-            [NSApp sendEvent:event];
-            [NSApp updateWindows];
-        }
-    } while (event);
+    [window->_nswindow close];
 }
 
 int MKLWindowShouldClose(MKLWindow *window)
@@ -146,7 +136,7 @@ void MKLDestroyWindow(MKLWindow *window)
     }
     if (window->_nswindow != NULL)
     {
-        [window->_nswindow close];
+        [window->_nswindow release];
     }
     free(window);
 }

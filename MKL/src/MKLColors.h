@@ -24,6 +24,7 @@ typedef struct MKLColor
 #define MKL_COLOR_MAGENTA       (MKLColor){1.0f, 0.0f, 1.0f, 1.0f}
 #define MKL_COLOR_CYAN          (MKLColor){0.0f, 1.0f, 1.0f, 1.0f}
 #define MKL_COLOR_MAIN          (MKLColor){47.0f/255.0f, 79.0f/255.0f, 79.0f/255.0f, 1.0}
+#define MKL_COLOR_SKY           (MKLColor){182.0f/255.0f, 240.0f/255.0f, 228.0f/255.0f, 1.0f}
 
 // Grayscale colors
 #define MKL_COLOR_GRAY_0        (MKLColor){0.0f, 0.0f, 0.0f, 1.0f}

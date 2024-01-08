@@ -6,8 +6,8 @@ LIB_DEFINES:= -fvisibility=hidden -fPIC -O2 -Wno-nullability-completeness
 LIB_INCLUDES:= -I./MKL/src 
 LIB_LINKERS:= -dynamiclib -framework Cocoa -framework Metal -framework MetalKit -framework QuartzCore -framework ModelIO 
 
-LIB_C_FILES:= $(wildcard ./MKL/src/*.c) $(wildcard ./MKL/src/**/*.c)
-LIB_OBJC_FILES:= $(wildcard ./MKL/src/*.m) $(wildcard ./MKL/src/**/*.m)
+LIB_C_FILES:= $(shell find ./MKL/src -name "*.c")
+LIB_OBJC_FILES:= $(shell find ./MKL/src -name "*.m")
 LIB_O_FILES:= $(patsubst ./MKL/src/%.c, $(BUILD_DIR)/%.o, $(LIB_C_FILES)) $(patsubst ./MKL/src/%.m, $(BUILD_DIR)/%.o, $(LIB_OBJC_FILES))
 
 APP_DEFINES:= -O2 -Wno-nullability-completeness

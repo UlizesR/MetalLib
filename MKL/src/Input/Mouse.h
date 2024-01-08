@@ -1,28 +1,33 @@
-#pragma once 
+#ifndef __MKL_MOUSE_H__
+#define __MKL_MOUSE_H__
 
-#ifdef __OBJC__
-#import <Foundation/Foundation.h>
-#import <simd/simd.h>
+#include <stdbool.h>
+#include <simd/vector.h>
 
-typedef NS_ENUM(NSInteger, MouseCodes) {
+typedef enum {
     MouseCodesLeft = 0,
     MouseCodesRight = 1,
     MouseCodesCenter = 2
-};
+} MouseCodes;
 
-@interface Mouse : NSObject
+void MKLSetMouseButtonPressed(MouseCodes button, bool isOn);
 
-+ (void)setMouseButtonPressed:(NSInteger)button isOn:(BOOL)isOn;
-+ (BOOL)isMouseButtonPressed:(MouseCodes)button;
-+ (void)setOverallMousePosition:(vector_float2)position;
-+ (void)setMousePositionChangeWithOverallPosition:(vector_float2)overallPosition deltaPosition:(vector_float2)deltaPosition;
-+ (void)scrollMouse:(float)deltaY;
-+ (vector_float2)getMouseWindowPosition;
-+ (float)getDWheel;
-+ (float)getDY;
-+ (float)getDX;
-+ (vector_float2)getMouseViewportPosition:(vector_float2)viewportSize;
+bool MKLIsMouseButtonPressed(MouseCodes button);
 
-@end
+void MKLSetOverallMousePosition(float x, float y);
 
-#endif // __OBJC__
+void MKLSetMousePositionChangeWithOverallPosition(float x, float y);
+
+void MKLScrollMouse(float deltaY);
+
+float MKLGetMouseDWheel();
+
+float MKLGetMouseDY();
+
+float MKLGetMouseDX();
+
+vector_float2 MKLGetMouseViewportPosition(float viewportWidth, float viewportHeight);
+
+vector_float2 MKLGetMouseWindowPosition();
+
+#endif // __MKL_MOUSE_H__

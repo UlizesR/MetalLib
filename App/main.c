@@ -1,7 +1,10 @@
 #include <MKL.h>
 
+#include <simd/vector_make.h>
 #include <stdlib.h>
 #include <stdio.h>
+
+#include <simd/simd.h>
 
 int main(int argc, char *argv[])
 {
@@ -24,10 +27,42 @@ int main(int argc, char *argv[])
     }
     MKLClearRenderer(renderer, MKL_COLOR_MAIN);
 
+
+    MKLTriangle triangle1 = {
+        .p1 = (vector_float3){ 0.5f, 0.125f, 0.0f },
+        .p2 = (vector_float3){ 0.625f, -0.125f, 0.0f },
+        .p3 = (vector_float3){ 0.375f, -0.125f, 0.0f },
+        .color = MKL_COLOR_RED
+    };
+
+    MKLTriangle triangle2 = {
+        .p1 = (vector_float3){ -0.5f, 0.125f, 0.0f },
+        .p2 = (vector_float3){ -0.625f, -0.125f, 0.0f },
+        .p3 = (vector_float3){ -0.375f, -0.125f, 0.0f },
+        .color = MKL_COLOR_GREEN
+    };
+
+    // print triangle1 x coordinates
+    // printf("Triangle 1 x coordinates: %f, %f, %f\n", triangle1.vertices[0].x, triangle1.vertices[1].x, triangle1.vertices[2].x);
+
     while(MKLWindowShouldClose(window))
     {
-        MKLDraw(renderer);
-        MKLShowWindow(window);
+        MKLGetPollEvents();
+
+        if (MKLIsKeyPressed(MKL_KEY_W))
+        {
+            printf("W is pressed!\n");
+        }
+
+        if (MKLIsKeyPressed(MKL_KEY_ESCAPE))
+        {
+            MKLCloseWindow(window);
+        }
+
+        MKLBeginDrawing(renderer);
+            MKLDrawTriangle(renderer, &triangle1);   
+            MKLDrawTriangle(renderer, &triangle2);
+        MKLEndDrawing(renderer);
     }
 
     MKLDestroyRenderer(renderer);

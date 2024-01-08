@@ -1,103 +1,102 @@
-#import "MKLRenderer.h"
 #include <AppKit/AppKit.h>
+#include <CoreFoundation/CoreFoundation.h>
 #include <QuartzCore/QuartzCore.h>
 #include <Metal/Metal.h>
+
+#import "MKLRenderer.h"
 #import "../Input/Mouse.h"
 #import "../Input/Keyboard.h"
 
-#import <assert.h>
-
-@implementation MklView
-
-- (BOOL)acceptsFirstResponder 
+const char *getFilePath(const char * directory, const char * fileName, const char * fileExtension)
 {
-    return YES;
+    // Get the path to the current file
+    NSString *currentFile = [NSString stringWithUTF8String:__FILE__];
+    NSString *currentDirectory = [currentFile stringByDeletingLastPathComponent];
+
+    // Get the parent directory of 'src'
+    currentDirectory = [currentDirectory stringByDeletingLastPathComponent];
+
+    // Append the input string to the parent directory
+    NSString *file = [NSString stringWithFormat:@"%@/%@.%@", [NSString stringWithUTF8String:directory], [NSString stringWithUTF8String:fileName], [NSString stringWithUTF8String:fileExtension]];
+    NSString *filePath = [currentDirectory stringByAppendingPathComponent:file];
+
+    return [filePath UTF8String];
 }
 
-- (void)keyDown:(NSEvent * _Nonnull)event 
+void MKLShaderLib(MKLRenderer *renderer, const char *shaderPath)
 {
-    [Keyboard setKeyPressed:event.keyCode isOn:YES];
-    if([Keyboard isKeyPressed:MKL_KEY_ESCAPE])
+    // if (shaderPath == NULL) 
+    // {
+        shaderPath = getFilePath("Shaders", "Shaders", "metal");
+    // }
+
+    NSError *error = nil;
+    NSString *shaderSource = [NSString stringWithContentsOfFile:[NSString stringWithUTF8String:shaderPath]
+                                                       encoding:NSUTF8StringEncoding
+                                                          error:&error];
+    if (error != nil) 
     {
-        [[NSApp mainWindow] close];
+        NSLog(@"MKLShaderLib: %@", error);
+        return;
     }
+
+    renderer->_library = [renderer->_device newLibraryWithSource:shaderSource
+                                                          options:nil
+                                                            error:&error];
+
+    if (error != nil)
+    {
+        NSLog(@"MKLShaderLib: %@", error);
+        return;
+    }
+
+    [shaderSource release];
 }
 
-- (void)keyUp:(NSEvent * _Nonnull)event 
+void MKLRenderPipeline(MKLRenderer *renderer)
 {
-    [Keyboard setKeyPressed:event.keyCode isOn:NO];
-}
+    if (renderer == nil) 
+    {
+        NSLog(@"MKLRenderPipeline: renderer is nil");
+        return;
+    }
 
-- (void)mouseDown:(NSEvent * _Nonnull)event 
-{
-    [Mouse setMouseButtonPressed:event.buttonNumber isOn:YES];
-}
+    NSError *error = nil;
+    id<MTLFunction> vertexFunction = [renderer->_library newFunctionWithName:@"vertexShader"];
+    if (vertexFunction == nil) 
+    {
+        NSLog(@"MKLRenderPipeline: vertexFunction is nil");
+        return;
+    }
+    id<MTLFunction> fragmentFunction = [renderer->_library newFunctionWithName:@"fragmentShader"];
+    if (fragmentFunction == nil) 
+    {
+        NSLog(@"MKLRenderPipeline: fragmentFunction is nil");
+        return;
+    }
 
-- (void)mouseUp:(NSEvent * _Nonnull)event 
-{
-    [Mouse setMouseButtonPressed:event.buttonNumber isOn:NO];
-}
+    MTLRenderPipelineDescriptor *pipelineDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
+    if (pipelineDescriptor == nil) 
+    {
+        NSLog(@"MKLRenderPipeline: pipelineDescriptor is nil");
+        return;
+    }
+    pipelineDescriptor.vertexFunction = vertexFunction;
+    pipelineDescriptor.fragmentFunction = fragmentFunction;
+    pipelineDescriptor.colorAttachments[0].pixelFormat = renderer->_metalLayer.pixelFormat;
 
-- (void)rightMouseDown:(NSEvent * _Nonnull)event
-{
-    [Mouse setMouseButtonPressed:event.buttonNumber isOn:YES];
-}
+    renderer->_pipelineState = [renderer->_device newRenderPipelineStateWithDescriptor:pipelineDescriptor
+                                                                                 error:&error];
 
-- (void)rightMouseUp:(NSEvent * _Nonnull)event
-{
-    [Mouse setMouseButtonPressed:event.buttonNumber isOn:NO];
-}
+    if (error != nil)
+    {
+        NSLog(@"MKLRenderPipeline: %@", error);
+        return;
+    }
 
-- (void)otherMouseDown:(NSEvent * _Nonnull)event
-{
-    [Mouse setMouseButtonPressed:event.buttonNumber isOn:YES];
-}
+    [pipelineDescriptor release];
 
-- (void)otherMouseUp:(NSEvent * _Nonnull)event
-{
-    [Mouse setMouseButtonPressed:event.buttonNumber isOn:NO];
 }
-
-- (void)setMousePositionChanged:(NSEvent * _Nonnull)event
-{
-    vector_float2 overallLocation = {event.locationInWindow.x, event.locationInWindow.y};
-    vector_float2 deltaLocation = {event.deltaX, event.deltaY};
-    [Mouse setMousePositionChangeWithOverallPosition:overallLocation deltaPosition:deltaLocation];
-}
-
-- (void)updateTrackingAreas 
-{
-    NSUInteger opts = (NSTrackingMouseMoved | NSTrackingEnabledDuringMouseDrag | NSTrackingActiveAlways);
-    NSTrackingArea *trackingArea = [[NSTrackingArea alloc] initWithRect:self.bounds options:opts owner:self userInfo:nil];
-    [self addTrackingArea:trackingArea];
-}
-
-- (void)mouseMoved:(NSEvent * _Nonnull)event
-{
-    [self setMousePositionChanged:event];
-}
-
-- (void)mouseDragged:(NSEvent * _Nonnull)event
-{
-    [self setMousePositionChanged:event];
-}
-
-- (void)rightMouseDragged:(NSEvent * _Nonnull)event
-{
-    [self setMousePositionChanged:event];
-}
-
-- (void)otherMouseDragged:(NSEvent * _Nonnull)event
-{
-    [self setMousePositionChanged:event];
-}
-
-- (void)scrollWheel:(NSEvent * _Nonnull)event
-{
-    [Mouse scrollMouse:event.deltaY];
-}
-
-@end
 
 MKLRenderer *MKLCreateRenderer(MKLWindow *window)
 {
@@ -124,14 +123,9 @@ MKLRenderer *MKLCreateRenderer(MKLWindow *window)
         free(renderer);
         return NULL;
     }
-    MklView *view = [[MklView alloc] initWithFrame:window->_nswindow.contentView.bounds];
-    if (view == nil)
-    {
-        NSLog(@"Failed to create view");
-        free(renderer);
-        return NULL;
-    }
-    renderer->_view = view;
+    
+    renderer->_view = [[MTKView alloc] init];
+    renderer->_view.preferredFramesPerSecond = 60;
     [window->_nswindow setContentView:renderer->_view];
 
     renderer->_metalLayer = [[CAMetalLayer alloc] init];
@@ -144,10 +138,16 @@ MKLRenderer *MKLCreateRenderer(MKLWindow *window)
     renderer->_metalLayer.device = renderer->_device;
     renderer->_metalLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
 
+    renderer->_metalLayer.framebufferOnly = YES;
+    renderer->_metalLayer.drawableSize = window->_nswindow.contentView.frame.size;
+
     [window->_nswindow.contentView setLayer:renderer->_metalLayer];
     [window->_nswindow.contentView setWantsLayer:YES];
 
     renderer->_commandQueue = [renderer->_device newCommandQueue];
+
+    MKLShaderLib(renderer, NULL);
+    MKLRenderPipeline(renderer);
 
     return renderer;
 }
@@ -163,14 +163,14 @@ void MKLClearRenderer(MKLRenderer *renderer, MKLColor color)
     // [renderer->_view setNeedsDisplay:YES];
 }
 
-void MKLDraw(MKLRenderer *renderer)
+void MKLBeginDrawing(MKLRenderer *renderer)
 {
-    @autoreleasepool {
-        if (renderer == NULL)
-        {
-            NSLog(@"Renderer is NULL");
-            return;
-        }
+     if (renderer == NULL)
+     {
+         NSLog(@"Renderer is NULL");
+         return;
+     }
+
         renderer->_drawable = [renderer->_metalLayer nextDrawable];
         if (renderer->_drawable == nil)
         {
@@ -178,38 +178,54 @@ void MKLDraw(MKLRenderer *renderer)
             return;
         }
 
-        id<MTLCommandBuffer> commandBuffer = [renderer->_commandQueue commandBuffer];
-        if (commandBuffer == nil)
+        renderer->_commandBuffer = [renderer->_commandQueue commandBuffer];
+        if (renderer->_commandBuffer == nil)
         {
             NSLog(@"Failed to create command buffer");
             return;
         }
-        MTLRenderPassDescriptor *renderPassDescriptor = [[MTLRenderPassDescriptor alloc] init];
-        if (renderPassDescriptor == nil)
+        renderer->_renderPassDescriptor = [[MTLRenderPassDescriptor alloc] init];
+        if (renderer->_renderPassDescriptor == nil)
         {
             NSLog(@"Failed to get render pass descriptor");
             return;
         }
 
-        renderPassDescriptor.colorAttachments[0].texture = renderer->_drawable.texture;
-        renderPassDescriptor.colorAttachments[0].clearColor = renderer->_clearColor;
-        renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
-        renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
+        renderer->_renderPassDescriptor.colorAttachments[0].texture = renderer->_drawable.texture;
+        renderer->_renderPassDescriptor.colorAttachments[0].clearColor = renderer->_clearColor;
+        renderer->_renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
+        renderer->_renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
 
-        id<MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
-        if (renderEncoder == nil)
+        renderer->_renderEncoder = [renderer->_commandBuffer renderCommandEncoderWithDescriptor:renderer->_renderPassDescriptor];
+        if (renderer->_renderEncoder == nil)
         {
             NSLog(@"Failed to create render encoder");
             return;
         }
-        [renderEncoder endEncoding];
+    
+}
 
-        [commandBuffer presentDrawable:renderer->_drawable];
-        [commandBuffer commit];
-        [commandBuffer waitUntilCompleted];
-
-        [renderPassDescriptor release];
+void MKLEndDrawing(MKLRenderer *renderer)
+{
+    if (renderer == NULL)
+    {
+        NSLog(@"Renderer is NULL");
+        return;
     }
+
+        [renderer->_renderEncoder endEncoding];
+
+        [renderer->_commandBuffer presentDrawable:renderer->_drawable];
+        [renderer->_commandBuffer commit];
+        [renderer->_commandBuffer waitUntilCompleted];
+
+        // Clean up temporary objects
+        [renderer->_renderPassDescriptor release];
+        renderer->_renderPassDescriptor = nil;
+        [renderer->_renderEncoder release];
+        renderer->_renderEncoder = nil;
+        [renderer->_drawable release];
+        renderer->_drawable = nil;
 }
 
 void MKLDestroyRenderer(MKLRenderer *renderer)
@@ -219,7 +235,12 @@ void MKLDestroyRenderer(MKLRenderer *renderer)
         NSLog(@"Renderer is NULL");
         return;
     }   
+
+    [renderer->_view removeFromSuperview];
     [renderer->_view release];
+    [renderer->_metalLayer removeFromSuperlayer];
     [renderer->_metalLayer release];
+    [renderer->_device release];
+    [renderer->_commandQueue release];
     free(renderer);
 }

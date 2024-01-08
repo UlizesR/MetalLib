@@ -1,9 +1,9 @@
 #ifndef _MKL_WINDOW_H_
 #define _MKL_WINDOW_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+// #ifdef __cplusplus
+// extern "C" {
+// #endif
 
 #ifdef __OBJC__
 
@@ -35,14 +35,14 @@ typedef struct MKLWindow
 
 MKLAPI MKLWindow *MKLCreateWindow(int width, int height, const char *title);
 
-MKLAPI void MKLShowWindow(MKLWindow *window);
+MKLAPI void MKLCloseWindow(MKLWindow *window);
 
 MKLAPI int MKLWindowShouldClose(MKLWindow *window);
 
 MKLAPI void MKLDestroyWindow(MKLWindow *window);
 
-#ifdef __cplusplus
-}
-#endif
+// #ifdef __cplusplus
+// }
+// #endif
 
 #endif // _MKL_WINDOW_H_

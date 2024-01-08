@@ -1,14 +1,13 @@
-#pragma once 
+#ifndef _MKL_KEYBOARD_H_
+#define _MKL_KEYBOARD_H_
 
-#ifdef __OBJC__
-#import "KeyCodes.h"
-#import <Foundation/Foundation.h>
+#include "KeyCodes.h"
+#include <stdbool.h>
 
-@interface Keyboard : NSObject
+#include "../MKLCore.h"
 
-+ (void)setKeyPressed:(UInt16)keyCode isOn:(BOOL)isOn;
-+ (BOOL)isKeyPressed:(KeyCodes)keyCode;
+void MKLSetKeyPressed(unsigned short keyCode, bool isOn);
 
-@end
+MKLAPI bool MKLIsKeyPressed(unsigned short keyCode);
 
-#endif // __OBJC__
+#endif // _MKL_KEYBOARD_H_

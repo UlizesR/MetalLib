@@ -1,11 +1,7 @@
-#pragma once
+#ifndef _MKL_KEYCODES_H_
+#define _MKL_KEYCODES_H_
 
-#ifdef __OBJC__
-#import <MacTypes.h>
-#import <Foundation/Foundation.h>
-
-
-typedef NS_ENUM(UInt16, KeyCodes) 
+typedef enum
 {
     // Special Chars
     MKL_KEY_SPACE = 0x31,
@@ -72,5 +68,6 @@ typedef NS_ENUM(UInt16, KeyCodes)
     MKL_KEY_KP_7 = 0x59,
     MKL_KEY_KP_8 = 0x5B,
     MKL_KEY_KP_9 = 0x5C,
-};
-#endif // __OBJC__
+} KeyCodes;
+
+#endif // _MKL_KEYCODES_H_
