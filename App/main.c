@@ -69,10 +69,15 @@ int main(int argc, char *argv[])
         }
 
         MKLBeginDrawing(renderer);
-            MKLDrawTriangle(renderer, triangle1, MKL_COLOR_RED);   
+            if (MKLIsKeyPressed(MKL_KEY_T))
+            {
+                MKLDrawTriangle(renderer, triangle1, MKL_COLOR_RED);
+            }
+            // MKLDrawTriangle(renderer, triangle1, MKL_COLOR_RED);   
             MKLDrawTriangle(renderer, triangle2, MKL_COLOR_BLUE);
             MKLDrawRect(renderer, rect1, MKL_COLOR_GREEN);
             MKLDrawLine2D(renderer, line, MKL_COLOR_WHITE);
+            MKLDrawAxis(renderer, 0.5f);
         MKLEndDrawing(renderer);
     }
 

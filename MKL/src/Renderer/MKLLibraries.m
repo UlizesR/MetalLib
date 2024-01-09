@@ -76,8 +76,11 @@ void MKLRenderPipelineLib(MKLRenderer *renderer)
         return;
     }
 
+    // Release resources
     [pipelineDescriptor release];
-
+    [vertexFunction release];
+    [fragmentFunction release];
+    [renderer->_library release];
 }
 
 void MKLVertexDescriptorLib(MKLRenderer *renderer)

@@ -8,6 +8,8 @@
 #define Y_AXIS simd_make_float3(0.0f, 1.0f, 0.0f)
 #define Z_AXIS simd_make_float3(0.0f, 0.0f, 1.0f)
 
+#define WORLD_ORIGIN simd_make_float3(0.0f, 0.0f, 0.0f)
+
 #define IDENTITY_MATRIX matrix_identity_float4x4
 
 matrix_float4x4 MTranslate(vector_float3 direction);

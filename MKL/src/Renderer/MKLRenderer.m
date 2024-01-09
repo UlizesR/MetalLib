@@ -98,38 +98,38 @@ void MKLBeginDrawing(MKLRenderer *renderer)
          return;
      }
 
-        renderer->_drawable = [renderer->_metalLayer nextDrawable];
-        if (renderer->_drawable == nil)
-        {
-            NSLog(@"Failed to get drawable");
-            return;
-        }
+    renderer->_pool = [[NSAutoreleasePool alloc] init];
 
-        renderer->_commandBuffer = [renderer->_commandQueue commandBuffer];
-        if (renderer->_commandBuffer == nil)
-        {
-            NSLog(@"Failed to create command buffer");
-            return;
-        }
-        renderer->_renderPassDescriptor = [[MTLRenderPassDescriptor alloc] init];
-        if (renderer->_renderPassDescriptor == nil)
-        {
-            NSLog(@"Failed to get render pass descriptor");
-            return;
-        }
+    renderer->_drawable = [renderer->_metalLayer nextDrawable];
+    if (renderer->_drawable == nil)
+    {
+        NSLog(@"Failed to get drawable");
+        return;
+    }
+    renderer->_commandBuffer = [renderer->_commandQueue commandBuffer];
+    if (renderer->_commandBuffer == nil)
+    {
+        NSLog(@"Failed to create command buffer");
+        return;
+    }
+    renderer->_renderPassDescriptor = [[MTLRenderPassDescriptor alloc] init];
+    if (renderer->_renderPassDescriptor == nil)
+    {
+        NSLog(@"Failed to get render pass descriptor");
+        return;
+    }
 
-        renderer->_renderPassDescriptor.colorAttachments[0].texture = renderer->_drawable.texture;
-        renderer->_renderPassDescriptor.colorAttachments[0].clearColor = renderer->_clearColor;
-        renderer->_renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
-        renderer->_renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
-
-        renderer->_renderEncoder = [renderer->_commandBuffer renderCommandEncoderWithDescriptor:renderer->_renderPassDescriptor];
-        if (renderer->_renderEncoder == nil)
-        {
-            NSLog(@"Failed to create render encoder");
-            return;
-        }
+    renderer->_renderPassDescriptor.colorAttachments[0].texture = renderer->_drawable.texture;
+    renderer->_renderPassDescriptor.colorAttachments[0].clearColor = renderer->_clearColor;
+    renderer->_renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
+    renderer->_renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
     
+    renderer->_renderEncoder = [renderer->_commandBuffer renderCommandEncoderWithDescriptor:renderer->_renderPassDescriptor];
+    if (renderer->_renderEncoder == nil)
+    {
+        NSLog(@"Failed to create render encoder");
+        return;
+    }
 }
 
 void MKLEndDrawing(MKLRenderer *renderer)
@@ -140,19 +140,12 @@ void MKLEndDrawing(MKLRenderer *renderer)
         return;
     }
 
-        [renderer->_renderEncoder endEncoding];
+    [renderer->_renderEncoder endEncoding];
+    [renderer->_commandBuffer presentDrawable:renderer->_drawable];
+    [renderer->_commandBuffer commit];
+    [renderer->_commandBuffer waitUntilCompleted];
 
-        [renderer->_commandBuffer presentDrawable:renderer->_drawable];
-        [renderer->_commandBuffer commit];
-        [renderer->_commandBuffer waitUntilCompleted];
-
-        // Clean up temporary objects
-        [renderer->_renderPassDescriptor release];
-        renderer->_renderPassDescriptor = nil;
-        [renderer->_renderEncoder release];
-        renderer->_renderEncoder = nil;
-        [renderer->_drawable release];
-        renderer->_drawable = nil;
+    [renderer->_pool drain];
 }
 
 void MKLDestroyRenderer(MKLRenderer *renderer)
@@ -163,16 +156,16 @@ void MKLDestroyRenderer(MKLRenderer *renderer)
         return;
     }   
 
-    [renderer->_view removeFromSuperview];
-    [renderer->_view release];
+    // release all the Metal objects
     [renderer->_metalLayer removeFromSuperlayer];
     [renderer->_metalLayer release];
-    [renderer->_device release];
+    [renderer->_view removeFromSuperview];
+    [renderer->_view release];
     [renderer->_commandQueue release];
-    [renderer->_renderPassDescriptor release];
-    [renderer->_renderEncoder release];
     [renderer->_pipelineState release];
     [renderer->_vertexDescriptor release];
+    [renderer->_vertexBuffer release];
+    [renderer->_device release];
 
     free(renderer);
 }
