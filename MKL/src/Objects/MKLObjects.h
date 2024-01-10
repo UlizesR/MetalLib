@@ -3,7 +3,7 @@
 
 #include "../MKLColors.h"
 #include "../Renderer/MKLRenderer.h"
-#include "../MKLCore.h"
+#include "../Core/MKLCore.h"
 
 MKLAPI void MKLDrawAxis(MKLRenderer* renderer, float length);
 

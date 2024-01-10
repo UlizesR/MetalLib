@@ -1,15 +1,18 @@
 #ifndef _MKL_HEADER_H_
 #define _MKL_HEADER_H_
 
-// include core files
-#include "MKLCore.h"
 #include "MKLWindow.h"
-#include "MKLError.h"
+
+// include core files
+#include "Core/MKLCore.h"
+#include "Core/MKLError.h"
+#include "Core/MKLTimer.h"
 
 // include input files
 #include "Input/KeyCodes.h"
 #include "Input/Keyboard.h"
 #include "Input/Mouse.h"
+#include "Input/MKLInput.h"
 
 
 // include renderer files
@@ -18,7 +21,6 @@
 // include object files
 #include "Objects/MKLShapes.h"
 #include "Objects/MKLObjects.h"
-
 
 
 #endif // _MKL_HEADER_H_

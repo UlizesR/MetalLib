@@ -1,7 +1,7 @@
 #ifndef _MKL_MODELS_H_
 #define _MKL_MODELS_H_
 
-#include "../MKLCore.h"
+#include "../Core/MKLCore.h"
 #include "../MKLColors.h"
 #include "../Renderer/MKLRenderer.h"
 
@@ -13,20 +13,20 @@
 
 typedef struct MKLLine
 {
-    vector_float3 p1;
-    vector_float3 p2;
+    vector_float2 p1;
+    vector_float2 p2;
 } MKLLine;
 
 typedef struct MKLTriangle
 {
-    vector_float3 p1;
-    vector_float3 p2;
-    vector_float3 p3;
+    vector_float2 p1;
+    vector_float2 p2;
+    vector_float2 p3;
 } MKLTriangle;
 
 typedef struct MKLRect
 {
-    float x, y;
+    vector_float2 origin;
     float width, height;
 } MKLRect;
 

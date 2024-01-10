@@ -4,7 +4,7 @@ BUILD_DIR = ./bin
 LIB_NAME:= mkl
 LIB_DEFINES:= -fvisibility=hidden -fPIC -O2 -Wno-nullability-completeness
 LIB_INCLUDES:= -I./MKL/src 
-LIB_LINKERS:= -dynamiclib -framework Cocoa -framework Metal -framework MetalKit -framework QuartzCore -framework ModelIO 
+LIB_LINKERS:= -dynamiclib -framework Cocoa -framework Metal -framework MetalKit -framework QuartzCore -framework ModelIO
 
 LIB_C_FILES:= $(shell find ./MKL/src -name "*.c")
 LIB_OBJC_FILES:= $(shell find ./MKL/src -name "*.m")
@@ -24,12 +24,14 @@ buildLib: $(LIB_O_FILES)
 	mkdir -p $(BUILD_DIR)
 	clang $(LIB_DEFINES) $(LIB_INCLUDES) $(LIB_LINKERS) $^ -o $(BUILD_DIR)/lib$(LIB_NAME).dylib
 	echo "Successfully built library!"
+	clear
 
 
 buildApp: $(APP_O_FILES)
 	echo "Building App..."
 	clang $(APP_DEFINES) $(APP_INCLUDES) $(APP_LINKERS) $^ -o $(BUILD_DIR)/$(APP_NAME)
 	echo "Successfully built app!"
+	clear
 
 
 run:

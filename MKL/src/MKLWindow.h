@@ -20,7 +20,7 @@
 
 #include <stdint.h>
 
-#include "MKLCore.h"
+#include "Core/MKLCore.h"
 
 typedef struct MKLWindow
 {

@@ -4,7 +4,7 @@
 #include "KeyCodes.h"
 #include <stdbool.h>
 
-#include "../MKLCore.h"
+#include "../Core/MKLCore.h"
 
 void MKLSetKeyPressed(unsigned short keyCode, bool isOn);
 

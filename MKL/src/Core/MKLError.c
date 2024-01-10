@@ -1,6 +1,6 @@
-#include "MKLError.h"
+#include "Core/MKLError.h"
 
-#include <MKLCore.h>
+#include <Core/MKLCore.h>
 #include <stdlib.h>
 
 MKLAPI MKLError gError = {

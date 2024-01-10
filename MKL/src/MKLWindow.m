@@ -1,6 +1,5 @@
 #import "MKLWindow.h"
-#import "MKLError.h"
-#import "Input/Keyboard.h"
+#import "Core/MKLError.h"
 
 @implementation MklDelegate // Updated class name
 
@@ -19,7 +18,7 @@
     [self.window setTitle:title];
     [self.window center];
     [self.window makeKeyAndOrderFront:nil];
-    [self.window setAcceptsMouseMovedEvents:YES];
+    // [self.window setAcceptsMouseMovedEvents:YES];
     [self.window setDelegate:self];
 
     return self;

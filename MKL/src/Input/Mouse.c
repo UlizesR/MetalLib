@@ -27,10 +27,10 @@ void MKLSetOverallMousePosition(float x, float y)
     overallMousePosition.y = y;
 }
 
-void MKLSetMousePositionChangeWithOverallPosition(float x, float y)
+void MKLSetMousePositionChangeWithOverallPosition(vector_float2 oPos, vector_float2 dPos)
 {
-    mousePositionDelta.x += x;
-    mousePositionDelta.y += y;
+    overallMousePosition = oPos;
+    mousePositionDelta = dPos;
 }
 
 void MKLScrollMouse(float deltaY)

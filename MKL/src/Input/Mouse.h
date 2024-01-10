@@ -1,6 +1,7 @@
 #ifndef __MKL_MOUSE_H__
 #define __MKL_MOUSE_H__
 
+#include <simd/conversion.h>
 #include <stdbool.h>
 #include <simd/vector.h>
 
@@ -16,7 +17,7 @@ bool MKLIsMouseButtonPressed(MouseCodes button);
 
 void MKLSetOverallMousePosition(float x, float y);
 
-void MKLSetMousePositionChangeWithOverallPosition(float x, float y);
+void MKLSetMousePositionChangeWithOverallPosition(vector_float2 oPos, vector_float2 dPos);
 
 void MKLScrollMouse(float deltaY);
 

@@ -1,10 +1,11 @@
 #ifndef _MKL_VIEW_H_
 #define _MKL_VIEW_H_
 
+
 #include <stdint.h>
 
 #include "../MKLWindow.h"
-#include "../MKLCore.h"
+#include "../Core/MKLCore.h"
 #include "../MKLColors.h"
 
 #ifdef __OBJC__

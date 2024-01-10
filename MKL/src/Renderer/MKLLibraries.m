@@ -2,7 +2,7 @@
 #import "MKLTypes.h"
 #import "MKLRenderer.h"
 #import "../MKLUtils.h"
-#import "../MKLError.h"
+#import "../Core/MKLError.h"
 
 #include <stdio.h>
 

@@ -1,6 +1,9 @@
 #include "MKLMath.h"
 
 
+#include <simd/matrix.h>
+#include <simd/matrix_types.h>
+#include <simd/vector_types.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -9,71 +12,106 @@ matrix_float4x4 MTranslate(vector_float3 direction)
 {
     matrix_float4x4 result = IDENTITY_MATRIX;
 
-    float x = direction.x;
-    float y = direction.y;
-    float z = direction.z;
-
     result.columns[0] = simd_make_float4(1, 0, 0, 0);
     result.columns[1] = simd_make_float4(0, 1, 0, 0);
     result.columns[2] = simd_make_float4(0, 0, 1, 0);
-    result.columns[3] = simd_make_float4(x, y, z, 1);
+    result.columns[3] = simd_make_float4(direction.x, direction.y, direction.z, 1);
 
-    return simd_mul(result, matrix_identity_float4x4);
+    return result;
+}
+
+matrix_float4x4 MLookAt(vector_float3 eye, vector_float3 target, vector_float3 up)
+{
+    vector_float3 forwards = simd_normalize(target - eye);
+    vector_float3 right = simd_normalize(simd_cross(up, forwards));
+    vector_float3 upVector = simd_cross(forwards, right);
+
+    matrix_float4x4 result = IDENTITY_MATRIX;
+
+    result.columns[0] = simd_make_float4(right.x, upVector.x, forwards.x, 0);
+    result.columns[1] = simd_make_float4(right.y, upVector.y, forwards.y, 0);
+    result.columns[2] = simd_make_float4(right.z, upVector.z, forwards.z, 0);
+    result.columns[3] = simd_make_float4(-simd_dot(right, eye), -simd_dot(upVector, eye), -simd_dot(forwards, eye), 1);
+
+    return result;
+}
+
+matrix_float4x4 MPerspective(float fov, float aspect, float near, float far)
+{
+    float rad = fov * (M_PI / 360.0f);
+    float fovRad = 1.0f / tanf(rad);
+
+    matrix_float4x4 result = IDENTITY_MATRIX;
+
+    result.columns[0] = simd_make_float4( aspect * fovRad, 0, 0, 0);
+    result.columns[1] = simd_make_float4(0, fovRad, 0, 0);
+    result.columns[2] = simd_make_float4(0, 0, far / (far - near), 1);
+    result.columns[3] = simd_make_float4(0, 0, (-far * near) / (far - near), 0);
+
+    return result;
 }
 
 matrix_float4x4 MScale(vector_float3 scale)
 {
-    matrix_float4x4 result = matrix_identity_float4x4;
+    matrix_float4x4 result = IDENTITY_MATRIX;
 
-    float x = scale.x;
-    float y = scale.y;
-    float z = scale.z;
-
-    result.columns[0] = simd_make_float4(x, 0, 0, 0);
-    result.columns[1] = simd_make_float4(0, y, 0, 0);
-    result.columns[2] = simd_make_float4(0, 0, z, 0);
+    result.columns[0] = simd_make_float4(scale.x, 0, 0, 0);
+    result.columns[1] = simd_make_float4(0, scale.y, 0, 0);
+    result.columns[2] = simd_make_float4(0, 0, scale.z, 0);
     result.columns[3] = simd_make_float4(0, 0, 0, 1);
 
-    return simd_mul(result, matrix_identity_float4x4);
+    return result;
 }
 
-matrix_float4x4 MRotate(float angle, vector_float3 axis)
+matrix_float4x4 MRotate(vector_float3 eulers)
 {
-    matrix_float4x4 result = matrix_identity_float4x4;
+    matrix_float4x4 result = IDENTITY_MATRIX;
 
-    float x = axis.x;
-    float y = axis.y;
-    float z = axis.z;
+    float rad = (M_PI / 180.0f);
 
-    float c = cos(angle);
-    float s = sin(angle);
+    float gamma = eulers.x * rad;
+    float beta = eulers.y * rad;
+    float alpha = eulers.z * rad;
 
-    float mc = 1 - c;
+    // result = MRotateZ(alpha) * MRotateY(beta) * MRotateX(gamma);
+    result = simd_mul(MRotateZ(alpha), MRotateY(beta));
+    result = simd_mul(result, MRotateX(gamma));
 
-    float r1c1 = x * x * mc + c;
-    float r2c1 = x * y * mc + z * s;
-    float r3c1 = x * z * mc - y * s;
-    float r4c1 = 0.0;
-    
-    float r1c2 = y * x * mc - z * s;
-    float r2c2 = y * y * mc + c;
-    float r3c2 = y * z * mc + x * s;
-    float r4c2 = 0.0;
-    
-    float r1c3 = z * x * mc + y * s;
-    float r2c3 = z * y * mc - x * s;
-    float r3c3 = z * z * mc + c;
-    float r4c3 = 0.0;
-    
-    float r1c4 = 0.0;
-    float r2c4 = 0.0;
-    float r3c4 = 0.0;
-    float r4c4 = 1.0;
+    return result;
+}
 
-    result.columns[0] = simd_make_float4(r1c1, r2c1, r3c1, r4c1);
-    result.columns[1] = simd_make_float4(r1c2, r2c2, r3c2, r4c2);
-    result.columns[2] = simd_make_float4(r1c3, r2c3, r3c3, r4c3);   
-    result.columns[3] = simd_make_float4(r1c4, r2c4, r3c4, r4c4);
+matrix_float4x4 MRotateX(float angle)
+{
+    matrix_float4x4 result = IDENTITY_MATRIX;
 
-    return simd_mul(result, matrix_identity_float4x4);
+    result.columns[0] = simd_make_float4(1, 0, 0, 0);
+    result.columns[1] = simd_make_float4(0, cosf(angle), sinf(angle), 0);
+    result.columns[2] = simd_make_float4(0, -sinf(angle), cosf(angle), 0);
+    result.columns[3] = simd_make_float4(0, 0, 0, 1);
+
+    return result;
+}
+
+matrix_float4x4 MRotateY(float angle)
+{
+    matrix_float4x4 result = IDENTITY_MATRIX;
+
+    result.columns[0] = simd_make_float4(cosf(angle), 0, -sinf(angle), 0);
+    result.columns[1] = simd_make_float4(0, 1, 0, 0);
+    result.columns[2] = simd_make_float4(sinf(angle), 0, cosf(angle), 0);
+    result.columns[3] = simd_make_float4(0, 0, 0, 1);
+
+    return result;
+}
+
+matrix_float4x4 MRotateZ(float angle)
+{
+    matrix_float4x4 result = IDENTITY_MATRIX;
+
+    result.columns[0] = simd_make_float4(cosf(angle), sinf(angle), 0, 0);
+    result.columns[1] = simd_make_float4(-sinf(angle), cosf(angle), 0, 0);
+    result.columns[2] = simd_make_float4(0, 0, 1, 0);
+    result.columns[3] = simd_make_float4(0, 0, 0, 1);
+
+    return result;
 }

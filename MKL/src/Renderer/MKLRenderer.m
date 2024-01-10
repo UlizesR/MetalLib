@@ -1,11 +1,13 @@
-#include <AppKit/AppKit.h>
-#include <CoreFoundation/CoreFoundation.h>
-#include <QuartzCore/QuartzCore.h>
-#include <Metal/Metal.h>
+#import <AppKit/AppKit.h>
+#import <CoreFoundation/CoreFoundation.h>
+#import <QuartzCore/QuartzCore.h>
+#import <Metal/Metal.h>
 
 #import "MKLRenderer.h"
 #import "MKLLibraries.h"
-#import "../MKLError.h"
+#import "../Core/MKLError.h"
+#import "../Core/MKLTimer.h"
+
 
 MKLRenderer *MKLCreateRenderer(MKLWindow *window)
 {
@@ -21,8 +23,7 @@ MKLRenderer *MKLCreateRenderer(MKLWindow *window)
     MKL_NULL_CHECK(renderer->_device, renderer, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, "MKLCreateRenderer: Failed to create MTLDevice", NULL)
     
     renderer->_view = [[MTKView alloc] init];
-    renderer->_view.preferredFramesPerSecond = 60;
-    [window->_nswindow setContentView:renderer->_view];
+    renderer->_view.preferredFramesPerSecond = _gFPS;
 
     renderer->_metalLayer = [[CAMetalLayer alloc] init];
     MKL_NULL_CHECK(renderer->_metalLayer, renderer, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, "MKLCreateRenderer: Failed to create CAMetalLayer", NULL)
@@ -33,8 +34,10 @@ MKLRenderer *MKLCreateRenderer(MKLWindow *window)
     renderer->_metalLayer.framebufferOnly = YES;
     renderer->_metalLayer.drawableSize = window->_nswindow.contentView.frame.size;
 
+    [window->_nswindow setContentView:renderer->_view];
     [window->_nswindow.contentView setLayer:renderer->_metalLayer];
     [window->_nswindow.contentView setWantsLayer:YES];
+    [window->_nswindow.contentView acceptsFirstResponder];
 
     renderer->_commandQueue = [renderer->_device newCommandQueue];
 
@@ -59,9 +62,11 @@ void MKLClearRenderer(MKLRenderer *renderer, MKLColor color)
 
 void MKLBeginDrawing(MKLRenderer *renderer)
 {
+   // Increment the frame count
      MKL_NULL_CHECK_VOID(renderer, NULL, MKL_ERROR_NULL_POINTER, "MKLBeginDrawing: Failed to begin drawing because renderer is null")
 
     renderer->_pool = [[NSAutoreleasePool alloc] init];
+   
 
     renderer->_drawable = [renderer->_metalLayer nextDrawable];
     MKL_NULL_CHECK_VOID(renderer->_drawable, NULL, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, "MKLBeginDrawing: Failed to get next drawable")
@@ -79,6 +84,8 @@ void MKLBeginDrawing(MKLRenderer *renderer)
     
     renderer->_renderEncoder = [renderer->_commandBuffer renderCommandEncoderWithDescriptor:renderer->_renderPassDescriptor];
     MKL_NULL_CHECK_VOID(renderer->_renderEncoder, NULL, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, "MKLBeginDrawing: Failed to create render encoder")
+
+    [renderer->_renderEncoder setRenderPipelineState:renderer->_pipelineState];
 }
 
 void MKLEndDrawing(MKLRenderer *renderer)
@@ -91,6 +98,7 @@ void MKLEndDrawing(MKLRenderer *renderer)
     [renderer->_commandBuffer waitUntilCompleted];
 
     [renderer->_pool drain];
+
 }
 
 void MKLDestroyRenderer(MKLRenderer *renderer)
