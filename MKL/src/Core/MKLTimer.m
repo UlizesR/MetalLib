@@ -1,4 +1,4 @@
-#import "Core/MKLTimer.h"
+#import "MKLTimer.h"
 
 #import <math.h>
 #import <Cocoa/Cocoa.h>

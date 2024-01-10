@@ -3,7 +3,7 @@
 
 #include <sys/time.h>
 
-#include "Core/MKLCore.h"
+#include "MKLCore.h"
 
 #ifdef __OBJC__
 #import <Foundation/Foundation.h>

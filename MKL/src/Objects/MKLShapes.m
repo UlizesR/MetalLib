@@ -1,8 +1,8 @@
 #import "MKLShapes.h"
-#include <Metal/Metal.h>
 #import "../Core/MKLError.h"
 #import "../Renderer/MKLTypes.h"
 
+#include <Metal/Metal.h>
 #import <MetalKit/MetalKit.h>
 
 void MKLDrawShape(MKLRenderer *renderer, MKLVertex *vertices, NSUInteger vertexCount, MTLPrimitiveType primitiveType)
