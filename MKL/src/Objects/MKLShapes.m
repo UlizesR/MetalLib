@@ -19,6 +19,20 @@ void MKLDrawShape(MKLRenderer *renderer, MKLVertex *vertices, NSUInteger vertexC
     [renderer->_renderEncoder drawPrimitives:primitiveType vertexStart:0 vertexCount:vertexCount];
 }
 
+void MKLDrawShape3D(MKLRenderer *renderer, MKLVertex *vertices, NSUInteger vertexCount, MTLPrimitiveType primitiveType)
+{
+    MKL_NULL_CHECK(renderer, NULL, MKL_ERROR_NULL_POINTER, "MKLDrawShape: Failed to draw shape because renderer is null", )
+
+    renderer->_vertexBuffer = [renderer->_device newBufferWithBytes:vertices
+                                                             length:sizeof(MKLVertex) * vertexCount
+                                                            options:MTLResourceStorageModeShared];
+
+    [renderer->_renderEncoder setVertexBuffer:renderer->_vertexBuffer offset:0 atIndex:0];
+    // culled for now because it's not needed
+    [renderer->_renderEncoder setCullMode:MTLCullModeFront];
+    [renderer->_renderEncoder drawPrimitives:primitiveType vertexStart:0 vertexCount:vertexCount];
+}
+
 void MKLDrawLine2D(MKLRenderer *renderer, MKLLine line, MKLColor color)
 {
     vector_float4 vcolor = { color.r, color.g, color.b, color.a };
@@ -44,12 +58,29 @@ void MKLDrawRect(MKLRenderer *renderer, MKLRect rect, MKLColor color)
 {
     vector_float4 vcolor = { color.r, color.g, color.b, color.a };
     MKLVertex rectVertices[] = {
-        {.position = {rect.origin.x, rect.origin.y, 0.0f}, .color = vcolor},
-        {.position = {rect.origin.x + rect.width, rect.origin.y, 0.0f}, .color = vcolor},
-        {.position = {rect.origin.x, rect.origin.y + rect.height, 0.0f}, .color = vcolor},
-        {.position = {rect.origin.x + rect.width, rect.origin.y + rect.height, 0.0f}, .color = vcolor}
+        {.position = {rect.position.x - rect.width / 2, rect.position.y - rect.height / 2, 0.0f}, .color = vcolor},
+        {.position = {rect.position.x + rect.width / 2, rect.position.y - rect.height / 2, 0.0f}, .color = vcolor},
+        {.position = {rect.position.x - rect.width / 2, rect.position.y + rect.height / 2, 0.0f}, .color = vcolor},
+        {.position = {rect.position.x + rect.width / 2, rect.position.y + rect.height / 2, 0.0f}, .color = vcolor}
     };
 
     // use triangle strip to draw rect so we only need 4 vertices instead of 6
     MKLDrawShape(renderer, rectVertices, 4, MTLPrimitiveTypeTriangleStrip);
+}
+
+void MKLDrawCube(MKLRenderer *renderer, MKLCube cube, MKLColor color)
+{
+    vector_float4 vcolor = { color.r, color.g, color.b, color.a };
+    MKLVertex cubeVertices[] = {
+        {.position = {cube.position.x - cube.width / 2, cube.position.y - cube.height / 2, cube.position.z - cube.depth / 2}, .color = vcolor},
+        {.position = {cube.position.x + cube.width / 2, cube.position.y - cube.height / 2, cube.position.z - cube.depth / 2}, .color = vcolor},
+        {.position = {cube.position.x - cube.width / 2, cube.position.y + cube.height / 2, cube.position.z - cube.depth / 2}, .color = vcolor},
+        {.position = {cube.position.x + cube.width / 2, cube.position.y + cube.height / 2, cube.position.z - cube.depth / 2}, .color = vcolor},
+        {.position = {cube.position.x - cube.width / 2, cube.position.y - cube.height / 2, cube.position.z + cube.depth / 2}, .color = vcolor},
+        {.position = {cube.position.x + cube.width / 2, cube.position.y - cube.height / 2, cube.position.z + cube.depth / 2}, .color = vcolor},
+        {.position = {cube.position.x - cube.width / 2, cube.position.y + cube.height / 2, cube.position.z + cube.depth / 2}, .color = vcolor},
+        {.position = {cube.position.x + cube.width / 2, cube.position.y + cube.height / 2, cube.position.z + cube.depth / 2}, .color = vcolor}
+    };
+
+    MKLDrawShape3D(renderer, cubeVertices, 8, MTLPrimitiveTypeTriangleStrip);
 }

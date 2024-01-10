@@ -26,14 +26,22 @@ typedef struct MKLTriangle
 
 typedef struct MKLRect
 {
-    vector_float2 origin;
+    vector_float2 position;
     float width, height;
 } MKLRect;
+
+typedef struct MKLCube
+{
+    vector_float3 position;
+    float width, height, depth;
+} MKLCube;
 
 MKLAPI void MKLDrawLine2D(MKLRenderer *renderer, MKLLine line, MKLColor color);
 
 MKLAPI void MKLDrawTriangle(MKLRenderer *renderer, MKLTriangle triangle, MKLColor color);
 
 MKLAPI void MKLDrawRect(MKLRenderer *renderer, MKLRect rect, MKLColor color);
+
+MKLAPI void MKLDrawCube(MKLRenderer *renderer, MKLCube cube, MKLColor color);
 
 #endif // _MKL_MODELS_H_

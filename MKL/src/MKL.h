@@ -21,6 +21,10 @@
 // include object files
 #include "Objects/MKLShapes.h"
 #include "Objects/MKLObjects.h"
+#include "Objects/MKLEntity.h"
+
+// include Math files
+#include "Math/MKLMath.h"
 
 
 #endif // _MKL_HEADER_H_
