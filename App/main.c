@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include <simd/simd.h>
+#include <sys/_types/_null.h>
 
 int main(int argc, char *argv[])
 {

@@ -1,15 +1,12 @@
 #import "MKLShapes.h"
+#import "../MKLError.h"
 #import "../Renderer/MKLTypes.h"
 
 #import <MetalKit/MetalKit.h>
 
 void MKLDrawShape(MKLRenderer *renderer, MKLVertex *vertices, NSUInteger vertexCount, MTLPrimitiveType primitiveType)
 {
-    if (renderer == nil) 
-    {
-        NSLog(@"MKLDrawShape: renderer is nil");
-        return;
-    }
+    MKL_NULL_CHECK(renderer, NULL, MKL_ERROR_NULL_POINTER, "MKLDrawShape: Failed to draw shape because renderer is null", )
 
     renderer->_vertexBuffer = [renderer->_device newBufferWithBytes:vertices
                                                              length:sizeof(MKLVertex) * vertexCount

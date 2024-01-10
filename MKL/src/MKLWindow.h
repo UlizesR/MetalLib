@@ -11,7 +11,6 @@
 
 @interface MklDelegate : NSObject <NSApplicationDelegate, NSWindowDelegate>
 
-@property (nonatomic, strong, nonnull) NSApplication *app;
 @property (nonatomic, strong, nonnull) NSWindow *window;
 
 - (nonnull instancetype)initWithTitle:(nonnull NSString *)title width:(int)width height:(int)height;

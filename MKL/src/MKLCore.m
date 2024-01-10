@@ -1,10 +1,9 @@
 #import "MKLCore.h"
-#include <objc/NSObjCRuntime.h>
-
 #import "Input/Keyboard.h"
 #import "Input/Mouse.h"
 
 #import <Cocoa/Cocoa.h>
+
 
 void MKLGetPollEvents(void)
 {

@@ -5,44 +5,28 @@
 
 #import "MKLRenderer.h"
 #import "MKLLibraries.h"
+#import "../MKLError.h"
 
 MKLRenderer *MKLCreateRenderer(MKLWindow *window)
 {
     // assert that the window is not null
-    if (window == NULL)
-    {
-        NSLog(@"Cannot create renderer for a null window");
-        return NULL;
-    }
+    MKL_NULL_CHECK(window, NULL, MKL_ERROR_NULL_POINTER, "MKLCreateRenderer: Failed to create renderer because window is null", NULL)
 
     MKLRenderer *renderer = (MKLRenderer *)malloc(sizeof(MKLRenderer));
-    if (renderer == NULL)
-    {
-        NSLog(@"Failed to allocate memory for renderer");
-        return NULL;
-    }
+    MKL_NULL_CHECK(renderer, NULL, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, "MKLCreateRenderer: Failed to allocate memory for MKLRenderer", NULL)
 
     renderer->window = window;
 
     renderer->_device = MTLCreateSystemDefaultDevice();
-    if (renderer->_device == nil)
-    {
-        NSLog(@"Failed to create Metal device");
-        free(renderer);
-        return NULL;
-    }
+    MKL_NULL_CHECK(renderer->_device, renderer, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, "MKLCreateRenderer: Failed to create MTLDevice", NULL)
     
     renderer->_view = [[MTKView alloc] init];
     renderer->_view.preferredFramesPerSecond = 60;
     [window->_nswindow setContentView:renderer->_view];
 
     renderer->_metalLayer = [[CAMetalLayer alloc] init];
-    if (renderer->_metalLayer == nil)
-    {
-        NSLog(@"Failed to create Metal layer");
-        free(renderer);
-        return NULL;
-    }
+    MKL_NULL_CHECK(renderer->_metalLayer, renderer, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, "MKLCreateRenderer: Failed to create CAMetalLayer", NULL)
+
     renderer->_metalLayer.device = renderer->_device;
     renderer->_metalLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
 
@@ -55,69 +39,38 @@ MKLRenderer *MKLCreateRenderer(MKLWindow *window)
     renderer->_commandQueue = [renderer->_device newCommandQueue];
 
     MKLShaderLib(renderer, "MKL/src/Renderer/Shaders/Shaders.metal");
-    if (renderer->_library == nil)
-    {
-        NSLog(@"Failed to create Metal library");
-        free(renderer);
-        return NULL;
-    }
+    MKL_NULL_CHECK(renderer->_library, renderer, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, "MKLCreateRenderer: Failed to create Metal library", NULL)
+
     MKLVertexDescriptorLib(renderer);
-    if (renderer->_vertexDescriptor == nil)
-    {
-        NSLog(@"Failed to create Metal vertex descriptor");
-        free(renderer);
-        return NULL;
-    }
+    MKL_NULL_CHECK(renderer->_vertexDescriptor, renderer, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, "MKLCreateRenderer: Failed to create Metal vertex descriptor", NULL)
+
     MKLRenderPipelineLib(renderer);
-    if (renderer->_pipelineState == nil)
-    {
-        NSLog(@"Failed to create Metal render pipeline state");
-        free(renderer);
-        return NULL;
-    }
+    MKL_NULL_CHECK(renderer->_pipelineState, renderer, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, "MKLCreateRenderer: Failed to create Metal render pipeline", NULL)
 
     return renderer;
 }
 
 void MKLClearRenderer(MKLRenderer *renderer, MKLColor color)
 {
-    if (renderer == NULL)
-    {
-        NSLog(@"Renderer is NULL");
-        return;
-    }
+    MKL_NULL_CHECK_VOID(renderer, NULL, MKL_ERROR_NULL_POINTER, "MKLClearRenderer: Failed to clear renderer because renderer is null")
     renderer->_clearColor = MTLClearColorMake(color.r, color.g, color.b, color.a);
     // [renderer->_view setNeedsDisplay:YES];
 }
 
 void MKLBeginDrawing(MKLRenderer *renderer)
 {
-     if (renderer == NULL)
-     {
-         NSLog(@"Renderer is NULL");
-         return;
-     }
+     MKL_NULL_CHECK_VOID(renderer, NULL, MKL_ERROR_NULL_POINTER, "MKLBeginDrawing: Failed to begin drawing because renderer is null")
 
     renderer->_pool = [[NSAutoreleasePool alloc] init];
 
     renderer->_drawable = [renderer->_metalLayer nextDrawable];
-    if (renderer->_drawable == nil)
-    {
-        NSLog(@"Failed to get drawable");
-        return;
-    }
+    MKL_NULL_CHECK_VOID(renderer->_drawable, NULL, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, "MKLBeginDrawing: Failed to get next drawable")
+
     renderer->_commandBuffer = [renderer->_commandQueue commandBuffer];
-    if (renderer->_commandBuffer == nil)
-    {
-        NSLog(@"Failed to create command buffer");
-        return;
-    }
+    MKL_NULL_CHECK_VOID(renderer->_commandBuffer, NULL, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, "MKLBeginDrawing: Failed to create command buffer")
+
     renderer->_renderPassDescriptor = [[MTLRenderPassDescriptor alloc] init];
-    if (renderer->_renderPassDescriptor == nil)
-    {
-        NSLog(@"Failed to get render pass descriptor");
-        return;
-    }
+    MKL_NULL_CHECK_VOID(renderer->_renderPassDescriptor, NULL, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, "MKLBeginDrawing: Failed to create render pass descriptor")
 
     renderer->_renderPassDescriptor.colorAttachments[0].texture = renderer->_drawable.texture;
     renderer->_renderPassDescriptor.colorAttachments[0].clearColor = renderer->_clearColor;
@@ -125,20 +78,12 @@ void MKLBeginDrawing(MKLRenderer *renderer)
     renderer->_renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
     
     renderer->_renderEncoder = [renderer->_commandBuffer renderCommandEncoderWithDescriptor:renderer->_renderPassDescriptor];
-    if (renderer->_renderEncoder == nil)
-    {
-        NSLog(@"Failed to create render encoder");
-        return;
-    }
+    MKL_NULL_CHECK_VOID(renderer->_renderEncoder, NULL, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, "MKLBeginDrawing: Failed to create render encoder")
 }
 
 void MKLEndDrawing(MKLRenderer *renderer)
 {
-    if (renderer == NULL)
-    {
-        NSLog(@"Renderer is NULL");
-        return;
-    }
+    MKL_NULL_CHECK_VOID(renderer, NULL, MKL_ERROR_NULL_POINTER, "MKLEndDrawing: Failed to end drawing because renderer is null")
 
     [renderer->_renderEncoder endEncoding];
     [renderer->_commandBuffer presentDrawable:renderer->_drawable];
@@ -150,11 +95,7 @@ void MKLEndDrawing(MKLRenderer *renderer)
 
 void MKLDestroyRenderer(MKLRenderer *renderer)
 {
-    if (renderer == NULL)
-    {
-        NSLog(@"Renderer is NULL");
-        return;
-    }   
+    MKL_NULL_CHECK_VOID(renderer, NULL, MKL_ERROR_NULL_POINTER, "MKLDestroyRenderer: Failed to destroy renderer because renderer is null")
 
     // release all the Metal objects
     [renderer->_metalLayer removeFromSuperlayer];

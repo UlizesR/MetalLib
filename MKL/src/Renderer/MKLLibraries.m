@@ -2,6 +2,7 @@
 #import "MKLTypes.h"
 #import "MKLRenderer.h"
 #import "../MKLUtils.h"
+#import "../MKLError.h"
 
 #include <stdio.h>
 
@@ -11,70 +12,46 @@ void MKLShaderLib(MKLRenderer *renderer, const char *shaderPath)
     NSString *currentDirectory = [[NSFileManager defaultManager] currentDirectoryPath];
     NSString *shaderPathString = [currentDirectory stringByAppendingPathComponent:@(shaderPath)];
     
-    NSError *error = nil;
     NSString *shaderSource = [NSString stringWithContentsOfFile:shaderPathString
                                                        encoding:NSUTF8StringEncoding
-                                                          error:&error];
-    if (error != nil) 
-    {
-        NSLog(@"MKLShaderLib: %@", error);
-        return;
-    }
+                                                          error:&gError._error];
+
+    gError.message = [[NSString stringWithFormat:@"MKLShaderLib: %s", [[gError._error localizedDescription] UTF8String]] UTF8String];
+    MKL_NULL_CHECK_VOID(shaderSource, NULL, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, gError.message)
 
     renderer->_library = [renderer->_device newLibraryWithSource:shaderSource
                                                           options:nil
-                                                            error:&error];
+                                                            error:&gError._error];
 
-    if (error != nil)
-    {
-        NSLog(@"MKLShaderLib: %@", error);
-        return;
-    }
+    gError.message = [[NSString stringWithFormat:@"MKLShaderLib: %s", [[gError._error localizedDescription] UTF8String]] UTF8String];
+    MKL_NULL_CHECK_VOID(renderer->_library, NULL, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, gError.message)
 
     [shaderSource release];
 }
 
 void MKLRenderPipelineLib(MKLRenderer *renderer)
 {
-    if (renderer == nil) 
-    {
-        NSLog(@"MKLRenderPipeline: renderer is nil");
-        return;
-    }
+    MKL_NULL_CHECK_VOID(renderer, NULL, MKL_ERROR_NULL_POINTER, "MKLRenderPipeline: Failed to create MKLRenderPipeline because renderer is null")
 
-    NSError *error = nil;
     id<MTLFunction> vertexFunction = [renderer->_library newFunctionWithName:@"vertexShader"];
-    if (vertexFunction == nil) 
-    {
-        NSLog(@"MKLRenderPipeline: vertexFunction is nil");
-        return;
-    }
+    MKL_NULL_CHECK_VOID(vertexFunction, NULL, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, "MKLRenderPipeline: Failed to create vertexFunction")
+
     id<MTLFunction> fragmentFunction = [renderer->_library newFunctionWithName:@"fragmentShader"];
-    if (fragmentFunction == nil) 
-    {
-        NSLog(@"MKLRenderPipeline: fragmentFunction is nil");
-        return;
-    }
+    MKL_NULL_CHECK_VOID(fragmentFunction, NULL, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, "MKLRenderPipeline: Failed to create fragmentFunction")
 
     MTLRenderPipelineDescriptor *pipelineDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
-    if (pipelineDescriptor == nil) 
-    {
-        NSLog(@"MKLRenderPipeline: pipelineDescriptor is nil");
-        return;
-    }
+    MKL_NULL_CHECK_VOID(pipelineDescriptor, NULL, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, "MKLRenderPipeline: Failed to create MTLRenderPipelineDescriptor")
+
     pipelineDescriptor.colorAttachments[0].pixelFormat = renderer->_metalLayer.pixelFormat;
     pipelineDescriptor.vertexFunction = vertexFunction;
     pipelineDescriptor.fragmentFunction = fragmentFunction;
     pipelineDescriptor.vertexDescriptor = renderer->_vertexDescriptor;
 
     renderer->_pipelineState = [renderer->_device newRenderPipelineStateWithDescriptor:pipelineDescriptor
-                                                                                 error:&error];
+                                                                                 error:&gError._error];
 
-    if (error != nil)
-    {
-        NSLog(@"MKLRenderPipeline: %@", error);
-        return;
-    }
+    gError.message = [[NSString stringWithFormat:@"MKLRenderPipeline: %s", [[gError._error localizedDescription] UTF8String]] UTF8String];
+    MKL_NULL_CHECK_VOID(renderer->_pipelineState, NULL, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, gError.message)
 
     // Release resources
     [pipelineDescriptor release];
@@ -85,18 +62,10 @@ void MKLRenderPipelineLib(MKLRenderer *renderer)
 
 void MKLVertexDescriptorLib(MKLRenderer *renderer)
 {
-    if (renderer == nil) 
-    {
-        NSLog(@"MKLVertexDescriptor: renderer is nil");
-        return;
-    }
+    MKL_NULL_CHECK_VOID(renderer, NULL, MKL_ERROR_NULL_POINTER, "MKLVertexDescriptor: Failed to create MKLVertexDescriptor because renderer is null")
 
     renderer->_vertexDescriptor = [[MTLVertexDescriptor alloc] init];
-    if (renderer->_vertexDescriptor == nil) 
-    {
-        NSLog(@"MKLVertexDescriptor: vertexDescriptor is nil");
-        return;
-    }
+    MKL_NULL_CHECK_VOID(renderer->_vertexDescriptor, NULL, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, "MKLVertexDescriptor: Failed to create MTLVertexDescriptor")
 
     // Position
     renderer->_vertexDescriptor.attributes[0].format = MTLVertexFormatFloat3;
