@@ -17,6 +17,22 @@
 
 static MKLUniforms _gUniforms = {0};
 
+@implementation MTKView (TrackingArea)
+
+- (void)addCustomTrackingArea {
+    // Remove all existing tracking areas
+    for (NSTrackingArea *trackingArea in self.trackingAreas) {
+        [self removeTrackingArea:trackingArea];
+    }
+
+    // Create and add a new tracking area
+    NSUInteger opts = (NSTrackingMouseMoved | NSTrackingEnabledDuringMouseDrag | NSTrackingActiveAlways);
+    NSTrackingArea *newTrackingArea = [[NSTrackingArea alloc] initWithRect:self.bounds options:opts owner:self userInfo:nil];
+    [self addTrackingArea:newTrackingArea];
+}
+
+@end
+
 MKLRenderer *MKLCreateRenderer(MKLWindow *window)
 {
     // assert that the window is not null
@@ -31,6 +47,8 @@ MKLRenderer *MKLCreateRenderer(MKLWindow *window)
     MKL_NULL_CHECK(renderer->_device, renderer, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, "MKLCreateRenderer: Failed to create MTLDevice", NULL)
     
     renderer->_view = [[MTKView alloc] init];
+    MKL_NULL_CHECK(renderer->_view, renderer, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, "MKLCreateRenderer: Failed to create MTKView", NULL)
+
     renderer->_view.preferredFramesPerSecond = 60;
     renderer->_view.depthStencilPixelFormat = MTLPixelFormatDepth32Float;
 

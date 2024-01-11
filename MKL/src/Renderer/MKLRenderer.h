@@ -13,6 +13,11 @@
 #ifdef __OBJC__
 #import <MetalKit/MetalKit.h>
 
+@interface MTKView (TrackingArea)
+
+- (void)addCustomTrackingArea;
+
+@end
 #endif 
 
 typedef struct MKLRenderer

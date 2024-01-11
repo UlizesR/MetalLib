@@ -8,5 +8,6 @@ MKLAPI void MKLGetPollEvents(void);
 MKLAPI bool MKLWasKeyPressed(int key);
 
 MKLAPI bool MKLWasMouseButtonPressed(int button);
+MKLAPI bool MKLIsMouseButtonHeldDown(int button);
 
 #endif /* _MKL_INPUT_H_ */

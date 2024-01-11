@@ -1,13 +1,11 @@
 #include <MKL.h>
 
 #include <simd/matrix.h>
-#include <simd/matrix_types.h>
-#include <stdlib.h>
-#include <stdio.h>
-
 #include <simd/simd.h>
+
+#include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
-#include <sys/time.h>
 
 #define SPEED 0.01f
 
@@ -29,7 +27,7 @@ int main(int argc, char *argv[])
         printf("Failed to create renderer!\n");
         return 1;
     }
-    MKLClearRenderer(renderer, MKL_COLOR_WHITE);
+    MKLClearRenderer(renderer, MKL_COLOR_MAIN);
 
     MKLCube cube = {
         .position = {0.0f, 0.0f, 0.0f},
@@ -43,7 +41,8 @@ int main(int argc, char *argv[])
     MKLSetCamera(&renderer->camera, (vector_float3){0.0f, 0.0f, 4.0f},(vector_float3){0.0f, 1.0f, 0.0f}, 45.0f, 600.0f / 800.0f, 0.1f, 100.0f);
 
     float vel = 0.0f;
-    unsigned int dt = 0.0f;
+
+    MKLColor color = MKL_COLOR_RED;
 
     while(MKLWindowShouldClose(window))
     {   
@@ -73,9 +72,24 @@ int main(int argc, char *argv[])
         {
             renderer->camera.position = MAddVector(renderer->camera.position, MMulVecByScalar(renderer->camera.right, vel));
         }
+        if (MKLWasKeyPressed(MKL_KEY_SPACE))
+        {
+            renderer->camera.position = MAddVector(renderer->camera.position, MMulVecByScalar(renderer->camera.up, vel));
+        }
+        if (MKLWasKeyPressed(MKL_KEY_Q))
+        {
+            renderer->camera.position = MSubVector(renderer->camera.position, MMulVecByScalar(renderer->camera.up, vel));
+        }
+
+        if (MKLIsMouseButtonHeldDown(0))
+        {
+            color = MKL_COLOR_GREEN;
+        } else {
+            color = MKL_COLOR_RED;
+        }
 
         MKLBeginDrawing(renderer);
-            MKLDrawCube(renderer, cube, MKL_COLOR_RED);
+            MKLDrawCube(renderer, cube, color);
             // MKLDrawRect(renderer, rect, MKL_COLOR_RED);
             MKLDrawAxis(renderer, 2.0f);
         MKLEndDrawing(renderer);

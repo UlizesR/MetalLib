@@ -5,10 +5,12 @@
 #include <stdbool.h>
 #include <simd/vector.h>
 
+#include "../Core/MKLCore.h"
+
 typedef enum {
-    MouseCodesLeft = 0,
-    MouseCodesRight = 1,
-    MouseCodesCenter = 2
+    MouseCodeLeft = 0,  // Trackpad click
+    MouseCodeRight = 1,
+    MouseCodeCenter = 2,
 } MouseCodes;
 
 void MKLSetMouseButtonPressed(MouseCodes button, bool isOn);
@@ -19,16 +21,16 @@ void MKLSetOverallMousePosition(float x, float y);
 
 void MKLSetMousePositionChangeWithOverallPosition(vector_float2 oPos, vector_float2 dPos);
 
-void MKLScrollMouse(float deltaY);
+MKLAPI void MKLScrollMouse(float deltaY);
 
-float MKLGetMouseDWheel();
+MKLAPI float MKLGetMouseDWheel();
 
-float MKLGetMouseDY();
+MKLAPI float MKLGetMouseDY();
 
-float MKLGetMouseDX();
+MKLAPI float MKLGetMouseDX();
 
-vector_float2 MKLGetMouseViewportPosition(float viewportWidth, float viewportHeight);
+MKLAPI vector_float2 MKLGetMouseViewportPosition(float viewportWidth, float viewportHeight);
 
-vector_float2 MKLGetMouseWindowPosition();
+MKLAPI vector_float2 MKLGetMouseWindowPosition();
 
 #endif // __MKL_MOUSE_H__
