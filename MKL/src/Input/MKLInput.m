@@ -51,11 +51,14 @@ void MKLGetPollEvents(void)
                 // Convert windowBounds origin to bottom-left corner
                 windowBounds.origin = NSZeroPoint;
                 
-                if (NSPointInRect(locationInWindow, windowBounds)) {
-                    vector_float2 overallLocation = {locationInWindow.x, locationInWindow.y};
+                // if (NSPointInRect(locationInWindow, windowBounds)) {
+                //     vector_float2 overallLocation = {locationInWindow.x, locationInWindow.y};
+                //     vector_float2 deltaLocation = {appEvent.deltaX, appEvent.deltaY};
+                //     MKLSetMousePositionChangeWithOverallPosition(overallLocation, deltaLocation);
+                // }
+                vector_float2 overallLocation = {locationInWindow.x, locationInWindow.y};
                     vector_float2 deltaLocation = {appEvent.deltaX, appEvent.deltaY};
                     MKLSetMousePositionChangeWithOverallPosition(overallLocation, deltaLocation);
-                }
                 break;
             }
             default:

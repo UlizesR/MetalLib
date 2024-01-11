@@ -1,5 +1,6 @@
 #include <MKL.h>
 
+#include <simd/conversion.h>
 #include <simd/matrix.h>
 #include <simd/simd.h>
 
@@ -8,6 +9,7 @@
 #include <math.h>
 
 #define SPEED 0.01f
+#define SENSITIVITY 0.05f
 
 int main(int argc, char *argv[])
 {
@@ -36,17 +38,30 @@ int main(int argc, char *argv[])
         .depth = 0.5f,
     };
 
-    renderer->camera;
+    MKLCamera camera = {
+        .position = {0.0f, 0.0f, 4.0f},
+        .up = {0.0f, 1.0f, 0.0f},
+        .forward = {0.0f, 0.0f, -1.0f},
+        .right = {1.0f, 0.0f, 0.0f},
+        .fov = 45.0f,
+        .aspect = 600.0f / 800.0f,
+        .near = 0.1f,
+        .far = 100.0f,
+        .yaw = -90.0f,
+        .pitch = 0.0f,
+    };
 
-    MKLSetCamera(&renderer->camera, (vector_float3){0.0f, 0.0f, 4.0f},(vector_float3){0.0f, 1.0f, 0.0f}, 45.0f, 600.0f / 800.0f, 0.1f, 100.0f);
+    renderer->camera = camera;
 
     float vel = 0.0f;
 
-    MKLColor color = MKL_COLOR_RED;
+    MKLColor color = MKL_COLOR_PURPLE_4;
 
     while(MKLWindowShouldClose(window))
     {   
-       float dt = MKLTicks(60);
+        float dt = MKLTicks(60);
+
+        MKLUpdateCamera(&renderer->camera, MKL_CAMERA_ORBIT);
 
         MKLGetPollEvents();
 
@@ -85,7 +100,7 @@ int main(int argc, char *argv[])
         {
             color = MKL_COLOR_GREEN;
         } else {
-            color = MKL_COLOR_RED;
+            color = MKL_COLOR_PURPLE_4;
         }
 
         MKLBeginDrawing(renderer);
@@ -101,11 +116,4 @@ int main(int argc, char *argv[])
     printf("Window and renderer destroyed!\n");
 
     return 0;
-}
-
-
-
-double MKLClock()
-{
-
 }

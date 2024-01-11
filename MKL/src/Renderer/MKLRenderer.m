@@ -35,7 +35,6 @@ static MKLUniforms _gUniforms = {0};
 
 MKLRenderer *MKLCreateRenderer(MKLWindow *window)
 {
-    // assert that the window is not null
     MKL_NULL_CHECK(window, NULL, MKL_ERROR_NULL_POINTER, "MKLCreateRenderer: Failed to create renderer because window is null", NULL)
 
     MKLRenderer *renderer = (MKLRenderer *)malloc(sizeof(MKLRenderer));
@@ -94,13 +93,11 @@ void MKLClearRenderer(MKLRenderer *renderer, MKLColor color)
 {
     MKL_NULL_CHECK_VOID(renderer, NULL, MKL_ERROR_NULL_POINTER, "MKLClearRenderer: Failed to clear renderer because renderer is null")
     renderer->_clearColor = MTLClearColorMake(color.r, color.g, color.b, color.a);
-    // [renderer->_view setNeedsDisplay:YES];
 }
 
 void MKLBeginDrawing(MKLRenderer *renderer)
 {
-   // Increment the frame count
-     MKL_NULL_CHECK_VOID(renderer, NULL, MKL_ERROR_NULL_POINTER, "MKLBeginDrawing: Failed to begin drawing because renderer is null")
+    MKL_NULL_CHECK_VOID(renderer, NULL, MKL_ERROR_NULL_POINTER, "MKLBeginDrawing: Failed to begin drawing because renderer is null")
 
     renderer->_pool = [[NSAutoreleasePool alloc] init];
 
