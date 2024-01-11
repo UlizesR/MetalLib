@@ -1,6 +1,10 @@
 #import "MKLShapes.h"
+#include <simd/matrix_types.h>
 #import "../Core/MKLError.h"
 #import "../Renderer/MKLTypes.h"
+#import "../Math/MKLMath.h"
+
+#include <simd/matrix.h>
 
 #include <Metal/Metal.h>
 #import <MetalKit/MetalKit.h>
@@ -15,13 +19,19 @@ void MKLDrawShape(MKLRenderer *renderer, MKLVertex *vertices, NSUInteger vertexC
 
     [renderer->_renderEncoder setVertexBuffer:renderer->_vertexBuffer offset:0 atIndex:0];
     // culled for now because it's not needed
-    [renderer->_renderEncoder setCullMode:MTLCullModeNone];
+    // [renderer->_renderEncoder setCullMode:MTLCullModeNone];
     [renderer->_renderEncoder drawPrimitives:primitiveType vertexStart:0 vertexCount:vertexCount];
 }
 
 void MKLDrawShape3D(MKLRenderer *renderer, MKLVertex *vertices, NSUInteger vertexCount, MTLPrimitiveType primitiveType)
 {
     MKL_NULL_CHECK(renderer, NULL, MKL_ERROR_NULL_POINTER, "MKLDrawShape: Failed to draw shape because renderer is null", )
+
+    [renderer->_renderEncoder setVertexBytes:&renderer->uniforms length:sizeof(MKLUniforms) atIndex:1];
+
+    id<MTLBuffer> indexBuffer = [renderer->_device newBufferWithBytes:vertices
+                                                               length:sizeof(MKLVertex) * vertexCount
+                                                              options:MTLResourceStorageModeShared];
 
     renderer->_vertexBuffer = [renderer->_device newBufferWithBytes:vertices
                                                              length:sizeof(MKLVertex) * vertexCount
@@ -30,6 +40,8 @@ void MKLDrawShape3D(MKLRenderer *renderer, MKLVertex *vertices, NSUInteger verte
     [renderer->_renderEncoder setVertexBuffer:renderer->_vertexBuffer offset:0 atIndex:0];
     // culled for now because it's not needed
     [renderer->_renderEncoder setCullMode:MTLCullModeFront];
+    [renderer->_renderEncoder setTriangleFillMode:MTLTriangleFillModeLines];
+    [renderer->_renderEncoder setFrontFacingWinding:MTLWindingClockwise];
     [renderer->_renderEncoder drawPrimitives:primitiveType vertexStart:0 vertexCount:vertexCount];
 }
 
@@ -70,17 +82,49 @@ void MKLDrawRect(MKLRenderer *renderer, MKLRect rect, MKLColor color)
 
 void MKLDrawCube(MKLRenderer *renderer, MKLCube cube, MKLColor color)
 {
+    matrix_float4x4 scaleM = MScale((vector_float3){cube.width, cube.height, cube.depth});
+    matrix_float4x4 translateM = MTranslate(cube.position);
+    matrix_float4x4 modelM = matrix_multiply(translateM, scaleM);
+    renderer->uniforms.modelMatrix = modelM;
+
     vector_float4 vcolor = { color.r, color.g, color.b, color.a };
+    // using 8 vertices to draw cube
     MKLVertex cubeVertices[] = {
-        {.position = {cube.position.x - cube.width / 2, cube.position.y - cube.height / 2, cube.position.z - cube.depth / 2}, .color = vcolor},
-        {.position = {cube.position.x + cube.width / 2, cube.position.y - cube.height / 2, cube.position.z - cube.depth / 2}, .color = vcolor},
-        {.position = {cube.position.x - cube.width / 2, cube.position.y + cube.height / 2, cube.position.z - cube.depth / 2}, .color = vcolor},
-        {.position = {cube.position.x + cube.width / 2, cube.position.y + cube.height / 2, cube.position.z - cube.depth / 2}, .color = vcolor},
-        {.position = {cube.position.x - cube.width / 2, cube.position.y - cube.height / 2, cube.position.z + cube.depth / 2}, .color = vcolor},
-        {.position = {cube.position.x + cube.width / 2, cube.position.y - cube.height / 2, cube.position.z + cube.depth / 2}, .color = vcolor},
-        {.position = {cube.position.x - cube.width / 2, cube.position.y + cube.height / 2, cube.position.z + cube.depth / 2}, .color = vcolor},
-        {.position = {cube.position.x + cube.width / 2, cube.position.y + cube.height / 2, cube.position.z + cube.depth / 2}, .color = vcolor}
+        {.position = {-1.0f, -1.0f, 1.0f}, .color = vcolor},
+        {.position = { 1.0f, -1.0f,  1.0f}, .color = vcolor},
+        {.position = { 1.0f,  1.0f,  1.0f}, .color = vcolor},
+        {.position = {-1.0f,  1.0f,  1.0f}, .color = vcolor},
+        {.position = {-1.0f,  1.0f, -1.0f}, .color = vcolor},
+        {.position = {-1.0f, -1.0f, -1.0f}, .color = vcolor},
+        {.position = {1.0f,  -1.0f, -1.0f}, .color = vcolor},
+        {.position = { 1.0f,  1.0f, -1.0f}, .color = vcolor}
     };
 
-    MKLDrawShape3D(renderer, cubeVertices, 8, MTLPrimitiveTypeTriangleStrip);
+    // Define the order of the vertices
+    ushort cubeIndices[] = {
+        0, 2, 3,0, 1, 2,
+        1, 7, 2, 1, 6, 7,
+        6, 5, 4, 4, 7, 6,
+        3, 4, 5, 3, 5, 0,
+        3, 7, 4, 3, 2, 7,
+        0, 6, 1, 0, 5, 6
+
+    };
+    [renderer->_renderEncoder setVertexBytes:&renderer->uniforms length:sizeof(MKLUniforms) atIndex:1];
+
+    id<MTLBuffer> indexBuffer = [renderer->_device newBufferWithBytes:cubeIndices
+                                                               length:36 * sizeof(ushort)
+                                                              options:MTLResourceStorageModeShared];
+
+    renderer->_vertexBuffer = [renderer->_device newBufferWithBytes:cubeVertices
+                                                             length:sizeof(cubeVertices)
+                                                            options:MTLResourceStorageModeShared];
+
+    [renderer->_renderEncoder setVertexBuffer:renderer->_vertexBuffer offset:0 atIndex:0];
+    [renderer->_renderEncoder setCullMode:MTLCullModeFront];
+    // [renderer->_renderEncoder setTriangleFillMode:MTLTriangleFillModeLines];
+    [renderer->_renderEncoder drawIndexedPrimitives:MTLPrimitiveTypeTriangle indexCount:36 indexType:MTLIndexTypeUInt16 indexBuffer:indexBuffer indexBufferOffset:0];
+
+    [indexBuffer release];
+    [renderer->_vertexBuffer release];
 }

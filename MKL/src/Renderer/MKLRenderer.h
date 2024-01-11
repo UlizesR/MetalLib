@@ -7,6 +7,8 @@
 #include "../MKLWindow.h"
 #include "../Core/MKLCore.h"
 #include "../MKLColors.h"
+#include "MKLTypes.h"
+#include "../Objects/MKLEntity.h"
 
 #ifdef __OBJC__
 #import <MetalKit/MetalKit.h>
@@ -16,6 +18,8 @@
 typedef struct MKLRenderer
 {
     MKLWindow *window;
+    MKLUniforms uniforms;
+    MKLCamera camera;
 #ifdef __OBJC__
     id<MTLDevice> _device;
     id<MTLCommandQueue> _commandQueue;
@@ -28,6 +32,7 @@ typedef struct MKLRenderer
     MTLRenderPassDescriptor *_renderPassDescriptor;
     MTLVertexDescriptor *_vertexDescriptor;
     id<MTLRenderPipelineState> _pipelineState;
+    id<MTLDepthStencilState> _depthStencilState;
     // drawing variables
     id<CAMetalDrawable> _drawable;
     id<MTLCommandBuffer> _commandBuffer;

@@ -1,4 +1,7 @@
 #import <AppKit/AppKit.h>
+#include <stdio.h>
+#include <simd/vector_types.h>
+#include <simd/matrix.h>
 #import <CoreFoundation/CoreFoundation.h>
 #import <QuartzCore/QuartzCore.h>
 #import <Metal/Metal.h>
@@ -8,6 +11,11 @@
 #import "../Core/MKLError.h"
 #import "../Core/MKLTimer.h"
 
+#import "../Math/MKLMath.h"
+
+#include "MKLTypes.h"
+
+static MKLUniforms _gUniforms = {0};
 
 MKLRenderer *MKLCreateRenderer(MKLWindow *window)
 {
@@ -24,12 +32,14 @@ MKLRenderer *MKLCreateRenderer(MKLWindow *window)
     
     renderer->_view = [[MTKView alloc] init];
     renderer->_view.preferredFramesPerSecond = _gFPS;
+    renderer->_view.depthStencilPixelFormat = MTLPixelFormatDepth32Float;
 
     renderer->_metalLayer = [[CAMetalLayer alloc] init];
     MKL_NULL_CHECK(renderer->_metalLayer, renderer, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, "MKLCreateRenderer: Failed to create CAMetalLayer", NULL)
 
     renderer->_metalLayer.device = renderer->_device;
     renderer->_metalLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
+
 
     renderer->_metalLayer.framebufferOnly = YES;
     renderer->_metalLayer.drawableSize = window->_nswindow.contentView.frame.size;
@@ -50,6 +60,15 @@ MKLRenderer *MKLCreateRenderer(MKLWindow *window)
     MKLRenderPipelineLib(renderer);
     MKL_NULL_CHECK(renderer->_pipelineState, renderer, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, "MKLCreateRenderer: Failed to create Metal render pipeline", NULL)
 
+    MKLDepetStencilStateLib(renderer);
+    MKL_NULL_CHECK(renderer->_depthStencilState, renderer, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, "MKLCreateRenderer: Failed to create Metal depth stencil state", NULL)
+
+    renderer->uniforms = _gUniforms;
+
+    renderer->uniforms.modelMatrix = matrix_identity_float4x4;
+    renderer->uniforms.viewMatrix = matrix_identity_float4x4;
+    renderer->uniforms.projectionMatrix = matrix_identity_float4x4;
+
     return renderer;
 }
 
@@ -66,7 +85,6 @@ void MKLBeginDrawing(MKLRenderer *renderer)
      MKL_NULL_CHECK_VOID(renderer, NULL, MKL_ERROR_NULL_POINTER, "MKLBeginDrawing: Failed to begin drawing because renderer is null")
 
     renderer->_pool = [[NSAutoreleasePool alloc] init];
-   
 
     renderer->_drawable = [renderer->_metalLayer nextDrawable];
     MKL_NULL_CHECK_VOID(renderer->_drawable, NULL, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, "MKLBeginDrawing: Failed to get next drawable")
@@ -86,6 +104,10 @@ void MKLBeginDrawing(MKLRenderer *renderer)
     MKL_NULL_CHECK_VOID(renderer->_renderEncoder, NULL, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, "MKLBeginDrawing: Failed to create render encoder")
 
     [renderer->_renderEncoder setRenderPipelineState:renderer->_pipelineState];
+    [renderer->_renderEncoder setDepthStencilState:renderer->_depthStencilState];
+
+    renderer->uniforms.projectionMatrix = MPerspective(renderer->camera.fov, renderer->camera.aspect, renderer->camera.near, renderer->camera.far);
+    renderer->uniforms.viewMatrix = MLookAt(renderer->camera.position, (vector_float3){0.0f,0.0f,0.0f}, renderer->camera.up);
 }
 
 void MKLEndDrawing(MKLRenderer *renderer)
@@ -112,8 +134,8 @@ void MKLDestroyRenderer(MKLRenderer *renderer)
     [renderer->_view release];
     [renderer->_commandQueue release];
     [renderer->_pipelineState release];
+    [renderer->_depthStencilState release];
     [renderer->_vertexDescriptor release];
-    [renderer->_vertexBuffer release];
     [renderer->_device release];
 
     free(renderer);

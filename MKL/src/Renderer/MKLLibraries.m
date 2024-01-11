@@ -79,3 +79,19 @@ void MKLVertexDescriptorLib(MKLRenderer *renderer)
 
     renderer->_vertexDescriptor.layouts[0].stride = sizeof(MKLVertex);
 }
+
+void MKLDepetStencilStateLib(MKLRenderer *renderer)
+{
+    MKL_NULL_CHECK_VOID(renderer, NULL, MKL_ERROR_NULL_POINTER, "MKLDepthStencilState: Failed to create MKLDepthStencilState because renderer is null")
+
+    MTLDepthStencilDescriptor *depthStencilDescriptor = [[MTLDepthStencilDescriptor alloc] init];
+    MKL_NULL_CHECK_VOID(depthStencilDescriptor, NULL, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, "MKLDepthStencilState: Failed to create MTLDepthStencilDescriptor")
+
+    depthStencilDescriptor.depthWriteEnabled = YES;
+    depthStencilDescriptor.depthCompareFunction = MTLCompareFunctionLess;
+    renderer->_depthStencilState = [renderer->_device newDepthStencilStateWithDescriptor:depthStencilDescriptor];
+    MKL_NULL_CHECK_VOID(renderer->_depthStencilState, NULL, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, "MKLDepthStencilState: Failed to create MTLDepthStencilState")
+
+    // Release resources
+    [depthStencilDescriptor release];
+}
