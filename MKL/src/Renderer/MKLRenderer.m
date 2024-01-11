@@ -31,7 +31,7 @@ MKLRenderer *MKLCreateRenderer(MKLWindow *window)
     MKL_NULL_CHECK(renderer->_device, renderer, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, "MKLCreateRenderer: Failed to create MTLDevice", NULL)
     
     renderer->_view = [[MTKView alloc] init];
-    renderer->_view.preferredFramesPerSecond = _gFPS;
+    renderer->_view.preferredFramesPerSecond = 60;
     renderer->_view.depthStencilPixelFormat = MTLPixelFormatDepth32Float;
 
     renderer->_metalLayer = [[CAMetalLayer alloc] init];
@@ -107,7 +107,8 @@ void MKLBeginDrawing(MKLRenderer *renderer)
     [renderer->_renderEncoder setDepthStencilState:renderer->_depthStencilState];
 
     renderer->uniforms.projectionMatrix = MPerspective(renderer->camera.fov, renderer->camera.aspect, renderer->camera.near, renderer->camera.far);
-    renderer->uniforms.viewMatrix = MLookAt(renderer->camera.position, (vector_float3){0.0f,0.0f,0.0f}, renderer->camera.up);
+    vector_float3 target = MAddVector(renderer->camera.position, renderer->camera.forward);
+    renderer->uniforms.viewMatrix = MLookAt(renderer->camera.position, target, renderer->camera.up);
 }
 
 void MKLEndDrawing(MKLRenderer *renderer)

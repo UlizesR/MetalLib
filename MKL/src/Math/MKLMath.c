@@ -120,12 +120,32 @@ matrix_float4x4 MPerspective(float fovy, float aspect, float near, float far)
 }
 
 
-vector_float3 MAddVector(vector_float3 vec1, vector_float3  vec2)
+vector_float3 MAddVector(vector_float3 vec1, vector_float3 vec2)
 {
     vector_float3 result = {
         vec1[0] + vec2[0],
         vec1[1] + vec2[1],
         vec1[2] + vec2[2]
+    };
+    return result;
+}
+
+vector_float3 MSubVector(vector_float3 vec1, vector_float3 vec2)
+{
+    vector_float3 result = {
+        vec1[0] - vec2[0],
+        vec1[1] - vec2[1],
+        vec1[2] - vec2[2]
+    };
+    return result;
+}
+
+vector_float3 MMulVecByScalar(vector_float3 vec1, float  vec2)
+{
+    vector_float3 result = {
+        vec1[0] * vec2,
+        vec1[1] * vec2,
+        vec1[2] * vec2
     };
     return result;
 }

@@ -32,4 +32,8 @@ MKLAPI matrix_float4x4 MRotateZ(float angle);
 
 MKLAPI vector_float3 MAddVector(vector_float3 vec1, vector_float3  vec2);
 
+MKLAPI vector_float3 MSubVector(vector_float3 vec1, vector_float3  vec2);
+
+MKLAPI vector_float3 MMulVecByScalar(vector_float3 vec1, float  vec2);
+
 #endif // _MKL_MATH_H_

@@ -1,4 +1,5 @@
 #import "MKLWindow.h"
+#include "Core/MKLTimer.h"
 #import "Core/MKLError.h"
 
 @implementation MklDelegate // Updated class name
@@ -67,6 +68,8 @@ MKLWindow *MKLCreateWindow(int width, int height, const char *title)
     // This will make the application run as a regular app, not a menu bar
     [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
     [NSApp activateIgnoringOtherApps:YES];
+
+    MKLInitTimer();
 
     return window;
 }

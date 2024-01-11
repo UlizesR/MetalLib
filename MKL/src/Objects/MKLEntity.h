@@ -10,6 +10,8 @@
 typedef struct MKLCamera {
     vector_float3 position;
     vector_float3 up;
+    vector_float3 forward;
+    vector_float3 right;
     float fov;
     float aspect;
     float near;
@@ -17,5 +19,7 @@ typedef struct MKLCamera {
 } MKLCamera;
 
 MKLAPI void MKLSetCamera(MKLCamera *camera, vector_float3 position, vector_float3 up, float fov, float aspect, float near, float far);
+
+MKLAPI void MKLUpdateCamera(MKLCamera *camera);
 
 #endif // _MKL_ENTITY_H_
