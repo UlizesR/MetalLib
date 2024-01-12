@@ -28,6 +28,7 @@ void MKLUpdateCamera(MKLCamera *camera, MKLCameraControls controls)
         camera->yaw += MKLGetMouseDX() * 0.05f;
         camera->pitch -= MKLGetMouseDY() * 0.05f;
         camera->pitch = fminf(89.0f, fminf(89.0f, camera->pitch));
+
     }
     // convert to radians
     float yaw = camera->yaw * (M_PI / 180.0f);

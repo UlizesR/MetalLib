@@ -28,6 +28,23 @@ void MKLShaderLib(MKLRenderer *renderer, const char *shaderPath)
     [shaderSource release];
 }
 
+void MKLVertexDescriptorLib(MKLRenderer *renderer)
+{
+    MKL_NULL_CHECK_VOID(renderer, NULL, MKL_ERROR_NULL_POINTER, "MKLVertexDescriptor: Failed to create MKLVertexDescriptor because renderer is null")
+
+    renderer->_vertexDescriptor = [[MTLVertexDescriptor alloc] init];
+    MKL_NULL_CHECK_VOID(renderer->_vertexDescriptor, NULL, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, "MKLVertexDescriptor: Failed to create MTLVertexDescriptor")
+
+    NSUInteger offset = 0;
+    // Position
+    renderer->_vertexDescriptor.attributes[0].format = MTLVertexFormatFloat4;
+    renderer->_vertexDescriptor.attributes[0].offset = 0;
+    renderer->_vertexDescriptor.attributes[0].bufferIndex = 0;
+    offset += sizeof(vector_float4);
+
+    renderer->_vertexDescriptor.layouts[0].stride = offset;
+}
+
 void MKLRenderPipelineLib(MKLRenderer *renderer)
 {
     MKL_NULL_CHECK_VOID(renderer, NULL, MKL_ERROR_NULL_POINTER, "MKLRenderPipeline: Failed to create MKLRenderPipeline because renderer is null")
@@ -58,26 +75,7 @@ void MKLRenderPipelineLib(MKLRenderer *renderer)
     [vertexFunction release];
     [fragmentFunction release];
     [renderer->_library release];
-}
-
-void MKLVertexDescriptorLib(MKLRenderer *renderer)
-{
-    MKL_NULL_CHECK_VOID(renderer, NULL, MKL_ERROR_NULL_POINTER, "MKLVertexDescriptor: Failed to create MKLVertexDescriptor because renderer is null")
-
-    renderer->_vertexDescriptor = [[MTLVertexDescriptor alloc] init];
-    MKL_NULL_CHECK_VOID(renderer->_vertexDescriptor, NULL, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, "MKLVertexDescriptor: Failed to create MTLVertexDescriptor")
-
-    // Position
-    renderer->_vertexDescriptor.attributes[0].format = MTLVertexFormatFloat3;
-    renderer->_vertexDescriptor.attributes[0].offset = 0;
-    renderer->_vertexDescriptor.attributes[0].bufferIndex = 0;
-
-    // Color
-    renderer->_vertexDescriptor.attributes[1].format = MTLVertexFormatFloat4;
-    renderer->_vertexDescriptor.attributes[1].offset = sizeof(vector_float3);
-    renderer->_vertexDescriptor.attributes[1].bufferIndex = 0;
-
-    renderer->_vertexDescriptor.layouts[0].stride = sizeof(MKLVertex);
+    // [renderer->_vertexDescriptor release];
 }
 
 void MKLDepetStencilStateLib(MKLRenderer *renderer)

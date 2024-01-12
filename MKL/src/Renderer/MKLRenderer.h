@@ -18,7 +18,18 @@
 - (void)addCustomTrackingArea;
 
 @end
-#endif 
+
+@interface MklBufferPool : NSObject
+
+@property (nonatomic, readonly) id<MTLDevice> device;
+@property (nonatomic, readonly) NSMutableArray<id<MTLBuffer>> *buffers;
+
+- (nonnull instancetype)initWithDevice:(nonnull id<MTLDevice>)device;
+- (id<MTLBuffer>)getBufferWithBytes:(const void *)bytes length:(NSUInteger)length;
+
+- (void)releaseBuffers;
+@end
+#endif
 
 typedef struct MKLRenderer
 {
@@ -32,6 +43,8 @@ typedef struct MKLRenderer
     MTKView *_view;
     CAMetalLayer *_metalLayer;
     MTLClearColor _clearColor;
+    MTKMeshBufferAllocator *_bufferAllocator;
+    MklBufferPool *_bufferPool;
     // library variables
     id<MTLLibrary> _library;
     MTLRenderPassDescriptor *_renderPassDescriptor;
@@ -41,7 +54,6 @@ typedef struct MKLRenderer
     // drawing variables
     id<CAMetalDrawable> _drawable;
     id<MTLCommandBuffer> _commandBuffer;
-    id<MTLBuffer> _vertexBuffer;
     id<MTLRenderCommandEncoder> _renderEncoder;
 #endif
 } MKLRenderer;

@@ -33,6 +33,7 @@ int main(int argc, char *argv[])
 
     MKLCube cube = {
         .position = {0.0f, 0.0f, 0.0f},
+        .rotation = {0.0f, 0.0f, 0.0f},
         .width = 0.5f,
         .height = 0.5f,
         .depth = 0.5f,
@@ -55,11 +56,38 @@ int main(int argc, char *argv[])
 
     float vel = 0.0f;
 
-    MKLColor color = MKL_COLOR_PURPLE_4;
+    MKLColor color = MKL_COLOR_ORANGE_5;
+
+    // MKLMesh plane;
+    // MKLMeshPlane(&plane, renderer, (vector_float3){0.0f, 0.0f, 0.0f}, (vector_float2){10, 10}, (simd_uint2){10, 10}, (vector_float3){0.0f, 0.0f, 0.0f});
+
+    MKLPlane plane2 = {
+        .position = {0.0f, 0.0f, 0.0f},
+        .dimensions = {100, 100},
+        .segments = {200, 200},
+        .rotation = {-90.0f, 0.0f, 00.0f},
+    };
+
+    MKLGetPlaneVertices(&plane2);
+
+    float a = 2.0f;
+    float f = 0.005f;
 
     while(MKLWindowShouldClose(window))
     {   
         float dt = MKLTicks(60);
+        
+        // sine wave
+        // for (int i = 0; i < plane2.segments.x + 2; i++)
+        // {
+        //     for (int j = 0; j < plane2.segments.y + 2; j++)
+        //     {
+        //         float x = (float)i - ((float)(plane2.segments.y) / 2.0f);
+        //         float y = (float)j - ((float)(plane2.segments.y) / 2.0f);
+        //         float z = a * sinf(f * (x * x + y * y) + MKLGetTicks() * 0.001);
+        //         plane2.vertices[i * (plane2.segments.x + 1) + j].z = z;
+        //     }
+        // }
 
         MKLUpdateCamera(&renderer->camera, MKL_CAMERA_ORBIT);
 
@@ -96,21 +124,20 @@ int main(int argc, char *argv[])
             renderer->camera.position = MSubVector(renderer->camera.position, MMulVecByScalar(renderer->camera.up, vel));
         }
 
-        if (MKLIsMouseButtonHeldDown(0))
-        {
-            color = MKL_COLOR_GREEN;
-        } else {
-            color = MKL_COLOR_PURPLE_4;
-        }
+
+        cube.rotation.y += SPEED * dt * 10;
 
         MKLBeginDrawing(renderer);
             MKLDrawCube(renderer, cube, color);
-            // MKLDrawRect(renderer, rect, MKL_COLOR_RED);
+            // MKLDrawMesh(renderer, &plane, MKL_COLOR_PURPLE_4);
+            MKLDrawPlane(renderer, plane2, MKL_COLOR_PURPLE_4);
             MKLDrawAxis(renderer, 2.0f);
         MKLEndDrawing(renderer);
 
     }
 
+    // MKLMeshRelease(&plane);
+    free(plane2.vertices);
     MKLDestroyRenderer(renderer);
     MKLDestroyWindow(window);
     printf("Window and renderer destroyed!\n");

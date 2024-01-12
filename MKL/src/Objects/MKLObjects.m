@@ -29,23 +29,21 @@ void MKLDrawAxis(MKLRenderer* renderer, float length)
     vector_float4 red = MKL_COLOR2VECTOR_F4(MKL_COLOR_RED);
     vector_float4 green = MKL_COLOR2VECTOR_F4(MKL_COLOR_GREEN);
     vector_float4 blue = MKL_COLOR2VECTOR_F4(MKL_COLOR_BLUE);
+    vector_float4 colors[3] = {red, green, blue};
 
     MKLVertex lineVertices[6] = {
-        {.position = WORLD_ORIGIN, .color = red},
-        {.position = x_axis, .color = red},
-        {.position = WORLD_ORIGIN, .color = green},
-        {.position = y_axis, .color = green},
-        {.position = WORLD_ORIGIN, .color = blue},
-        {.position = z_axis, .color = blue}
+        {.position = WORLD_ORIGIN},
+        {.position = x_axis},
+        {.position = WORLD_ORIGIN},
+        {.position = y_axis},
+        {.position = WORLD_ORIGIN},
+        {.position = z_axis}
     };
 
-    renderer->uniforms.modelMatrix = axisModelMatrix;
+    [renderer->_renderEncoder setVertexBytes:&axisModelMatrix length:sizeof(matrix_float4x4) atIndex:3];
 
-    [renderer->_renderEncoder setVertexBytes:&renderer->uniforms length:sizeof(MKLUniforms) atIndex:1];
-
-    id<MTLBuffer> vertexBuffer = [renderer->_device newBufferWithBytes:lineVertices
-                                                                 length:sizeof(lineVertices)
-                                                                options:MTLResourceStorageModeShared];
+    id<MTLBuffer> vertexBuffer = [renderer->_bufferPool getBufferWithBytes:lineVertices
+                                                                     length:sizeof(lineVertices)];
 
     if (vertexBuffer == nil) 
     {
@@ -57,6 +55,8 @@ void MKLDrawAxis(MKLRenderer* renderer, float length)
 
     for (int i = 0; i < 3; i++)
     {
+        vector_float4 vcolor = colors[i];
+        [renderer->_renderEncoder setVertexBytes:&vcolor length:sizeof(vector_float4) atIndex:2];
         [renderer->_renderEncoder drawPrimitives:MTLPrimitiveTypeLine vertexStart:i*2 vertexCount:2];
     }
 }

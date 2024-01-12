@@ -29,8 +29,34 @@ static MKLUniforms _gUniforms = {0};
     NSUInteger opts = (NSTrackingMouseMoved | NSTrackingEnabledDuringMouseDrag | NSTrackingActiveAlways);
     NSTrackingArea *newTrackingArea = [[NSTrackingArea alloc] initWithRect:self.bounds options:opts owner:self userInfo:nil];
     [self addTrackingArea:newTrackingArea];
+    [newTrackingArea release];
 }
 
+@end
+
+@implementation MklBufferPool
+
+- (nonnull instancetype)initWithDevice:(nonnull id<MTLDevice>)device;
+{
+    self = [super init];
+    if (self) {
+        _device = device;
+        _buffers = [NSMutableArray array];
+    }
+    return self;
+}
+
+- (id<MTLBuffer>)getBufferWithBytes:(const void *)bytes length:(NSUInteger)length 
+{
+    id<MTLBuffer> newBuffer = [_device newBufferWithBytes:bytes length:length options:MTLResourceStorageModeShared];
+    [self.buffers addObject:newBuffer];
+    return newBuffer;
+}
+
+- (void)releaseBuffers
+{
+    [self.buffers removeAllObjects];
+}
 @end
 
 MKLRenderer *MKLCreateRenderer(MKLWindow *window)
@@ -67,6 +93,8 @@ MKLRenderer *MKLCreateRenderer(MKLWindow *window)
     [window->_nswindow.contentView acceptsFirstResponder];
 
     renderer->_commandQueue = [renderer->_device newCommandQueue];
+    renderer->_bufferAllocator = [[MTKMeshBufferAllocator alloc] initWithDevice:renderer->_device];
+    renderer->_bufferPool = [[MklBufferPool alloc] initWithDevice:renderer->_device];
 
     MKLShaderLib(renderer, "MKL/src/Renderer/Shaders/Shaders.metal");
     MKL_NULL_CHECK(renderer->_library, renderer, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, "MKLCreateRenderer: Failed to create Metal library", NULL)
@@ -82,7 +110,6 @@ MKLRenderer *MKLCreateRenderer(MKLWindow *window)
 
     renderer->uniforms = _gUniforms;
 
-    renderer->uniforms.modelMatrix = matrix_identity_float4x4;
     renderer->uniforms.viewMatrix = matrix_identity_float4x4;
     renderer->uniforms.projectionMatrix = matrix_identity_float4x4;
 
@@ -124,6 +151,10 @@ void MKLBeginDrawing(MKLRenderer *renderer)
     renderer->uniforms.projectionMatrix = MPerspective(renderer->camera.fov, renderer->camera.aspect, renderer->camera.near, renderer->camera.far);
     vector_float3 target = MAddVector(renderer->camera.position, renderer->camera.forward);
     renderer->uniforms.viewMatrix = MLookAt(renderer->camera.position, target, renderer->camera.up);
+
+    [renderer->_renderEncoder setVertexBytes:&renderer->uniforms length:sizeof(MKLUniforms) atIndex:1];
+
+    [renderer->_renderEncoder setCullMode:MTLCullModeFront];
 }
 
 void MKLEndDrawing(MKLRenderer *renderer)
@@ -131,12 +162,16 @@ void MKLEndDrawing(MKLRenderer *renderer)
     MKL_NULL_CHECK_VOID(renderer, NULL, MKL_ERROR_NULL_POINTER, "MKLEndDrawing: Failed to end drawing because renderer is null")
 
     [renderer->_renderEncoder endEncoding];
+
+    [renderer->_commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> _Nonnull cb) {
+        [renderer->_bufferPool releaseBuffers];
+    }];
+
     [renderer->_commandBuffer presentDrawable:renderer->_drawable];
     [renderer->_commandBuffer commit];
     [renderer->_commandBuffer waitUntilCompleted];
 
     [renderer->_pool drain];
-
 }
 
 void MKLDestroyRenderer(MKLRenderer *renderer)
@@ -144,14 +179,16 @@ void MKLDestroyRenderer(MKLRenderer *renderer)
     MKL_NULL_CHECK_VOID(renderer, NULL, MKL_ERROR_NULL_POINTER, "MKLDestroyRenderer: Failed to destroy renderer because renderer is null")
 
     // release all the Metal objects
+    [renderer->_depthStencilState release];
+    [renderer->_pipelineState release];
+    [renderer->_bufferPool releaseBuffers];
+    [renderer->_bufferPool release];
+    [renderer->_bufferAllocator release];
+    [renderer->_commandQueue release];
     [renderer->_metalLayer removeFromSuperlayer];
     [renderer->_metalLayer release];
     [renderer->_view removeFromSuperview];
     [renderer->_view release];
-    [renderer->_commandQueue release];
-    [renderer->_pipelineState release];
-    [renderer->_depthStencilState release];
-    [renderer->_vertexDescriptor release];
     [renderer->_device release];
 
     free(renderer);

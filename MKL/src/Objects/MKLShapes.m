@@ -9,95 +9,26 @@
 #include <Metal/Metal.h>
 #import <MetalKit/MetalKit.h>
 
-void MKLDrawShape(MKLRenderer *renderer, MKLVertex *vertices, NSUInteger vertexCount, MTLPrimitiveType primitiveType)
-{
-    MKL_NULL_CHECK(renderer, NULL, MKL_ERROR_NULL_POINTER, "MKLDrawShape: Failed to draw shape because renderer is null", )
-
-    renderer->_vertexBuffer = [renderer->_device newBufferWithBytes:vertices
-                                                             length:sizeof(MKLVertex) * vertexCount
-                                                            options:MTLResourceStorageModeShared];
-
-    [renderer->_renderEncoder setVertexBuffer:renderer->_vertexBuffer offset:0 atIndex:0];
-    // culled for now because it's not needed
-    // [renderer->_renderEncoder setCullMode:MTLCullModeNone];
-    [renderer->_renderEncoder drawPrimitives:primitiveType vertexStart:0 vertexCount:vertexCount];
-}
-
-void MKLDrawShape3D(MKLRenderer *renderer, MKLVertex *vertices, NSUInteger vertexCount, MTLPrimitiveType primitiveType)
-{
-    MKL_NULL_CHECK(renderer, NULL, MKL_ERROR_NULL_POINTER, "MKLDrawShape: Failed to draw shape because renderer is null", )
-
-    [renderer->_renderEncoder setVertexBytes:&renderer->uniforms length:sizeof(MKLUniforms) atIndex:1];
-
-    id<MTLBuffer> indexBuffer = [renderer->_device newBufferWithBytes:vertices
-                                                               length:sizeof(MKLVertex) * vertexCount
-                                                              options:MTLResourceStorageModeShared];
-
-    renderer->_vertexBuffer = [renderer->_device newBufferWithBytes:vertices
-                                                             length:sizeof(MKLVertex) * vertexCount
-                                                            options:MTLResourceStorageModeShared];
-
-    [renderer->_renderEncoder setVertexBuffer:renderer->_vertexBuffer offset:0 atIndex:0];
-    // culled for now because it's not needed
-    [renderer->_renderEncoder setCullMode:MTLCullModeFront];
-    [renderer->_renderEncoder setTriangleFillMode:MTLTriangleFillModeLines];
-    [renderer->_renderEncoder setFrontFacingWinding:MTLWindingClockwise];
-    [renderer->_renderEncoder drawPrimitives:primitiveType vertexStart:0 vertexCount:vertexCount];
-}
-
-void MKLDrawLine2D(MKLRenderer *renderer, MKLLine line, MKLColor color)
-{
-    vector_float4 vcolor = { color.r, color.g, color.b, color.a };
-    MKLVertex lineVertices[] = { 
-        {.position = {line.p1.x, line.p1.y, 0.0f}, .color = vcolor},
-        {.position = {line.p2.x, line.p2.y, 0.0f}, .color = vcolor}
-    };
-    MKLDrawShape(renderer, lineVertices, 2, MTLPrimitiveTypeLine);
-}
-
-void MKLDrawTriangle(MKLRenderer *renderer, MKLTriangle triangle, MKLColor color)
-{
-    vector_float4 vcolor = { color.r, color.g, color.b, color.a };
-    MKLVertex triangleVertices[] = {
-        {.position = {triangle.p1.x, triangle.p1.y, 0.0f}, .color = vcolor},
-        {.position = {triangle.p2.x, triangle.p2.y, 0.0f}, .color = vcolor},
-        {.position = {triangle.p3.x, triangle.p3.y, 0.0f}, .color = vcolor}
-    };
-    MKLDrawShape(renderer, triangleVertices, 3, MTLPrimitiveTypeTriangle);
-}
-
-void MKLDrawRect(MKLRenderer *renderer, MKLRect rect, MKLColor color)
-{
-    vector_float4 vcolor = { color.r, color.g, color.b, color.a };
-    MKLVertex rectVertices[] = {
-        {.position = {rect.position.x - rect.width / 2, rect.position.y - rect.height / 2, 0.0f}, .color = vcolor},
-        {.position = {rect.position.x + rect.width / 2, rect.position.y - rect.height / 2, 0.0f}, .color = vcolor},
-        {.position = {rect.position.x - rect.width / 2, rect.position.y + rect.height / 2, 0.0f}, .color = vcolor},
-        {.position = {rect.position.x + rect.width / 2, rect.position.y + rect.height / 2, 0.0f}, .color = vcolor}
-    };
-
-    // use triangle strip to draw rect so we only need 4 vertices instead of 6
-    MKLDrawShape(renderer, rectVertices, 4, MTLPrimitiveTypeTriangleStrip);
-}
 
 void MKLDrawCube(MKLRenderer *renderer, MKLCube cube, MKLColor color)
 {
     matrix_float4x4 scaleM = MScale((vector_float3){cube.width, cube.height, cube.depth});
     matrix_float4x4 translateM = MTranslate(cube.position);
+    matrix_float4x4 rotationM = MRotate(cube.rotation);
     matrix_float4x4 modelM = matrix_multiply(translateM, scaleM);
-    renderer->uniforms.modelMatrix = modelM;
+    modelM = matrix_multiply(modelM, rotationM);
 
     vector_float4 vcolor = { color.r, color.g, color.b, color.a };
     // using 8 vertices to draw cube
     MKLVertex cubeVertices[] = {
-        {.position = {-1.0f, -1.0f, 1.0f}, .color = vcolor},
-        {.position = { 1.0f, -1.0f,  1.0f}, .color = vcolor},
-        {.position = { 1.0f,  1.0f,  1.0f}, .color = vcolor},
-        {.position = {-1.0f,  1.0f,  1.0f}, .color = vcolor},
-        {.position = {-1.0f,  1.0f, -1.0f}, .color = vcolor},
-        {.position = {-1.0f, -1.0f, -1.0f}, .color = vcolor},
-        {.position = {1.0f,  -1.0f, -1.0f}, .color = vcolor},
-        {.position = { 1.0f,  1.0f, -1.0f}, .color = vcolor}
+        {.position = {-1.0f, -1.0f,  1.0f, 1.0f}},
+        {.position = { 1.0f, -1.0f,  1.0f, 1.0f}},
+        {.position = { 1.0f,  1.0f,  1.0f, 1.0f}},
+        {.position = {-1.0f,  1.0f,  1.0f, 1.0f}},
+        {.position = {-1.0f,  1.0f, -1.0f, 1.0f}},
+        {.position = {-1.0f, -1.0f, -1.0f, 1.0f}},
+        {.position = { 1.0f, -1.0f, -1.0f, 1.0f}},
+        {.position = { 1.0f,  1.0f, -1.0f,  1.0f}}
     };
 
     // Define the order of the vertices
@@ -110,21 +41,82 @@ void MKLDrawCube(MKLRenderer *renderer, MKLCube cube, MKLColor color)
         0, 6, 1, 0, 5, 6
 
     };
-    [renderer->_renderEncoder setVertexBytes:&renderer->uniforms length:sizeof(MKLUniforms) atIndex:1];
+    
+    [renderer->_renderEncoder setVertexBytes:&vcolor length:sizeof(vector_float4) atIndex:2];
+    [renderer->_renderEncoder setVertexBytes:&modelM length:sizeof(matrix_float4x4) atIndex:3];
 
-    id<MTLBuffer> indexBuffer = [renderer->_device newBufferWithBytes:cubeIndices
-                                                               length:36 * sizeof(ushort)
-                                                              options:MTLResourceStorageModeShared];
+    id<MTLBuffer> indexBuffer = [renderer->_bufferPool getBufferWithBytes:cubeIndices
+                                                                   length:sizeof(cubeIndices)];
 
-    renderer->_vertexBuffer = [renderer->_device newBufferWithBytes:cubeVertices
-                                                             length:sizeof(cubeVertices)
-                                                            options:MTLResourceStorageModeShared];
+    id<MTLBuffer> vertexBuffer = [renderer->_bufferPool getBufferWithBytes:cubeVertices
+                                                                    length:sizeof(cubeVertices)];
 
-    [renderer->_renderEncoder setVertexBuffer:renderer->_vertexBuffer offset:0 atIndex:0];
-    [renderer->_renderEncoder setCullMode:MTLCullModeFront];
-    // [renderer->_renderEncoder setTriangleFillMode:MTLTriangleFillModeLines];
+    [renderer->_renderEncoder setVertexBuffer:vertexBuffer offset:0 atIndex:0];
     [renderer->_renderEncoder drawIndexedPrimitives:MTLPrimitiveTypeTriangle indexCount:36 indexType:MTLIndexTypeUInt16 indexBuffer:indexBuffer indexBufferOffset:0];
 
-    [indexBuffer release];
-    [renderer->_vertexBuffer release];
+}
+
+void MKLDrawPlane(MKLRenderer *renderer, MKLPlane plane, MKLColor color)
+{
+    matrix_float4x4 rotationM = MRotate(plane.rotation);
+    matrix_float4x4 scaleM = MScale((vector_float3){plane.dimensions.x, plane.dimensions.y, 1.0f});
+    matrix_float4x4 translateM = MTranslate(plane.position);
+    matrix_float4x4 modelM = matrix_multiply(rotationM, scaleM);
+    modelM = matrix_multiply(translateM, modelM);
+
+    vector_float4 vcolor = { color.r, color.g, color.b, color.a };
+
+    // the number of vertices in the plane = (segments + 1)^2
+    plane.vertexCount = (plane.segments.x + 1 ) * (plane.segments.y + 1);
+    MKLVertex planeVertices[plane.vertexCount];
+
+    // set the vertices
+    for (int i = 0; i < plane.segments.x + 1; i++) {
+        for (int j = 0; j < plane.segments.y + 1; j++) {
+            int index = i * (plane.segments.x + 1) + j;
+            planeVertices[index].position = (vector_float4){plane.vertices[index].x, plane.vertices[index].y, plane.vertices[index].z, 1.0f};
+        }
+    }
+
+    // set the indices
+    int indexCount = plane.segments.x * plane.segments.y * 6;
+    ushort planeIndices[indexCount];
+    int index = 0;
+    for (int i = 0; i < plane.segments.x; i++) {
+        for (int j = 0; j < plane.segments.y; j++) {
+            planeIndices[index++] = i * (plane.segments.x + 1) + j;
+            planeIndices[index++] = (i + 1) * (plane.segments.x + 1) + j;
+            planeIndices[index++] = (i + 1) * (plane.segments.x + 1) + j + 1;
+            planeIndices[index++] = i * (plane.segments.x + 1) + j;
+            planeIndices[index++] = (i + 1) * (plane.segments.x + 1) + j + 1;
+            planeIndices[index++] = i * (plane.segments.x + 1) + j + 1;
+        }
+    }
+
+    [renderer->_renderEncoder setVertexBytes:&modelM length:sizeof(matrix_float4x4) atIndex:3];
+    [renderer->_renderEncoder setVertexBytes:&vcolor length:sizeof(vector_float4) atIndex:2];
+
+    id<MTLBuffer> indexBuffer = [renderer->_bufferPool getBufferWithBytes:planeIndices
+                                                                   length:sizeof(planeIndices)];
+
+    id<MTLBuffer> vertexBuffer = [renderer->_bufferPool getBufferWithBytes:planeVertices
+                                                                  length:sizeof(planeVertices)];
+
+    [renderer->_renderEncoder setVertexBuffer:vertexBuffer offset:0 atIndex:0];
+    [renderer->_renderEncoder setTriangleFillMode:MTLTriangleFillModeLines];
+    [renderer->_renderEncoder drawIndexedPrimitives:MTLPrimitiveTypeTriangle indexCount:indexCount indexType:MTLIndexTypeUInt16 indexBuffer:indexBuffer indexBufferOffset:0];
+
+}
+
+void MKLGetPlaneVertices(MKLPlane *plane)
+{
+    plane->vertexCount = (plane->segments.x + 1 ) * (plane->segments.y + 1);
+    plane->vertices = malloc(sizeof(vector_float3) * plane->vertexCount);
+    MKL_NULL_CHECK_VOID(plane->vertices, NULL, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, "MKLGetPlaneVertices: Failed to allocate memory for vertices")
+    for (int i = 0; i < plane->segments.x + 1; i++) {
+        for (int j = 0; j < plane->segments.y + 1; j++) {
+            int index = i * (plane->segments.x + 1) + j;
+            plane->vertices[index] = (vector_float3){(float)i / plane->segments.x - 0.5f, (float)j / plane->segments.y - 0.5f, 0.0f};
+        }
+    }
 }

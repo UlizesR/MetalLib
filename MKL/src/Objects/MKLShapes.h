@@ -8,9 +8,6 @@
 #include <simd/vector.h>
 #include <simd/vector_types.h>
 
-// void MKLDrawShape(MKLRenderer *renderer, vector_float3 *vertices, NSUInteger vertexCount, MTLPrimitiveType primitiveType)
-// This is a Obj-C helper function implemented in MKLShapes.m
-
 typedef struct MKLLine
 {
     vector_float2 p1;
@@ -30,18 +27,27 @@ typedef struct MKLRect
     float width, height;
 } MKLRect;
 
+typedef struct MKLPlane
+{
+    vector_float3 position;
+    vector_float2 dimensions;
+    simd_uint2 segments;
+    vector_float3 rotation;
+    vector_float3 *vertices;
+    int vertexCount;
+} MKLPlane;
+
 typedef struct MKLCube
 {
     vector_float3 position;
+    vector_float3 rotation;
     float width, height, depth;
 } MKLCube;
 
-MKLAPI void MKLDrawLine2D(MKLRenderer *renderer, MKLLine line, MKLColor color);
-
-MKLAPI void MKLDrawTriangle(MKLRenderer *renderer, MKLTriangle triangle, MKLColor color);
-
-MKLAPI void MKLDrawRect(MKLRenderer *renderer, MKLRect rect, MKLColor color);
-
 MKLAPI void MKLDrawCube(MKLRenderer *renderer, MKLCube cube, MKLColor color);
+
+MKLAPI void MKLDrawPlane(MKLRenderer *renderer, MKLPlane plane, MKLColor color);
+
+MKLAPI void MKLGetPlaneVertices(MKLPlane *plane);
 
 #endif // _MKL_MODELS_H_
