@@ -18,7 +18,6 @@ void MKLDrawCube(MKLRenderer *renderer, MKLCube cube, MKLColor color)
     matrix_float4x4 modelM = matrix_multiply(translateM, scaleM);
     modelM = matrix_multiply(modelM, rotationM);
 
-    vector_float4 vcolor = { color.r, color.g, color.b, color.a };
     // using 8 vertices to draw cube
     MKLVertex cubeVertices[] = {
         {.position = {-1.0f, -1.0f,  1.0f, 1.0f}},
@@ -42,7 +41,7 @@ void MKLDrawCube(MKLRenderer *renderer, MKLCube cube, MKLColor color)
 
     };
     
-    [renderer->_renderEncoder setVertexBytes:&vcolor length:sizeof(vector_float4) atIndex:2];
+    [renderer->_renderEncoder setVertexBytes:&color length:sizeof(vector_float4) atIndex:2];
     [renderer->_renderEncoder setVertexBytes:&modelM length:sizeof(matrix_float4x4) atIndex:3];
 
     id<MTLBuffer> indexBuffer = [renderer->_bufferPool getBufferWithBytes:cubeIndices
@@ -63,8 +62,6 @@ void MKLDrawPlane(MKLRenderer *renderer, MKLPlane plane, MKLColor color)
     matrix_float4x4 translateM = MTranslate(plane.position);
     matrix_float4x4 modelM = matrix_multiply(rotationM, scaleM);
     modelM = matrix_multiply(translateM, modelM);
-
-    vector_float4 vcolor = { color.r, color.g, color.b, color.a };
 
     // the number of vertices in the plane = (segments + 1)^2
     plane.vertexCount = (plane.segments.x + 1 ) * (plane.segments.y + 1);
@@ -94,7 +91,7 @@ void MKLDrawPlane(MKLRenderer *renderer, MKLPlane plane, MKLColor color)
     }
 
     [renderer->_renderEncoder setVertexBytes:&modelM length:sizeof(matrix_float4x4) atIndex:3];
-    [renderer->_renderEncoder setVertexBytes:&vcolor length:sizeof(vector_float4) atIndex:2];
+    [renderer->_renderEncoder setVertexBytes:&color length:sizeof(vector_float4) atIndex:2];
 
     id<MTLBuffer> indexBuffer = [renderer->_bufferPool getBufferWithBytes:planeIndices
                                                                    length:sizeof(planeIndices)];

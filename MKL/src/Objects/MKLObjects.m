@@ -26,10 +26,7 @@ void MKLDrawAxis(MKLRenderer* renderer, float length)
         .columns[3] = WORLD_ORIGIN
     };
 
-    vector_float4 red = MKL_COLOR2VECTOR_F4(MKL_COLOR_RED);
-    vector_float4 green = MKL_COLOR2VECTOR_F4(MKL_COLOR_GREEN);
-    vector_float4 blue = MKL_COLOR2VECTOR_F4(MKL_COLOR_BLUE);
-    vector_float4 colors[3] = {red, green, blue};
+    vector_float4 colors[3] = {MKL_COLOR_RED, MKL_COLOR_GREEN, MKL_COLOR_BLUE};
 
     MKLVertex lineVertices[6] = {
         {.position = WORLD_ORIGIN},
@@ -55,8 +52,7 @@ void MKLDrawAxis(MKLRenderer* renderer, float length)
 
     for (int i = 0; i < 3; i++)
     {
-        vector_float4 vcolor = colors[i];
-        [renderer->_renderEncoder setVertexBytes:&vcolor length:sizeof(vector_float4) atIndex:2];
+        [renderer->_renderEncoder setVertexBytes:&colors[i] length:sizeof(vector_float4) atIndex:2];
         [renderer->_renderEncoder drawPrimitives:MTLPrimitiveTypeLine vertexStart:i*2 vertexCount:2];
     }
 }

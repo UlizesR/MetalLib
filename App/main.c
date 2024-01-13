@@ -58,17 +58,22 @@ int main(int argc, char *argv[])
 
     MKLColor color = MKL_COLOR_ORANGE_5;
 
-    // MKLMesh plane;
-    // MKLMeshPlane(&plane, renderer, (vector_float3){0.0f, 0.0f, 0.0f}, (vector_float2){10, 10}, (simd_uint2){10, 10}, (vector_float3){0.0f, 0.0f, 0.0f});
+    MKLMesh plane;
+    MKLMeshPlane(&plane, renderer, (vector_float3){0.0f, 0.0f, 0.0f}, (vector_float2){10, 10}, (simd_uint2){10, 10}, (vector_float3){0.0f, 0.0f, 0.0f});
 
-    MKLPlane plane2 = {
-        .position = {0.0f, 0.0f, 0.0f},
-        .dimensions = {100, 100},
-        .segments = {200, 200},
-        .rotation = {-90.0f, 0.0f, 00.0f},
-    };
+    MKLMesh sphere;
+    MKLMeshSphere(&sphere, renderer, (vector_float3){0.0f, 0.0f, 0.0f}, (vector_float3){1.0f, 1.0f, 1.0f}, (simd_uint2){32.0f, 32.0f}, (vector_float3){0.0f, 0.0f, 0.0f});
 
-    MKLGetPlaneVertices(&plane2);
+    MKLMesh capsule;
+    MKLMeshCapsule(&capsule, renderer, (vector_float3){0.0f, 0.0f, 0.0f}, (vector_float3){1.0f, 1.0f, 1.0f}, (simd_uint2){32.0f, 4.0f}, (vector_float3){0.0f, 0.0f, 0.0f});
+    // MKLPlane plane2 = {
+    //     .position = {0.0f, 0.0f, 0.0f},
+    //     .dimensions = {100, 100},
+    //     .segments = {200, 200},
+    //     .rotation = {-90.0f, 0.0f, 00.0f},
+    // };
+
+    // MKLGetPlaneVertices(&plane2);
 
     float a = 2.0f;
     float f = 0.005f;
@@ -125,19 +130,20 @@ int main(int argc, char *argv[])
         }
 
 
-        cube.rotation.y += SPEED * dt * 10;
+        // box.rotation.y += SPEED * dt * 10;
 
         MKLBeginDrawing(renderer);
-            MKLDrawCube(renderer, cube, color);
-            // MKLDrawMesh(renderer, &plane, MKL_COLOR_PURPLE_4);
-            MKLDrawPlane(renderer, plane2, MKL_COLOR_PURPLE_4);
+            // MKLDrawCube(renderer, cube, color);
+            MKLDrawMesh(renderer, &plane, MKL_COLOR_PURPLE_4);
+            MKLDrawMesh(renderer, &capsule, MKL_COLOR_ORANGE_6);
+            // MKLDrawPlane(renderer, plane2, MKL_COLOR_PURPLE_4);
             MKLDrawAxis(renderer, 2.0f);
         MKLEndDrawing(renderer);
 
     }
 
     // MKLMeshRelease(&plane);
-    free(plane2.vertices);
+    // free(plane2.vertices);
     MKLDestroyRenderer(renderer);
     MKLDestroyWindow(window);
     printf("Window and renderer destroyed!\n");

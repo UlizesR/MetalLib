@@ -1,7 +1,6 @@
 #ifndef _MKL_VIEW_H_
 #define _MKL_VIEW_H_
 
-
 #include <stdint.h>
 
 #include "../MKLWindow.h"
@@ -39,19 +38,20 @@ typedef struct MKLRenderer
 #ifdef __OBJC__
     id<MTLDevice> _device;
     id<MTLCommandQueue> _commandQueue;
-    NSAutoreleasePool *_pool;
     MTKView *_view;
     CAMetalLayer *_metalLayer;
     MTLClearColor _clearColor;
-    MTKMeshBufferAllocator *_bufferAllocator;
     MklBufferPool *_bufferPool;
+    MTKMeshBufferAllocator *_bufferAllocator;
     // library variables
     id<MTLLibrary> _library;
     MTLRenderPassDescriptor *_renderPassDescriptor;
     MTLVertexDescriptor *_vertexDescriptor;
+    MDLVertexDescriptor *_mdlVertexDescriptor;
     id<MTLRenderPipelineState> _pipelineState;
     id<MTLDepthStencilState> _depthStencilState;
     // drawing variables
+    NSAutoreleasePool *_pool;
     id<CAMetalDrawable> _drawable;
     id<MTLCommandBuffer> _commandBuffer;
     id<MTLRenderCommandEncoder> _renderEncoder;

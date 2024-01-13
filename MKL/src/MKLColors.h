@@ -5,13 +5,7 @@
 
 #define MKL_COLOR2VECTOR_F4(color) ((vector_float4){color.r, color.g, color.b, color.a})
 
-typedef struct MKLColor
-{
-    float r;
-    float g;
-    float b;
-    float a;
-} MKLColor;
+typedef vector_float4 MKLColor;
 
 // Basic colors
 #define MKL_COLOR_TRANSPARENT   (MKLColor){0.0f, 0.0f, 0.0f, 0.0f}

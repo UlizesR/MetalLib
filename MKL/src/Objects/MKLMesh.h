@@ -14,12 +14,12 @@
 typedef struct MKLMesh 
 {
     vector_float3 position;
-    vector_float3 *vertices;
     vector_float3 rotation;
+    vector_float3 dimensions;
+    simd_uint3 segments;
     int vertexCount;
 
 #ifdef __OBJC__
-    MDLMesh* _mdlMesh;
     MTKMesh *_mtkMesh;
 #endif
 } MKLMesh;
@@ -28,6 +28,14 @@ typedef struct MKLMesh
 MKLAPI MKLMesh MKLMeshCreateWithFile(const char* path);
 
 MKLAPI void MKLMeshPlane(MKLMesh *mesh, MKLRenderer *renderer, vector_float3 position, vector_float2 dimensions, simd_uint2 segments, vector_float3 rotation);
+
+MKLAPI void MKLMeshBox(MKLMesh *mesh, MKLRenderer *renderer, vector_float3 position, vector_float3 dimensions, simd_uint3 segments, vector_float3 rotation);
+
+MKLAPI void MKLMeshSphere(MKLMesh *mesh, MKLRenderer *renderer, vector_float3 position, vector_float3 dimensions, simd_uint2 segments, vector_float3 rotation);
+
+MKLAPI void MKLMeshCylinder(MKLMesh *mesh, MKLRenderer *renderer, vector_float3 position, vector_float3 dimensions, simd_uint3 segments, vector_float3 rotation);
+
+MKLAPI void MKLMeshCapsule(MKLMesh *mesh, MKLRenderer *renderer, vector_float3 position, vector_float3 dimensions, simd_uint2 segments, vector_float3 rotation);
 
 MKLAPI void MKLDrawMesh(MKLRenderer *renderer, MKLMesh *mesh, MKLColor color);
 

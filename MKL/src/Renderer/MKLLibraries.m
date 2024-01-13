@@ -16,7 +16,7 @@ void MKLShaderLib(MKLRenderer *renderer, const char *shaderPath)
                                                           error:&gError._error];
 
     gError.message = [[NSString stringWithFormat:@"MKLShaderLib: %s", [[gError._error localizedDescription] UTF8String]] UTF8String];
-    MKL_NULL_CHECK_VOID(shaderSource, NULL, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, gError.message)
+    MKL_NULL_CHECK_VOID(shaderSource, NULL, MKL_ERROR_FAILED_TO_OPEN_FILE, gError.message)
 
     renderer->_library = [renderer->_device newLibraryWithSource:shaderSource
                                                           options:nil
@@ -43,6 +43,11 @@ void MKLVertexDescriptorLib(MKLRenderer *renderer)
     offset += sizeof(vector_float4);
 
     renderer->_vertexDescriptor.layouts[0].stride = offset;
+
+    renderer->_mdlVertexDescriptor = MTKModelIOVertexDescriptorFromMetal(renderer->_vertexDescriptor);
+    MKL_NULL_CHECK_VOID(renderer->_mdlVertexDescriptor, NULL, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, "MKLVertexDescriptor: Failed to create MDLVertexDescriptor")
+    renderer->_mdlVertexDescriptor.attributes[0].name = MDLVertexAttributePosition;
+    renderer->_mdlVertexDescriptor.attributes[1].name = MDLVertexAttributeColor;
 }
 
 void MKLRenderPipelineLib(MKLRenderer *renderer)
@@ -75,7 +80,7 @@ void MKLRenderPipelineLib(MKLRenderer *renderer)
     [vertexFunction release];
     [fragmentFunction release];
     [renderer->_library release];
-    // [renderer->_vertexDescriptor release];
+    [renderer->_vertexDescriptor release];
 }
 
 void MKLDepetStencilStateLib(MKLRenderer *renderer)

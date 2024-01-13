@@ -181,6 +181,7 @@ void MKLDestroyRenderer(MKLRenderer *renderer)
     // release all the Metal objects
     [renderer->_depthStencilState release];
     [renderer->_pipelineState release];
+    [renderer->_mdlVertexDescriptor release];
     [renderer->_bufferPool releaseBuffers];
     [renderer->_bufferPool release];
     [renderer->_bufferAllocator release];
