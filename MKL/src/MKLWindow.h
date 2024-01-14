@@ -25,7 +25,7 @@
 typedef struct MKLWindow
 {
     int width, height;      // Window size
-    const char *title;      // Window title
+    const char * _Nonnull title;      // Window title
     uint32_t flags;         // Window flags
 #ifdef __OBJC__
     NSWindow *_nswindow;    // NSWindow

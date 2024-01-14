@@ -8,24 +8,33 @@
 void MKLShaderLib(MKLRenderer *renderer, const char *shaderPath)
 {
     
-    NSString *currentDirectory = [[NSFileManager defaultManager] currentDirectoryPath];
-    NSString *shaderPathString = [currentDirectory stringByAppendingPathComponent:@(shaderPath)];
+    // NSString *currentDirectory = [[NSFileManager defaultManager] currentDirectoryPath];
+    // NSString *shaderpath = [NSString stringWithUTF8String:shaderPath];
+    // NSString *shaderPathString = [currentDirectory stringByAppendingPathComponent:@(shaderPath)];
     
-    NSString *shaderSource = [NSString stringWithContentsOfFile:shaderPathString
-                                                       encoding:NSUTF8StringEncoding
-                                                          error:&gError._error];
+    // NSString *shaderSource = [NSString stringWithContentsOfFile:shaderPathString
+    //                                                    encoding:NSUTF8StringEncoding
+    //                                                       error:&gError._error];
 
-    gError.message = [[NSString stringWithFormat:@"MKLShaderLib: %s", [[gError._error localizedDescription] UTF8String]] UTF8String];
-    MKL_NULL_CHECK_VOID(shaderSource, NULL, MKL_ERROR_FAILED_TO_OPEN_FILE, gError.message)
+    // gError.message = [[NSString stringWithFormat:@"MKLShaderLib: %s", [[gError._error localizedDescription] UTF8String]] UTF8String];
+    // MKL_NULL_CHECK_VOID(shaderSource, NULL, MKL_ERROR_FAILED_TO_OPEN_FILE, gError.message)
 
-    renderer->_library = [renderer->_device newLibraryWithSource:shaderSource
+    NSBundle *mainBundle = [NSBundle mainBundle];
+    NSString *shaderpath = [mainBundle pathForResource:@"" ofType:@"metal"];
+    NSError *error = nil;
+    NSString *shaderString = [NSString stringWithContentsOfFile:shaderpath encoding:NSUTF8StringEncoding error:&error];
+    if (!shaderString) {
+        NSLog(@"Error loading shader: %@", error.localizedDescription);
+        exit(1);
+    }
+    renderer->_library = [renderer->_device newLibraryWithSource:shaderString
                                                           options:nil
                                                             error:&gError._error];
 
     gError.message = [[NSString stringWithFormat:@"MKLShaderLib: %s", [[gError._error localizedDescription] UTF8String]] UTF8String];
     MKL_NULL_CHECK_VOID(renderer->_library, NULL, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, gError.message)
 
-    [shaderSource release];
+    // [shaderSource release];
 }
 
 void MKLVertexDescriptorLib(MKLRenderer *renderer)

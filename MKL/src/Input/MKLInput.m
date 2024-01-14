@@ -9,7 +9,7 @@
 
 void MKLGetPollEvents(void)
 {
-    // Poll for application events
+   @autoreleasepool { // Poll for application events
     NSEvent *appEvent;
     while((appEvent = [NSApp nextEventMatchingMask:NSEventMaskAny
                                            untilDate:[NSDate distantPast]
@@ -64,7 +64,7 @@ void MKLGetPollEvents(void)
             default:
                 break;
         }
-    }
+    }}
 }
 
 bool MKLWasKeyPressed(int key)

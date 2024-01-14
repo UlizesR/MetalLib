@@ -1,11 +1,12 @@
 #ifndef __MKL_MOUSE_H__
 #define __MKL_MOUSE_H__
 
+#include "../Core/MKLCore.h"
+
 #include <simd/conversion.h>
 #include <stdbool.h>
 #include <simd/vector.h>
 
-#include "../Core/MKLCore.h"
 
 typedef enum {
     MouseCodeLeft = 0,  // Trackpad click

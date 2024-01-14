@@ -1,12 +1,12 @@
 #import "MKLMesh.h"
-#include <simd/vector_types.h>
-#include <simd/conversion.h>
-#import "../Renderer/MKLTypes.h"
-#import "../Core/MKLError.h"
-#import "../Math/MKLMath.h"
+#import "../MKLTypes.h"
+#import "../../Core/MKLError.h"
+#import "../../Math/MKLMath.h"
 
 #include <math.h>
 #include <stdio.h>
+#include <simd/vector_types.h>
+#include <simd/conversion.h>
 
 #include <ModelIO/ModelIO.h>
 #include <Metal/Metal.h>

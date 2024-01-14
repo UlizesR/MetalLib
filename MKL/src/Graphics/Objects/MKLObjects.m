@@ -1,9 +1,8 @@
 #import "MKLObjects.h"
-#include <simd/matrix_types.h>
-#include <simd/vector_make.h>
-#include <simd/conversion.h>
-#import "../Renderer/MKLTypes.h"
-#import "../Math/MKLMath.h"
+#import "../MKLTypes.h"
+#import "../../Math/MKLMath.h"
+
+#import <simd/matrix.h>
 
 #import <Metal/Metal.h>
 

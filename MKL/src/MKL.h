@@ -16,13 +16,13 @@
 
 
 // include renderer files
-#include "Renderer/MKLRenderer.h"
+#include "Graphics/MKLRenderer.h"
 
 // include object files
-#include "Objects/MKLShapes.h"
-#include "Objects/MKLObjects.h"
-#include "Objects/MKLEntity.h"
-#include "Objects/MKLMesh.h"
+#include "Graphics/Objects/MKLShapes.h"
+#include "Graphics/Objects/MKLObjects.h"
+#include "Graphics/Objects/MKLEntity.h"
+#include "Graphics/Objects/MKLMesh.h"
 
 // include Math files
 #include "Math/MKLMath.h"

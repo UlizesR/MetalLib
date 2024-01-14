@@ -16,4 +16,6 @@ MKLAPI unsigned int MKLGetTicks();
 // Given a target FPS, returns the number of ticks to wait until the next frame
 // Returns time in milliseconds
 MKLAPI unsigned int MKLTicks(int fps);
+
+MKLAPI float MKLGetFPS();
 #endif // _MKL_TIMER_H_

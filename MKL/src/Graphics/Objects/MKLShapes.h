@@ -1,10 +1,11 @@
 #ifndef _MKL_MODELS_H_
 #define _MKL_MODELS_H_
 
-#include "../Core/MKLCore.h"
+#include "../../Core/MKLCore.h"
 #include "../MKLColors.h"
-#include "../Renderer/MKLRenderer.h"
+#include "../MKLRenderer.h"
 
+#include <objc/NSObject.h>
 #include <simd/vector.h>
 #include <simd/vector_types.h>
 

@@ -15,4 +15,17 @@ typedef struct MKLUniforms
     matrix_float4x4 projectionMatrix;
 } MKLUniforms;
 
+#ifdef __OBJC__
+#import <MetalKit/MetalKit.h>
+
+@interface MklDefs : NSObject
+
++ (MKLVertex *)cubeVertices;
++ (ushort *)cubeIndices;
+
+@end
+
+#endif
+
+
 #endif // _MKL_TYPES_H_

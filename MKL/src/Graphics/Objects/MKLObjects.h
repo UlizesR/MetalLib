@@ -2,9 +2,9 @@
 #define _MKL_OBJECTS_H_
 
 #include "../MKLColors.h"
-#include "../Renderer/MKLRenderer.h"
-#include "../Core/MKLCore.h"
-#include "../Math/MKLMath.h"
+#include "../MKLRenderer.h"
+#include "../../Core/MKLCore.h"
+
 #include <simd/vector_types.h>
 
 MKLAPI void MKLDrawAxis(MKLRenderer* renderer, float length);

@@ -5,9 +5,10 @@
 
 #include "../MKLWindow.h"
 #include "../Core/MKLCore.h"
-#include "../MKLColors.h"
+#include "Objects/MKLEntity.h"
+
+#include "MKLColors.h"
 #include "MKLTypes.h"
-#include "../Objects/MKLEntity.h"
 
 #ifdef __OBJC__
 #import <MetalKit/MetalKit.h>

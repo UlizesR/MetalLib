@@ -1,8 +1,6 @@
-#import <AppKit/AppKit.h>
-#include <stdio.h>
-#include <simd/vector_types.h>
 #include <simd/matrix.h>
-#import <CoreFoundation/CoreFoundation.h>
+#include <stdio.h>
+
 #import <QuartzCore/QuartzCore.h>
 #import <Metal/Metal.h>
 
@@ -112,6 +110,7 @@ MKLRenderer *MKLCreateRenderer(MKLWindow *window)
 
     renderer->uniforms.viewMatrix = matrix_identity_float4x4;
     renderer->uniforms.projectionMatrix = matrix_identity_float4x4;
+    
 
     return renderer;
 }
@@ -144,7 +143,7 @@ void MKLBeginDrawing(MKLRenderer *renderer)
     
     renderer->_renderEncoder = [renderer->_commandBuffer renderCommandEncoderWithDescriptor:renderer->_renderPassDescriptor];
     MKL_NULL_CHECK_VOID(renderer->_renderEncoder, NULL, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, "MKLBeginDrawing: Failed to create render encoder")
-
+    
     [renderer->_renderEncoder setRenderPipelineState:renderer->_pipelineState];
     [renderer->_renderEncoder setDepthStencilState:renderer->_depthStencilState];
 
@@ -171,7 +170,10 @@ void MKLEndDrawing(MKLRenderer *renderer)
     [renderer->_commandBuffer commit];
     [renderer->_commandBuffer waitUntilCompleted];
 
+    [renderer->_renderPassDescriptor release];
+
     [renderer->_pool drain];
+
 }
 
 void MKLDestroyRenderer(MKLRenderer *renderer)

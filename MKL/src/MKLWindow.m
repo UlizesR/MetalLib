@@ -1,6 +1,6 @@
 #import "MKLWindow.h"
 #include "Core/MKLTimer.h"
-#import "Core/MKLError.h"
+#import "Core/MKLError.h" 
 
 @implementation MklDelegate // Updated class name
 
@@ -60,6 +60,7 @@ MKLWindow *MKLCreateWindow(int width, int height, const char *title)
     MKL_NULL_CHECK(delegate, window, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, "Failed to allocate memory for MklDelegate", NULL)
 
     window->_nswindow = delegate.window;
+
     [NSApp setDelegate:delegate];
 
     // Since we already set the delegate, we can release it

@@ -7,9 +7,9 @@
 #import <ModelIO/ModelIO.h>
 #endif
 
-#include "../Core/MKLCore.h"
+#include "../../Core/MKLCore.h"
+#include "../MKLRenderer.h"
 #include "MKLShapes.h"
-#include "../Renderer/MKLRenderer.h"
 
 typedef struct MKLMesh 
 {

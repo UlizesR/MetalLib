@@ -3,8 +3,6 @@
 
 #include <simd/simd.h>
 
-#define MKL_COLOR2VECTOR_F4(color) ((vector_float4){color.r, color.g, color.b, color.a})
-
 typedef vector_float4 MKLColor;
 
 // Basic colors

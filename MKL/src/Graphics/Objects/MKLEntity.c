@@ -1,6 +1,6 @@
 #include "MKLEntity.h"
-#include "../Core/MKLError.h"
-#include "../Input/Mouse.h"
+#include "../../Core/MKLError.h"
+#include "../../Input/Mouse.h"
 
 #include <stdlib.h>
 #include <stdio.h>

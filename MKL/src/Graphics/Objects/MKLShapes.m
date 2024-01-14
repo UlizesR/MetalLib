@@ -1,8 +1,7 @@
 #import "MKLShapes.h"
-#include <simd/matrix_types.h>
-#import "../Core/MKLError.h"
-#import "../Renderer/MKLTypes.h"
-#import "../Math/MKLMath.h"
+#import "../MKLTypes.h"
+#import "../../Core/MKLError.h"
+#import "../../Math/MKLMath.h"
 
 #include <simd/matrix.h>
 
@@ -19,40 +18,25 @@ void MKLDrawCube(MKLRenderer *renderer, MKLCube cube, MKLColor color)
     modelM = matrix_multiply(modelM, rotationM);
 
     // using 8 vertices to draw cube
-    MKLVertex cubeVertices[] = {
-        {.position = {-1.0f, -1.0f,  1.0f, 1.0f}},
-        {.position = { 1.0f, -1.0f,  1.0f, 1.0f}},
-        {.position = { 1.0f,  1.0f,  1.0f, 1.0f}},
-        {.position = {-1.0f,  1.0f,  1.0f, 1.0f}},
-        {.position = {-1.0f,  1.0f, -1.0f, 1.0f}},
-        {.position = {-1.0f, -1.0f, -1.0f, 1.0f}},
-        {.position = { 1.0f, -1.0f, -1.0f, 1.0f}},
-        {.position = { 1.0f,  1.0f, -1.0f,  1.0f}}
-    };
+    MKLVertex *cubeVertices = [MklDefs cubeVertices];
 
     // Define the order of the vertices
-    ushort cubeIndices[] = {
-        0, 2, 3,0, 1, 2,
-        1, 7, 2, 1, 6, 7,
-        6, 5, 4, 4, 7, 6,
-        3, 4, 5, 3, 5, 0,
-        3, 7, 4, 3, 2, 7,
-        0, 6, 1, 0, 5, 6
-
-    };
+    ushort *cubeIndices = [MklDefs cubeIndices];
     
     [renderer->_renderEncoder setVertexBytes:&color length:sizeof(vector_float4) atIndex:2];
     [renderer->_renderEncoder setVertexBytes:&modelM length:sizeof(matrix_float4x4) atIndex:3];
 
     id<MTLBuffer> indexBuffer = [renderer->_bufferPool getBufferWithBytes:cubeIndices
-                                                                   length:sizeof(cubeIndices)];
+                                                                   length:sizeof(ushort) * 36];
 
     id<MTLBuffer> vertexBuffer = [renderer->_bufferPool getBufferWithBytes:cubeVertices
-                                                                    length:sizeof(cubeVertices)];
+                                                                    length:sizeof(MKLVertex) * 8];
 
     [renderer->_renderEncoder setVertexBuffer:vertexBuffer offset:0 atIndex:0];
     [renderer->_renderEncoder drawIndexedPrimitives:MTLPrimitiveTypeTriangle indexCount:36 indexType:MTLIndexTypeUInt16 indexBuffer:indexBuffer indexBufferOffset:0];
 
+    [indexBuffer release];
+    [vertexBuffer release];
 }
 
 void MKLDrawPlane(MKLRenderer *renderer, MKLPlane plane, MKLColor color)
@@ -103,6 +87,8 @@ void MKLDrawPlane(MKLRenderer *renderer, MKLPlane plane, MKLColor color)
     [renderer->_renderEncoder setTriangleFillMode:MTLTriangleFillModeLines];
     [renderer->_renderEncoder drawIndexedPrimitives:MTLPrimitiveTypeTriangle indexCount:indexCount indexType:MTLIndexTypeUInt16 indexBuffer:indexBuffer indexBufferOffset:0];
 
+    [indexBuffer release];
+    [vertexBuffer release];
 }
 
 void MKLGetPlaneVertices(MKLPlane *plane)
