@@ -1,4 +1,6 @@
-#include "src/MTLC.h"
+#include "src/Include/MTLC.h"
+#include <src/Include/MTLCEvents.h>
+#include <src/Include/MTLCTimer.h>
 
 int main(void)
 {
@@ -11,15 +13,22 @@ int main(void)
     }
 
     int i = 0;
+    unsigned int ticks = 0;
+    int fps = 60;
 
     while(MTLCIsWindowOpen(window))
     {
         MTLCGetPollEvents();
 
-        if (MTLCWasKeyPressed(MTLC_KEY_E) && MTLCWasKeyPressed(MTLC_KEY_Q))
+        if (MTLCWasKeyPressed(MTLC_KEY_Q))
         {
-            printf("%d\n", i++);
+            break;
         }
+
+        ticks = MTLCGetTicks() / 1000;
+        printf("Seconds: %d s\n", ticks);
+        fps = MTLCGetFPS();
+        printf("FPS: %d\n", fps);
     }
 
     MTLCDestroyWindow(window);

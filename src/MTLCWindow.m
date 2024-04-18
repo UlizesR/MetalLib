@@ -1,7 +1,6 @@
-#import "MTLCWindow.h"
-#include <string.h>
-#include "MTLCDefs.h"
-#import "MTLCError.h"
+#import "Include/MTLCWindow.h"
+#import "Include/MTLCError.h"
+#import "Include/MTLCTimer.h"
 
 @implementation  MTLCDelegate 
 
@@ -95,6 +94,9 @@ MTLCWindow* MTLCCreateWindow(const char* title, int width, int height, MTLCError
     // set app policy
     [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
     [NSApp activateIgnoringOtherApps:YES];
+
+    // Init the app timer
+    MTLCInitTimer();
 
     return window;
 }

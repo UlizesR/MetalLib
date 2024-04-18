@@ -4,5 +4,9 @@
 #include "MTLCError.h"
 #include "MTLCEvents.h"
 #include "MTLCWindow.h"
+#include "MTLCTimer.h"
+
+// Math
+#include "Math/MTLCMath.h"
 
 #endif 
