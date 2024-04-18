@@ -5,9 +5,9 @@ __pycache__
 .o
 build/
 test/
-MCL/
-MCL3/
 M.m
-M/
 bin/
-MKLE/
+MKLTest/
+MKL/
+APP/
+old/
