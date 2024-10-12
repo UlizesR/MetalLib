@@ -2,12 +2,11 @@
 __pycache__
 .DS_Store
 
+old_code/
 .o
 build/
 test/
-MCL/
-MCL3/
 M.m
-M/
 bin/
-MKLE/
+MKLTest/
+old/
