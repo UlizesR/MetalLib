@@ -2,66 +2,76 @@
 #include <mach/mach_time.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <stdbool.h>
 
-static uint64_t _gStartTime;
-static int _gInitialized = 0;
+// Static timebase information - cached to avoid repeated kernel calls
+static mach_timebase_info_data_t _gTimebaseInfo;
+static uint64_t _gStartTime = 0;
+static bool _gInitialized = false;
 
-void MKLInitTimer()
+void MKLInitTimer(void)
 {
-    if (!_gInitialized)
+    if (_gInitialized)
     {
-        _gStartTime = mach_absolute_time();
-        mach_timebase_info_data_t timebase_info;
-        if (mach_timebase_info(&timebase_info) == KERN_SUCCESS)
-        {
-            _gInitialized = 1;
-        }
-        else
-        {
-            fprintf(stderr, "Error: Unable to get timebase info.\n");
-        }
+        return;
+    }
+
+    _gStartTime = mach_absolute_time();
+    
+    kern_return_t result = mach_timebase_info(&_gTimebaseInfo);
+    if (result == KERN_SUCCESS)
+    {
+        _gInitialized = true;
+    }
+    else
+    {
+        fprintf(stderr, "MKL Error: Unable to initialize timer - mach_timebase_info failed with code %d\n", result);
     }
 }
 
-unsigned int MKLGetTicks()
+unsigned int MKLGetTicks(void)
 {
     if (!_gInitialized)
     {
+        fprintf(stderr, "MKL Warning: MKLGetTicks() called before MKLInitTimer()\n");
         return 0;
     }
 
-    uint64_t current_time = mach_absolute_time();
+    const uint64_t current_time = mach_absolute_time();
     uint64_t elapsed_time = current_time - _gStartTime;
 
-    // Convert elapsed time to milliseconds
-    mach_timebase_info_data_t timebase_info;
-    mach_timebase_info(&timebase_info);
-    elapsed_time *= timebase_info.numer;
-    elapsed_time /= timebase_info.denom;
+    // Convert elapsed time to milliseconds using cached timebase info
+    elapsed_time *= _gTimebaseInfo.numer;
+    elapsed_time /= _gTimebaseInfo.denom;
 
-    return (unsigned int)(elapsed_time / 1000000); // Convert to milliseconds
+    return (unsigned int)(elapsed_time / 1000000ULL); // Convert nanoseconds to milliseconds
 }
 
 unsigned int MKLTicks(int fps)
 {
     if (!_gInitialized)
     {
+        fprintf(stderr, "MKL Warning: MKLTicks() called before MKLInitTimer()\n");
+        return 0;
+    }
+
+    if (fps <= 0)
+    {
+        fprintf(stderr, "MKL Warning: Invalid FPS value (%d), must be positive\n", fps);
         return 0;
     }
 
     static uint64_t previous_time = 0;
-    uint64_t current_time = mach_absolute_time();
+    const uint64_t current_time = mach_absolute_time();
     uint64_t elapsed_time = current_time - previous_time;
 
-    // Convert elapsed time to milliseconds
-    mach_timebase_info_data_t timebase_info;
-    mach_timebase_info(&timebase_info);
-    elapsed_time *= timebase_info.numer;
-    elapsed_time /= timebase_info.denom;
-    unsigned int elapsed_ms = (unsigned int)(elapsed_time / 1000000);
+    // Convert elapsed time to milliseconds using cached timebase info
+    elapsed_time *= _gTimebaseInfo.numer;
+    elapsed_time /= _gTimebaseInfo.denom;
+    const unsigned int elapsed_ms = (unsigned int)(elapsed_time / 1000000ULL);
 
     // Calculate the target frame time in milliseconds
-    unsigned int target_frame_time = 1000 / fps;
+    const unsigned int target_frame_time = 1000U / (unsigned int)fps;
 
     // Update the previous time
     previous_time = current_time;
@@ -69,7 +79,7 @@ unsigned int MKLTicks(int fps)
     // Sleep only if the frame time is greater than the elapsed time
     if (target_frame_time > elapsed_ms)
     {
-        usleep((target_frame_time - elapsed_ms) * 1000); // Sleep in microseconds
+        usleep((target_frame_time - elapsed_ms) * 1000U); // Sleep in microseconds
     }
 
     return elapsed_ms;
@@ -77,35 +87,65 @@ unsigned int MKLTicks(int fps)
 
 #define MAX_FPS_SAMPLES 10
 
-unsigned int fps_samples[MAX_FPS_SAMPLES]; // Array to store FPS samples
-int fps_sample_index = 0; // Index to track the current sample position
+static unsigned int _gFpsSamples[MAX_FPS_SAMPLES] = {0}; // Array to store FPS samples
+static unsigned int _gFpsSampleIndex = 0; // Index to track the current sample position
+static unsigned int _gFrameCount = 0;
+static unsigned int _gLastFrameTime = 0;
 
-// Function to compute the average framerate
-float MKLGetFPS() {
-    static unsigned int frame_count = 0;
-    static unsigned int last_frame_time = 0;
-    static float average_fps = 0.0;
+float MKLGetFPS(void)
+{
+    if (!_gInitialized)
+    {
+        fprintf(stderr, "MKL Warning: MKLGetFPS() called before MKLInitTimer()\n");
+        return 0.0f;
+    }
 
     // Calculate elapsed time since the last frame
-    unsigned int current_time = MKLGetTicks();
-    unsigned int elapsed_time = current_time - last_frame_time;
-    last_frame_time = current_time;
+    const unsigned int current_time = MKLGetTicks();
+    const unsigned int elapsed_time = current_time - _gLastFrameTime;
+    _gLastFrameTime = current_time;
+
+    // Avoid division by zero
+    if (elapsed_time == 0)
+    {
+        return 0.0f;
+    }
 
     // Calculate the instantaneous framerate and store it in the array
-    float instantaneous_fps = 1000.0 / (float)elapsed_time;
-    fps_samples[fps_sample_index] = (unsigned int)instantaneous_fps;
-    fps_sample_index = (fps_sample_index + 1) % MAX_FPS_SAMPLES;
+    const float instantaneous_fps = 1000.0f / (float)elapsed_time;
+    _gFpsSamples[_gFpsSampleIndex] = (unsigned int)instantaneous_fps;
+    _gFpsSampleIndex = (_gFpsSampleIndex + 1) % MAX_FPS_SAMPLES;
 
-    // Calculate the average framerate based on the last ten samples
-    if (frame_count < MAX_FPS_SAMPLES) {
-        frame_count++;
+    // Calculate the average framerate based on the last samples
+    if (_gFrameCount < MAX_FPS_SAMPLES)
+    {
+        _gFrameCount++;
     }
 
     unsigned int sum_fps = 0;
-    for (int i = 0; i < frame_count; i++) {
-        sum_fps += fps_samples[i];
+    for (unsigned int i = 0; i < _gFrameCount; i++)
+    {
+        sum_fps += _gFpsSamples[i];
     }
 
-    average_fps = (float)sum_fps / (float)frame_count;
+    const float average_fps = (float)sum_fps / (float)_gFrameCount;
     return average_fps;
+}
+
+float MKLGetTime(void)
+{
+    if (!_gInitialized)
+    {
+        fprintf(stderr, "MKL Warning: MKLGetTime() called before MKLInitTimer()\n");
+        return 0.0f;
+    }
+
+    const uint64_t current_time = mach_absolute_time();
+    uint64_t elapsed_time = current_time - _gStartTime;
+
+    // Convert elapsed time to seconds using cached timebase info
+    elapsed_time *= _gTimebaseInfo.numer;
+    elapsed_time /= _gTimebaseInfo.denom;
+
+    return (float)(elapsed_time / 1000000000.0); // Convert nanoseconds to seconds
 }

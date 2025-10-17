@@ -17,6 +17,7 @@
 
 // include renderer files
 #include "Graphics/MKLRenderer.h"
+#include "Graphics/MKLShader.h"
 
 // include object files
 #include "Graphics/Objects/MKLShapes.h"

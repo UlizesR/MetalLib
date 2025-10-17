@@ -23,10 +23,11 @@ void MKLUpdateCamera(MKLCamera *camera, MKLCameraControls controls)
     MKL_NULL_CHECK_VOID(camera, NULL, MKL_ERROR_NULL_POINTER, "MKLCamera is NULL!");
     if (controls == MKL_CAMERA_ORBIT)
     {
-        vector_float2 mousePos = MKLGetMouseViewportPosition(800.0f, 600.0f);
-
-        camera->yaw += MKLGetMouseDX() * 0.05f;
-        camera->pitch -= MKLGetMouseDY() * 0.05f;
+        // Get mouse delta for camera rotation
+        const vector_float2 mouseDelta = MKLGetMouseDelta();
+        
+        camera->yaw += mouseDelta.x * 0.05f;
+        camera->pitch -= mouseDelta.y * 0.05f;
         camera->pitch = fminf(89.0f, fminf(89.0f, camera->pitch));
 
     }

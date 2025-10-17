@@ -25,7 +25,7 @@ typedef struct MKLMesh
 } MKLMesh;
 
 
-MKLAPI MKLMesh MKLMeshCreateWithFile(const char* path);
+MKLAPI MKLMesh MKLMeshCreateWithFile(MKLRenderer *renderer, const char* path);
 
 MKLAPI void MKLMeshPlane(MKLMesh *mesh, MKLRenderer *renderer, vector_float3 position, vector_float2 dimensions, simd_uint2 segments, vector_float3 rotation);
 

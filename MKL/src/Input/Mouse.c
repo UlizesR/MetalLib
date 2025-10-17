@@ -1,73 +1,159 @@
 #import "Mouse.h"
+#include <stdio.h>
+#include <string.h>
 
+#define MOUSE_BUTTON_COUNT 12
 
-static const int MOUSE_BUTTON_COUNT = 12;
-static bool mouseButtonList[MOUSE_BUTTON_COUNT];
+// Current and previous mouse button state (following raylib pattern)
+static bool _gCurrentMouseButtonState[MOUSE_BUTTON_COUNT] = {false};
+static bool _gPreviousMouseButtonState[MOUSE_BUTTON_COUNT] = {false};
 
-static vector_float2 overallMousePosition = {0, 0};
-static vector_float2 mousePositionDelta = {0, 0};
+// Mouse position and delta
+static vector_float2 _gMousePosition = {0.0f, 0.0f};
+static vector_float2 _gMouseDelta = {0.0f, 0.0f};
 
-static float scrollWheelPosition = 0;
-static float lastWheelPosition = 0.0;
-static float scrollWheelChange = 0.0;
+// Scroll wheel state
+static float _gScrollWheelMove = 0.0f;
 
-void MKLSetMouseButtonPressed(MouseCodes button, bool isOn)
+// Cursor mode
+static MKLCursorMode _gCursorMode = MKL_CURSOR_NORMAL;
+
+void MKLSetMouseButtonPressed(const MouseCodes button, const bool isPressed)
 {
-    mouseButtonList[button] = isOn;
+    // Bounds checking to prevent buffer overflow
+    if (button >= MOUSE_BUTTON_COUNT)
+    {
+        fprintf(stderr, "MKL Warning: Invalid mouse button %d (max: %d)\n", button, MOUSE_BUTTON_COUNT - 1);
+        return;
+    }
+    
+    _gCurrentMouseButtonState[button] = isPressed;
 }
 
-bool MKLIsMouseButtonPressed(MouseCodes button)
+void MKLUpdateMouseState(void)
 {
-    return mouseButtonList[button];
+    // Copy current state to previous state for next frame
+    memcpy(_gPreviousMouseButtonState, _gCurrentMouseButtonState, sizeof(_gCurrentMouseButtonState));
+    
+    // Reset per-frame values
+    _gMouseDelta = (vector_float2){0.0f, 0.0f};
+    _gScrollWheelMove = 0.0f;
 }
 
-void MKLSetOverallMousePosition(float x, float y)
+void MKLSetMousePosition(const float x, const float y)
 {
-    overallMousePosition.x = x;
-    overallMousePosition.y = y;
+    _gMousePosition.x = x;
+    _gMousePosition.y = y;
 }
 
-void MKLSetMousePositionChangeWithOverallPosition(vector_float2 oPos, vector_float2 dPos)
+void MKLSetMouseDelta(const float dx, const float dy)
 {
-    overallMousePosition = oPos;
-    mousePositionDelta = dPos;
+    _gMouseDelta.x = dx;
+    _gMouseDelta.y = dy;
 }
 
-void MKLScrollMouse(float deltaY)
+bool MKLIsMouseButtonPressed(const MouseCodes button)
 {
-    scrollWheelPosition += deltaY;
-    scrollWheelChange += deltaY;
+    // Bounds checking
+    if (button >= MOUSE_BUTTON_COUNT)
+    {
+        return false;
+    }
+    
+    // Button was just pressed if it's down now but wasn't down before
+    return (_gPreviousMouseButtonState[button] == false) && (_gCurrentMouseButtonState[button] == true);
 }
 
-float MKLGetMouseDWheel()
+bool MKLIsMouseButtonDown(const MouseCodes button)
 {
-    float position = scrollWheelChange;
-    scrollWheelChange = 0;
-    return position;
+    // Bounds checking
+    if (button >= MOUSE_BUTTON_COUNT)
+    {
+        return false;
+    }
+    
+    return _gCurrentMouseButtonState[button];
 }
 
-float MKLGetMouseDY()
+bool MKLIsMouseButtonReleased(const MouseCodes button)
 {
-    float result = mousePositionDelta.y;
-    mousePositionDelta.y = 0;
-    return result;
+    // Bounds checking
+    if (button >= MOUSE_BUTTON_COUNT)
+    {
+        return false;
+    }
+    
+    // Button was just released if it was down before but isn't now
+    return (_gPreviousMouseButtonState[button] == true) && (_gCurrentMouseButtonState[button] == false);
 }
 
-float MKLGetMouseDX()
+bool MKLIsMouseButtonUp(const MouseCodes button)
 {
-    float result = mousePositionDelta.x;
-    mousePositionDelta.x = 0;
-    return result;
+    // Bounds checking
+    if (button >= MOUSE_BUTTON_COUNT)
+    {
+        return true; // Assume button is up if invalid
+    }
+    
+    return !_gCurrentMouseButtonState[button];
 }
 
-vector_float2 MKLGetMouseViewportPosition(float viewportWidth, float viewportHeight)
+float MKLGetMouseX(void)
 {
-    float x = (overallMousePosition.x - viewportWidth * 0.5) / (viewportWidth * 0.5);
-    float y = (overallMousePosition.y - viewportHeight * 0.5) / (viewportHeight * 0.5);
+    return _gMousePosition.x;
+}
+
+float MKLGetMouseY(void)
+{
+    return _gMousePosition.y;
+}
+
+vector_float2 MKLGetMousePosition(void)
+{
+    return _gMousePosition;
+}
+
+float MKLGetMouseDeltaX(void)
+{
+    return _gMouseDelta.x;
+}
+
+float MKLGetMouseDeltaY(void)
+{
+    return _gMouseDelta.y;
+}
+
+vector_float2 MKLGetMouseDelta(void)
+{
+    return _gMouseDelta;
+}
+
+void MKLScrollMouse(const float deltaY)
+{
+    _gScrollWheelMove += deltaY;
+}
+
+float MKLGetMouseWheelMove(void)
+{
+    return _gScrollWheelMove;
+}
+
+vector_float2 MKLGetMouseViewportPosition(const float viewportWidth, const float viewportHeight)
+{
+    const float x = (_gMousePosition.x - viewportWidth * 0.5f) / (viewportWidth * 0.5f);
+    const float y = (_gMousePosition.y - viewportHeight * 0.5f) / (viewportHeight * 0.5f);
     return (vector_float2){x, y};
 }
 
-vector_float2 MKLGetMouseWindowPosition()
+void MKLSetCursorMode(const MKLCursorMode mode)
 {
-    return overallMousePosition;
+    _gCursorMode = mode;
+    
+    // TODO: Implement actual cursor show/hide/lock behavior
+    // This would require window handle to call NSCursor operations
+}
+
+MKLCursorMode MKLGetCursorMode(void)
+{
+    return _gCursorMode;
 }

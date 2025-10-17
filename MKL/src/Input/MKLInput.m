@@ -6,88 +6,110 @@
 #import <simd/vector.h>
 #import <AppKit/AppKit.h>
 
-
-void MKLGetPollEvents(void)
+void MKLPollEvents(void)
 {
-   @autoreleasepool { // Poll for application events
-    NSEvent *appEvent;
-    while((appEvent = [NSApp nextEventMatchingMask:NSEventMaskAny
+    @autoreleasepool {
+        NSEvent *event;
+        
+        // Poll all available events (following GLFW pattern)
+        while ((event = [NSApp nextEventMatchingMask:NSEventMaskAny
                                            untilDate:[NSDate distantPast]
                                               inMode:NSDefaultRunLoopMode
                                              dequeue:YES]))
-    {
-        [NSApp sendEvent:appEvent];
-        [NSApp updateWindows];
-
-        switch ([appEvent type])
         {
-            case NSEventTypeKeyDown:
+            [NSApp sendEvent:event];
+            [NSApp updateWindows];
+
+            switch ([event type])
             {
-                MKLSetKeyPressed(appEvent.keyCode, YES);
-                break;
+                case NSEventTypeKeyDown:
+                {
+                    MKLSetKeyPressed(event.keyCode, true);
+                    break;
+                }
+                case NSEventTypeKeyUp:
+                {
+                    MKLSetKeyPressed(event.keyCode, false);
+                    break;
+                }
+                case NSEventTypeLeftMouseDown:
+                {
+                    MKLSetMouseButtonPressed(MouseCodeLeft, true);
+                    break;
+                }
+                case NSEventTypeLeftMouseUp:
+                {
+                    MKLSetMouseButtonPressed(MouseCodeLeft, false);
+                    break;
+                }
+                case NSEventTypeRightMouseDown:
+                {
+                    MKLSetMouseButtonPressed(MouseCodeRight, true);
+                    break;
+                }
+                case NSEventTypeRightMouseUp:
+                {
+                    MKLSetMouseButtonPressed(MouseCodeRight, false);
+                    break;
+                }
+                case NSEventTypeOtherMouseDown:
+                {
+                    MKLSetMouseButtonPressed((MouseCodes)event.buttonNumber, true);
+                    break;
+                }
+                case NSEventTypeOtherMouseUp:
+                {
+                    MKLSetMouseButtonPressed((MouseCodes)event.buttonNumber, false);
+                    break;
+                }
+                case NSEventTypeMouseMoved:
+                case NSEventTypeLeftMouseDragged:
+                case NSEventTypeRightMouseDragged:
+                case NSEventTypeOtherMouseDragged:
+                {
+                    const NSPoint locationInWindow = [event locationInWindow];
+                    
+                    // Update absolute position
+                    MKLSetMousePosition((float)locationInWindow.x, (float)locationInWindow.y);
+                    
+                    // Update delta
+                    MKLSetMouseDelta((float)event.deltaX, (float)event.deltaY);
+                    break;
+                }
+                case NSEventTypeScrollWheel:
+                {
+                    MKLScrollMouse((float)event.deltaY);
+                    break;
+                }
+                default:
+                    break;
             }
-            case NSEventTypeKeyUp:
-                MKLSetKeyPressed(appEvent.keyCode, NO);
-                break;
-            case NSEventTypeLeftMouseDown:
-            case NSEventTypeRightMouseDown:
-            case NSEventTypeOtherMouseDown:
-            {
-                MKLSetMouseButtonPressed(appEvent.buttonNumber, YES);
-                break;
-            }
-            case NSEventTypeLeftMouseUp:
-            case NSEventTypeRightMouseUp:
-            case NSEventTypeOtherMouseUp:
-            {
-                MKLSetMouseButtonPressed(appEvent.buttonNumber, NO);
-                break;
-            }
-            case NSEventTypeMouseMoved:
-            {
-                NSPoint locationInWindow = [appEvent locationInWindow];
-                NSRect windowBounds = appEvent.window.frame;
-                
-                // Convert windowBounds origin to bottom-left corner
-                windowBounds.origin = NSZeroPoint;
-                
-                // if (NSPointInRect(locationInWindow, windowBounds)) {
-                //     vector_float2 overallLocation = {locationInWindow.x, locationInWindow.y};
-                //     vector_float2 deltaLocation = {appEvent.deltaX, appEvent.deltaY};
-                //     MKLSetMousePositionChangeWithOverallPosition(overallLocation, deltaLocation);
-                // }
-                vector_float2 overallLocation = {locationInWindow.x, locationInWindow.y};
-                    vector_float2 deltaLocation = {appEvent.deltaX, appEvent.deltaY};
-                    MKLSetMousePositionChangeWithOverallPosition(overallLocation, deltaLocation);
-                break;
-            }
-            default:
-                break;
         }
-    }}
-}
-
-bool MKLWasKeyPressed(int key)
-{
-    BOOL wasKeyPressed = MKLIsKeyPressed(key);
-    if (wasKeyPressed)
-    {
-        MKLSetKeyPressed(key, NO);
     }
-    return wasKeyPressed;
 }
 
-bool MKLWasMouseButtonPressed(int button)
+void MKLWaitEventsTimeout(const double timeout)
 {
-    BOOL wasMouseButtonPressed = MKLIsMouseButtonPressed(button);
-    if (wasMouseButtonPressed)
-    {
-        MKLSetMouseButtonPressed(button, NO);
+    @autoreleasepool {
+        // Wait for event with timeout (following GLFW pattern)
+        NSDate *date = [NSDate dateWithTimeIntervalSinceNow:timeout];
+        NSEvent *event = [NSApp nextEventMatchingMask:NSEventMaskAny
+                                           untilDate:date
+                                              inMode:NSDefaultRunLoopMode
+                                             dequeue:YES];
+        if (event)
+        {
+            [NSApp sendEvent:event];
+        }
+        
+        // Poll remaining events
+        MKLPollEvents();
     }
-    return wasMouseButtonPressed;
 }
 
-bool MKLIsMouseButtonHeldDown(int button)
+void MKLUpdateInputState(void)
 {
-    return  MKLIsMouseButtonPressed(button);
+    // Update state for both keyboard and mouse
+    MKLUpdateKeyboardState();
+    MKLUpdateMouseState();
 }

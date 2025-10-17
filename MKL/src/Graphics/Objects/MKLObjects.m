@@ -18,21 +18,23 @@ void MKLDrawAxis(MKLRenderer* renderer, float length)
     vector_float4 y_axis = simd_make_float4(0.0f, length, 0.0f, 1.0f);
     vector_float4 z_axis = simd_make_float4(0.0f, 0.0f, length, 1.0f);
 
+    const vector_float4 origin = MKL_WORLD_ORIGIN;
+    
     matrix_float4x4 axisModelMatrix = {
         .columns[0] = x_axis,
         .columns[1] = y_axis,
         .columns[2] = z_axis,
-        .columns[3] = WORLD_ORIGIN
+        .columns[3] = origin
     };
 
-    vector_float4 colors[3] = {MKL_COLOR_RED, MKL_COLOR_GREEN, MKL_COLOR_BLUE};
+    const vector_float4 colors[3] = {MKL_COLOR_RED, MKL_COLOR_GREEN, MKL_COLOR_BLUE};
 
-    MKLVertex lineVertices[6] = {
-        {.position = WORLD_ORIGIN},
+    const MKLVertex lineVertices[6] = {
+        {.position = origin},
         {.position = x_axis},
-        {.position = WORLD_ORIGIN},
+        {.position = origin},
         {.position = y_axis},
-        {.position = WORLD_ORIGIN},
+        {.position = origin},
         {.position = z_axis}
     };
 
