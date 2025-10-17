@@ -69,6 +69,37 @@ static inline void DrawIndexedPrimitive(MKLRenderer *renderer,
 
 #pragma mark - Cube Drawing
 
+// Cube vertices with normals and UVs (24 vertices for proper normals per face)
+static const MKLVertexEnhanced cubeVerticesEnhanced[24] = {
+    // Front face (z = 0.5)
+    {{-0.5, -0.5,  0.5, 1}, { 0,  0,  1}, {0, 0}}, {{0.5, -0.5,  0.5, 1}, { 0,  0,  1}, {1, 0}},
+    {{ 0.5,  0.5,  0.5, 1}, { 0,  0,  1}, {1, 1}}, {{-0.5,  0.5,  0.5, 1}, { 0,  0,  1}, {0, 1}},
+    // Back face (z = -0.5)
+    {{ 0.5, -0.5, -0.5, 1}, { 0,  0, -1}, {0, 0}}, {{-0.5, -0.5, -0.5, 1}, { 0,  0, -1}, {1, 0}},
+    {{-0.5,  0.5, -0.5, 1}, { 0,  0, -1}, {1, 1}}, {{ 0.5,  0.5, -0.5, 1}, { 0,  0, -1}, {0, 1}},
+    // Right face (x = 0.5)
+    {{ 0.5, -0.5,  0.5, 1}, { 1,  0,  0}, {0, 0}}, {{ 0.5, -0.5, -0.5, 1}, { 1,  0,  0}, {1, 0}},
+    {{ 0.5,  0.5, -0.5, 1}, { 1,  0,  0}, {1, 1}}, {{ 0.5,  0.5,  0.5, 1}, { 1,  0,  0}, {0, 1}},
+    // Left face (x = -0.5)
+    {{-0.5, -0.5, -0.5, 1}, {-1,  0,  0}, {0, 0}}, {{-0.5, -0.5,  0.5, 1}, {-1,  0,  0}, {1, 0}},
+    {{-0.5,  0.5,  0.5, 1}, {-1,  0,  0}, {1, 1}}, {{-0.5,  0.5, -0.5, 1}, {-1,  0,  0}, {0, 1}},
+    // Top face (y = 0.5)
+    {{-0.5,  0.5,  0.5, 1}, { 0,  1,  0}, {0, 0}}, {{ 0.5,  0.5,  0.5, 1}, { 0,  1,  0}, {1, 0}},
+    {{ 0.5,  0.5, -0.5, 1}, { 0,  1,  0}, {1, 1}}, {{-0.5,  0.5, -0.5, 1}, { 0,  1,  0}, {0, 1}},
+    // Bottom face (y = -0.5)
+    {{-0.5, -0.5, -0.5, 1}, { 0, -1,  0}, {0, 0}}, {{ 0.5, -0.5, -0.5, 1}, { 0, -1,  0}, {1, 0}},
+    {{ 0.5, -0.5,  0.5, 1}, { 0, -1,  0}, {1, 1}}, {{-0.5, -0.5,  0.5, 1}, { 0, -1,  0}, {0, 1}},
+};
+
+static const ushort cubeIndicesEnhanced[36] = {
+    0,  1,  2,  2,  3,  0,   // Front
+    4,  5,  6,  6,  7,  4,   // Back
+    8,  9,  10, 10, 11, 8,   // Right
+    12, 13, 14, 14, 15, 12,  // Left
+    16, 17, 18, 18, 19, 16,  // Top
+    20, 21, 22, 22, 23, 20   // Bottom
+};
+
 void MKLDrawCube(MKLRenderer *renderer, const MKLCube cube, const MKLColor color)
 {
     // Calculate model matrix
@@ -78,29 +109,66 @@ void MKLDrawCube(MKLRenderer *renderer, const MKLCube cube, const MKLColor color
     matrix_float4x4 modelM = matrix_multiply(translateM, rotationM);
     modelM = matrix_multiply(modelM, scaleM);
 
-    // Get static cube data
-    MKLVertex *cubeVertices = [MklDefs cubeVertices];
-    ushort *cubeIndices = [MklDefs cubeIndices];
+    // Check if we should use enhanced rendering (with lighting)
+    bool useLighting = renderer->_enhancedRenderingEnabled && renderer->_pipelineStateLit;
     
-    // Get reusable buffers from pool
-    const NSUInteger vertexSize = sizeof(MKLVertex) * 8;
-    const NSUInteger indexSize = sizeof(ushort) * 36;
-    
-    id<MTLBuffer> vertexBuffer = [renderer->_bufferPool getReuseableBufferWithLength:vertexSize];
-    id<MTLBuffer> indexBuffer = [renderer->_bufferPool getReuseableBufferWithLength:indexSize];
-    
-    if (!vertexBuffer || !indexBuffer)
-    {
-        fprintf(stderr, "MKL Error: Failed to allocate buffers for cube\n");
-        return;
+    if (useLighting) {
+        // Use enhanced vertices with normals
+        const NSUInteger vertexSize = sizeof(MKLVertexEnhanced) * 24;
+        const NSUInteger indexSize = sizeof(ushort) * 36;
+        
+        id<MTLBuffer> vertexBuffer = [renderer->_bufferPool getReuseableBufferWithLength:vertexSize];
+        id<MTLBuffer> indexBuffer = [renderer->_bufferPool getReuseableBufferWithLength:indexSize];
+        
+        if (!vertexBuffer || !indexBuffer) {
+            fprintf(stderr, "MKL Error: Failed to allocate buffers for cube\n");
+            return;
+        }
+        
+        // Copy enhanced vertex data
+        memcpy(vertexBuffer.contents, cubeVerticesEnhanced, vertexSize);
+        memcpy(indexBuffer.contents, cubeIndicesEnhanced, indexSize);
+        
+        // Use enhanced pipeline with lighting
+        [renderer->_renderEncoder setRenderPipelineState:renderer->_pipelineStateLit];
+        [renderer->_renderEncoder setVertexBytes:&color length:sizeof(vector_float4) atIndex:2];
+        [renderer->_renderEncoder setVertexBytes:&modelM length:sizeof(matrix_float4x4) atIndex:3];
+        [renderer->_renderEncoder setVertexBuffer:vertexBuffer offset:0 atIndex:0];
+        
+        // Bind lighting data
+        [renderer->_renderEncoder setFragmentBuffer:renderer->_lightingUniformsBuffer offset:0 atIndex:0];
+        [renderer->_renderEncoder setFragmentBuffer:renderer->_lightBuffer offset:0 atIndex:1];
+        [renderer->_renderEncoder setFragmentBuffer:renderer->_materialBuffer offset:0 atIndex:2];
+        
+        [renderer->_renderEncoder drawIndexedPrimitives:MTLPrimitiveTypeTriangle
+                                             indexCount:36
+                                              indexType:MTLIndexTypeUInt16
+                                            indexBuffer:indexBuffer
+                                      indexBufferOffset:0];
+        
+        // Restore default pipeline for other draws
+        [renderer->_renderEncoder setRenderPipelineState:renderer->_pipelineState];
+    } else {
+        // Use simple rendering (original code)
+        MKLVertex *cubeVertices = [MklDefs cubeVertices];
+        ushort *cubeIndices = [MklDefs cubeIndices];
+        
+        const NSUInteger vertexSize = sizeof(MKLVertex) * 8;
+        const NSUInteger indexSize = sizeof(ushort) * 36;
+        
+        id<MTLBuffer> vertexBuffer = [renderer->_bufferPool getReuseableBufferWithLength:vertexSize];
+        id<MTLBuffer> indexBuffer = [renderer->_bufferPool getReuseableBufferWithLength:indexSize];
+        
+        if (!vertexBuffer || !indexBuffer) {
+            fprintf(stderr, "MKL Error: Failed to allocate buffers for cube\n");
+            return;
+        }
+        
+        memcpy(vertexBuffer.contents, cubeVertices, vertexSize);
+        memcpy(indexBuffer.contents, cubeIndices, indexSize);
+        
+        DrawIndexedPrimitive(renderer, vertexBuffer, indexBuffer, 36, &modelM, &color);
     }
-    
-    // Copy data to buffers
-    memcpy(vertexBuffer.contents, cubeVertices, vertexSize);
-    memcpy(indexBuffer.contents, cubeIndices, indexSize);
-    
-    // Draw using helper
-    DrawIndexedPrimitive(renderer, vertexBuffer, indexBuffer, 36, &modelM, &color);
 }
 
 #pragma mark - Plane Drawing
@@ -131,19 +199,20 @@ void MKLDrawPlane(MKLRenderer *renderer, const MKLPlane plane, const MKLColor co
         return;
     }
     
-    // Fill vertex buffer
+    // Fill vertex buffer - generate vertices automatically
     MKLVertex *vertices = (MKLVertex *)vertexBuffer.contents;
+    const float stepX = 1.0f / (float)plane.segments.x;
+    const float stepY = 1.0f / (float)plane.segments.y;
+    
     for (unsigned int i = 0; i < plane.segments.x + 1; i++) 
     {
         for (unsigned int j = 0; j < plane.segments.y + 1; j++) 
         {
-            const unsigned int index = i * (plane.segments.x + 1) + j;
-            vertices[index].position = (vector_float4){
-                plane.vertices[index].x, 
-                plane.vertices[index].y, 
-                plane.vertices[index].z, 
-                1.0f
-            };
+            const unsigned int index = i * (plane.segments.y + 1) + j;
+            const float x = -0.5f + (float)i * stepX;
+            const float z = -0.5f + (float)j * stepY;
+            
+            vertices[index].position = (vector_float4){x, 0.0f, z, 1.0f};
         }
     }
 
@@ -154,8 +223,8 @@ void MKLDrawPlane(MKLRenderer *renderer, const MKLPlane plane, const MKLColor co
     {
         for (unsigned int j = 0; j < plane.segments.y; j++) 
         {
-            const unsigned int base = i * (plane.segments.x + 1) + j;
-            const unsigned int next = base + (plane.segments.x + 1);
+            const unsigned int base = i * (plane.segments.y + 1) + j;
+            const unsigned int next = base + (plane.segments.y + 1);
             
             // First triangle
             indices[idx++] = base;

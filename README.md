@@ -19,6 +19,12 @@ A modern, high-performance graphics library for macOS using the Metal API. Built
 - 🎨 **2D Shapes** - Circles, rectangles, triangles, polygons, and lines
 - 📁 **OBJ File Support** - Load and render 3D models from OBJ files using Model I/O
 - 🎭 **Camera System** - First-person and orbital camera controls
+- 🖼️ **Texture System** - Load PNG/JPG images, generate procedural textures
+- 💡 **Lighting System** - Ambient, directional, and point lights with Blinn-Phong shading
+- 🎨 **Material System** - PBR and standard materials with texture mapping support
+- 📝 **Text Rendering API** - Font loading and text drawing (implementation in progress)
+- 🎬 **Animation API** - Skeletal animation support (implementation in progress)
+- 🎯 **Render Targets API** - Off-screen rendering for post-processing (implementation in progress)
 
 ## 🚀 Quick Start
 
@@ -139,6 +145,50 @@ Loads and displays 3D models from OBJ files using Model I/O. Includes a sample m
 - WASD to move camera
 - Space/Q to move up/down
 - ESC to exit
+
+### Lighting Demo 💡 **NEW!** ✨
+```bash
+make lighting && ./bin/lighting
+```
+
+Demonstrates **REAL-TIME LIGHTING with VISIBLE SPECULAR HIGHLIGHTS!** Shows 15 cubes with dynamic lighting, reflective surfaces, and animated point light movement.
+
+**Visual Effects:**
+- ✨ **Specular highlights** (shiny reflections on cube edges)
+- 🌞 **Directional shading** (bright and dark sides)
+- 💡 **Dynamic point light** with blue tint and attenuation
+- 🌑 **Ambient occlusion** for realistic base lighting
+
+**Features:**
+- Ambient, directional, and point lights
+- Blinn-Phong shading model with real normals
+- Animated point light circling the scene
+- Toggle enhanced rendering on/off with 'L' key (SEE THE DIFFERENCE!)
+
+**Controls:**
+- WASD to move camera
+- Mouse drag to look around
+- Space/Q to move up/down
+- **L to toggle lighting** (watch the highlights appear/disappear!)
+- ESC to exit
+
+**TIP:** Press 'L' to toggle lighting off, then on again - the difference is dramatic!
+
+### New Features Demo 🎨 **NEW!**
+```bash
+make features && ./bin/features
+```
+
+Showcases the new API features including textures, lighting, and materials. Demonstrates procedural texture generation and material creation.
+
+### API Tests
+```bash
+# Test texture system
+make test-texture && ./bin/test_texture_api
+
+# Test lighting system
+make test-light && ./bin/test_light_api
+```
 
 ## 🏗️ Project Structure
 

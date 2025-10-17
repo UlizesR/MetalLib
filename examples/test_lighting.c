@@ -1,4 +1,10 @@
+//
+// test_lighting.c  
+// Demonstrates lighting system with enhanced shaders
+//
+
 #include "MKL.h"
+#include <stdio.h>
 #include <math.h>
 
 int main(void) {
@@ -7,8 +13,9 @@ int main(void) {
     const int TARGET_FPS = 60;
     
     // Initialize MKL
+    printf("=== MKL Lighting Demo ===\n");
     MKLInitTimer();
-    MKLWindow *window = MKLCreateWindow(WIDTH, HEIGHT, "MKL - OBJ Model Viewer");
+    MKLWindow *window = MKLCreateWindow(WIDTH, HEIGHT, "MKL - Lighting System Demo");
     MKLRenderer *renderer = MKLCreateRenderer(window);
     
     if (!window || !renderer) {
@@ -17,86 +24,77 @@ int main(void) {
     }
     
     // Setup camera
-    const MKLCamera camera = {
-        .position = {0.0f, 5.0f, 15.0f},
+    renderer->camera = (MKLCamera){
+        .position = {0.0f, 3.0f, 10.0f},
         .up = {0.0f, 1.0f, 0.0f},
         .forward = {0.0f, 0.0f, -1.0f},
         .right = {1.0f, 0.0f, 0.0f},
         .fov = 45.0f,
         .aspect = (float)HEIGHT / (float)WIDTH,
         .near = 0.1f,
-        .far = 1000.0f,
+        .far = 100.0f,
         .yaw = -90.0f,
         .pitch = 0.0f,
     };
-    renderer->camera = camera;
     
-    printf("=== MKL OBJ Model Viewer ===\n");
-    printf("Loading 3D model from OBJ file...\n");
+    printf("\n--- Setting up lighting ---\n");
     
-    // Load OBJ file
-    MKLMesh mesh = MKLMeshCreateWithFile(renderer, "examples/FinalBaseMesh.obj");
-    
-    if (mesh.vertexCount == 0) {
-        fprintf(stderr, "Failed to load OBJ file!\n");
-        MKLDestroyRenderer(renderer);
-        MKLDestroyWindow(window);
-        return -1;
-    }
-    
-    printf("✓ Model loaded successfully!\n");
-    printf("  Vertices: %d\n", mesh.vertexCount);
-    
-    // Setup lighting for the OBJ model
-    printf("\n--- Setting up lighting for OBJ model ---\n");
+    // ENABLE ENHANCED RENDERING (this makes lighting visible!)
     MKLEnableEnhancedRendering(renderer, true);
     
-    MKLLight ambient = MKLCreateAmbientLight(MKL_COLOR_WHITE, 0.2f);
+    // Create ambient light for base illumination
+    MKLLight ambient = MKLCreateAmbientLight(MKL_COLOR_WHITE, 0.15f);
     MKLAddLight(renderer, ambient);
+    printf("✓ Ambient light added\n");
     
+    // Create directional light (sun) for clear directional shadows
     MKLLight sun = MKLCreateDirectionalLight(
         (vector_float3){-0.5f, -1.0f, -0.3f},
         MKL_COLOR_WHITE,
-        0.8f
+        0.7f
     );
     MKLAddLight(renderer, sun);
+    printf("✓ Directional light added\n");
     
-    MKLLight key = MKLCreatePointLight(
-        (vector_float3){5.0f, 5.0f, 5.0f},
-        MKL_COLOR_WHITE,
-        3.0f,
-        20.0f
+    // Create moving point light for dynamic lighting
+    MKLLight pointLight = MKLCreatePointLight(
+        (vector_float3){0, 2, 0},
+        (MKLColor){0.2f, 0.6f, 1.0f, 1.0f},  // Bright blue
+        5.0f,  // Increased intensity
+        15.0f
     );
-    MKLAddLight(renderer, key);
+    int pointIdx = MKLAddLight(renderer, pointLight);
+    printf("✓ Point light added (bright blue)\n");
     
-    printf("✓ Lighting enabled with 3 lights\n");
+    printf("Total lights: %d\n", MKLGetLightCount(renderer));
+    
+    // Enable lighting
+    MKLEnableLighting(renderer, true);
     
     printf("\nControls:\n");
-    printf("  Left-click & drag - Look around\n");
-    printf("  WASD - Move camera\n");
-    printf("  Space/Q - Move up/down\n");
-    printf("  L - Toggle lighting on/off\n");
-    printf("  ESC - Exit\n");
-    printf("\nLook for:\n");
-    printf("  ✨ Shiny highlights on the model\n");
-    printf("  🌞 Shaded surfaces showing 3D depth\n");
-    printf("\nRendering...\n");
-    
-    // Model transform
-    mesh.position = (vector_float3){0.0f, 0.0f, 0.0f};
-    mesh.rotation = (vector_float3){0.0f, 0.0f, 0.0f};
-    mesh.dimensions = (vector_float3){0.1f, 0.1f, 0.1f}; // Scale down the model
+    printf("ESC - Exit\n");
+    printf("WASD - Move camera\n");
+    printf("Mouse Drag - Look around\n");
+    printf("Space/Q - Move up/down\n");
+    printf("L - Toggle enhanced rendering (lighting) on/off\n");
+    printf("\nWhat to look for:\n");
+    printf("- Cubes will have SHINY HIGHLIGHTS from directional light\n");
+    printf("- Moving blue sphere shows POINT LIGHT position\n");
+    printf("- Cubes near the blue light will have BLUE TINT\n");
+    printf("- Dark sides vs bright sides show DIRECTIONAL LIGHTING\n");
+    printf("- Specular highlights show REFLECTIVE surfaces\n");
+    printf("\nStarting render loop...\n");
     
     // Mouse control variables
     float lastMouseX = (float)WIDTH / 2.0f;
     float lastMouseY = (float)HEIGHT / 2.0f;
     bool firstMouse = true;
     const float mouseSensitivity = 0.1f;
+    bool lightingOn = true;
     
     // Main loop
-
     while (!MKLWindowShouldClose(window)) {
-        MKLTicks(TARGET_FPS);
+        float deltaTime = MKLTicks(TARGET_FPS) / 1000.0f;
         MKLPollEvents();
         
         // Handle input
@@ -104,12 +102,16 @@ int main(void) {
             MKLSetWindowShouldClose(window, true);
         }
         
-        // Toggle lighting
-        static bool lightingOn = true;
+        // Toggle enhanced rendering (lighting)
         if (MKLIsKeyPressed(MKL_KEY_L)) {
             lightingOn = !lightingOn;
             MKLEnableEnhancedRendering(renderer, lightingOn);
-            printf("Lighting: %s\n", lightingOn ? "ON (see highlights!)" : "OFF (flat)");
+            printf("Enhanced Rendering (Lighting): %s\n", lightingOn ? "ON" : "OFF");
+            if (lightingOn) {
+                printf("  → You should see shiny highlights and directional shading!\n");
+            } else {
+                printf("  → Back to flat shading\n");
+            }
         }
         
         // Mouse look controls
@@ -132,7 +134,6 @@ int main(void) {
             renderer->camera.yaw += xOffset;
             renderer->camera.pitch += yOffset;
             
-            // Constrain pitch
             if (renderer->camera.pitch > 89.0f) renderer->camera.pitch = 89.0f;
             if (renderer->camera.pitch < -89.0f) renderer->camera.pitch = -89.0f;
             
@@ -150,7 +151,7 @@ int main(void) {
         }
         
         // Camera movement
-        const float moveSpeed = 10.0f * MKLTicks(TARGET_FPS) / 1000.0f;
+        const float moveSpeed = 5.0f * deltaTime;
         if (MKLIsKeyDown(MKL_KEY_W)) {
             renderer->camera.position = MAddVector(renderer->camera.position, 
                                                    MMulVecByScalar(renderer->camera.forward, moveSpeed));
@@ -169,39 +170,88 @@ int main(void) {
         }
         if (MKLIsKeyDown(MKL_KEY_SPACE)) {
             renderer->camera.position = MAddVector(renderer->camera.position, 
-                                                   MMulVecByScalar(renderer->camera.up, moveSpeed));
+                                                   MMulVecByScalar((vector_float3){0, 1, 0}, moveSpeed));
         }
         if (MKLIsKeyDown(MKL_KEY_Q)) {
-            renderer->camera.position = MSubVector(renderer->camera.position, MMulVecByScalar(renderer->camera.up, moveSpeed));
+            renderer->camera.position = MSubVector(renderer->camera.position, 
+                                                   MMulVecByScalar((vector_float3){0, 1, 0}, moveSpeed));
         }
         
         MKLUpdateInputState();
         
-        // Rotate model slowly
-        const float time = MKLGetTime();
-        mesh.rotation.y = time * 0.3f;
+        // Animate point light in a circle
+        float time = MKLGetTime();
+        MKLLight *light = MKLGetLight(renderer, pointIdx);
+        if (light) {
+            light->position = (vector_float3){
+                cosf(time * 0.8f) * 6.0f,
+                2.5f + sinf(time * 1.5f) * 1.5f,
+                sinf(time * 0.8f) * 6.0f
+            };
+            MKLUpdateLight(renderer, pointIdx, *light);
+        }
         
-        // Render
+        // Begin rendering
         MKLBeginDrawing(renderer);
-        MKLClearRenderer(renderer, MKL_COLOR_GRAY_2);
+        MKLClearRenderer(renderer, (MKLColor){0.1f, 0.1f, 0.15f, 1.0f});
         
         // Update camera
         MKLCameraControls controls = {0};
         MKLUpdateCamera(&renderer->camera, controls);
         
-        // Draw the OBJ model
-        MKLDrawMesh(renderer, &mesh, MKL_COLOR_CYAN);
+        // Draw floor
+        MKLDrawPlane(renderer, (MKLPlane){
+            .position = {0, 0, 0},
+            .dimensions = {20, 20},
+            .segments = {1, 1},
+            .rotation = {0, 0, 0}
+        }, MKL_COLOR_GRAY_7);
+        
+        // Draw cubes in a grid
+        float rotation = time * 30.0f;
+        
+        for (int x = -2; x <= 2; x++) {
+            for (int z = -1; z <= 1; z++) {
+                float xPos = x * 2.5f;
+                float zPos = z * 2.5f;
+                float height = 1.0f + sinf(time + x + z) * 0.3f;
+                
+                // Color varies by position
+                MKLColor color = (MKLColor){
+                    0.5f + 0.5f * sinf(x * 0.5f),
+                    0.5f + 0.5f * cosf(z * 0.5f),
+                    0.5f + 0.5f * sinf((x + z) * 0.3f),
+                    1.0f
+                };
+                
+                MKLDrawCube(renderer, (MKLCube){
+                    .position = {xPos, height, zPos},
+                    .rotation = {rotation * 0.5f, rotation, rotation * 0.3f},
+                    .width = 1.2f, .height = 1.2f, .depth = 1.2f
+                }, color);
+            }
+        }
+        
+        // Draw sphere at point light position
+        if (light) {
+            MKLDrawSphere(renderer, (MKLSphere){
+                .position = light->position,
+                .rotation = {0, 0, 0},
+                .radius = 0.3f,
+                .segments = 16
+            }, light->color);
+        }
         
         MKLEndDrawing(renderer);
-        
     }
     
     // Cleanup
     printf("\nCleaning up...\n");
-    MKLCleanupShapeCache();
+    MKLClearLights(renderer);
     MKLDestroyRenderer(renderer);
     MKLDestroyWindow(window);
     printf("✓ Cleanup complete!\n");
     
     return 0;
 }
+

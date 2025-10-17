@@ -25,6 +25,14 @@
 #include "Graphics/Objects/MKLEntity.h"
 #include "Graphics/Objects/MKLMesh.h"
 
+// include graphics features
+#include "Graphics/MKLTexture.h"
+#include "Graphics/MKLLight.h"
+#include "Graphics/MKLMaterial.h"
+#include "Graphics/MKLText.h"
+#include "Graphics/MKLRenderTarget.h"
+#include "Graphics/MKLAnimation.h"
+
 // include Math files
 #include "Math/MKLMath.h"
 

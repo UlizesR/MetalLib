@@ -82,8 +82,12 @@ typedef struct MKLRenderer
     id<MTLLibrary> _library;
     MTLRenderPassDescriptor *_renderPassDescriptor;
     MTLVertexDescriptor *_vertexDescriptor;
+    MTLVertexDescriptor *_vertexDescriptorEnhanced;
     id<MTLRenderPipelineState> _pipelineState;
     id<MTLRenderPipelineState> _instancedPipelineState; // For instanced rendering
+    id<MTLRenderPipelineState> _pipelineStateEnhanced; // Enhanced pipeline with lighting
+    id<MTLRenderPipelineState> _pipelineStateLit;      // Lighting only (no texture)
+    id<MTLRenderPipelineState> _pipelineStateTextured; // Texture only (no lighting)
     id<MTLDepthStencilState> _depthStencilState;
     
     // Depth texture for depth testing
@@ -95,6 +99,13 @@ typedef struct MKLRenderer
     
     // Custom shader support
     void *_customShader; // MKLShader* (forward declaration to avoid circular dependency)
+    
+    // Enhanced rendering support (lighting and textures)
+    id<MTLBuffer> _lightBuffer;
+    id<MTLBuffer> _lightingUniformsBuffer;
+    id<MTLBuffer> _materialBuffer;
+    bool _enhancedRenderingEnabled;
+    id<MTLSamplerState> _defaultSampler;
     
     // Per-frame drawing state
     id<CAMetalDrawable> _drawable;
@@ -117,5 +128,9 @@ MKLAPI void MKLDestroyRenderer(MKLRenderer *renderer);
 MKLAPI int MKLGetRenderWidth(MKLRenderer *renderer);
 MKLAPI int MKLGetRenderHeight(MKLRenderer *renderer);
 MKLAPI vector_float2 MKLGetRenderSize(MKLRenderer *renderer);
+
+// ========== Enhanced Rendering Control ==========
+MKLAPI void MKLEnableEnhancedRendering(MKLRenderer *renderer, bool enable);
+MKLAPI bool MKLIsEnhancedRenderingEnabled(MKLRenderer *renderer);
 
 #endif // _MKL_VIEW_H_

@@ -218,6 +218,116 @@ void MKLRenderPipelineLib(MKLRenderer *renderer)
     }
 }
 
+#pragma mark - Enhanced Rendering Setup
+
+void MKLSetupEnhancedRendering(MKLRenderer *renderer)
+{
+    MKL_NULL_CHECK_VOID(renderer, NULL, MKL_ERROR_NULL_POINTER, 
+                        "MKLSetupEnhancedRendering: renderer is NULL");
+    
+    // Create enhanced vertex descriptor
+    renderer->_vertexDescriptorEnhanced = [[MTLVertexDescriptor alloc] init];
+    
+    // Position (float4) - attribute 0
+    renderer->_vertexDescriptorEnhanced.attributes[0].format = MTLVertexFormatFloat4;
+    renderer->_vertexDescriptorEnhanced.attributes[0].offset = 0;
+    renderer->_vertexDescriptorEnhanced.attributes[0].bufferIndex = 0;
+    
+    // Normal (float3) - attribute 1
+    renderer->_vertexDescriptorEnhanced.attributes[1].format = MTLVertexFormatFloat3;
+    renderer->_vertexDescriptorEnhanced.attributes[1].offset = offsetof(MKLVertexEnhanced, normal);
+    renderer->_vertexDescriptorEnhanced.attributes[1].bufferIndex = 0;
+    
+    // TexCoords (float2) - attribute 2
+    renderer->_vertexDescriptorEnhanced.attributes[2].format = MTLVertexFormatFloat2;
+    renderer->_vertexDescriptorEnhanced.attributes[2].offset = offsetof(MKLVertexEnhanced, texCoords);
+    renderer->_vertexDescriptorEnhanced.attributes[2].bufferIndex = 0;
+    
+    // Layout for buffer 0
+    renderer->_vertexDescriptorEnhanced.layouts[0].stride = sizeof(MKLVertexEnhanced);
+    renderer->_vertexDescriptorEnhanced.layouts[0].stepFunction = MTLVertexStepFunctionPerVertex;
+    renderer->_vertexDescriptorEnhanced.layouts[0].stepRate = 1;
+    
+    // Load enhanced shader functions
+    id<MTLFunction> vertexEnhanced = [renderer->_library newFunctionWithName:@"vertexShaderEnhanced"];
+    id<MTLFunction> fragmentEnhanced = [renderer->_library newFunctionWithName:@"fragmentShaderEnhanced"];
+    id<MTLFunction> fragmentLit = [renderer->_library newFunctionWithName:@"fragmentShaderLit"];
+    id<MTLFunction> fragmentTextured = [renderer->_library newFunctionWithName:@"fragmentShaderTextured"];
+    
+    if (vertexEnhanced && fragmentEnhanced) {
+        // Create enhanced pipeline (full: lighting + textures)
+        MTLRenderPipelineDescriptor *desc = [[MTLRenderPipelineDescriptor alloc] init];
+        desc.label = @"MKL Enhanced Pipeline";
+        desc.vertexFunction = vertexEnhanced;
+        desc.fragmentFunction = fragmentEnhanced;
+        desc.vertexDescriptor = renderer->_vertexDescriptorEnhanced;
+        desc.colorAttachments[0].pixelFormat = renderer->_metalLayer.pixelFormat;
+        desc.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
+        desc.colorAttachments[0].blendingEnabled = YES;
+        desc.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
+        desc.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
+        desc.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
+        desc.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorSourceAlpha;
+        desc.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+        desc.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+        
+        NSError *error = nil;
+        renderer->_pipelineStateEnhanced = [renderer->_device newRenderPipelineStateWithDescriptor:desc error:&error];
+        
+        if (renderer->_pipelineStateEnhanced) {
+            printf("✓ Enhanced pipeline created (lighting + textures)\n");
+        } else {
+            fprintf(stderr, "MKL Warning: Failed to create enhanced pipeline: %s\n", 
+                    [[error localizedDescription] UTF8String]);
+        }
+    }
+    
+    if (vertexEnhanced && fragmentLit) {
+        // Create lit pipeline (lighting only)
+        MTLRenderPipelineDescriptor *desc = [[MTLRenderPipelineDescriptor alloc] init];
+        desc.label = @"MKL Lit Pipeline";
+        desc.vertexFunction = vertexEnhanced;
+        desc.fragmentFunction = fragmentLit;
+        desc.vertexDescriptor = renderer->_vertexDescriptorEnhanced;
+        desc.colorAttachments[0].pixelFormat = renderer->_metalLayer.pixelFormat;
+        desc.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
+        desc.colorAttachments[0].blendingEnabled = YES;
+        desc.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
+        desc.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
+        desc.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
+        desc.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorSourceAlpha;
+        desc.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+        desc.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+        
+        NSError *error = nil;
+        renderer->_pipelineStateLit = [renderer->_device newRenderPipelineStateWithDescriptor:desc error:&error];
+        
+        if (renderer->_pipelineStateLit) {
+            printf("✓ Lit pipeline created (lighting only)\n");
+        }
+    }
+    
+    // Create default sampler
+    MTLSamplerDescriptor *samplerDesc = [[MTLSamplerDescriptor alloc] init];
+    samplerDesc.minFilter = MTLSamplerMinMagFilterLinear;
+    samplerDesc.magFilter = MTLSamplerMinMagFilterLinear;
+    samplerDesc.mipFilter = MTLSamplerMipFilterLinear;
+    samplerDesc.sAddressMode = MTLSamplerAddressModeRepeat;
+    samplerDesc.tAddressMode = MTLSamplerAddressModeRepeat;
+    samplerDesc.normalizedCoordinates = YES;
+    renderer->_defaultSampler = [renderer->_device newSamplerStateWithDescriptor:samplerDesc];
+    
+    // Create buffers for lighting data
+    renderer->_lightBuffer = [renderer->_device newBufferWithLength:sizeof(MKLShaderLight) * 8 
+                                                            options:MTLResourceStorageModeShared];
+    renderer->_lightingUniformsBuffer = [renderer->_device newBufferWithLength:sizeof(MKLLightingUniforms)
+                                                                       options:MTLResourceStorageModeShared];
+    renderer->_materialBuffer = [renderer->_device newBufferWithLength:sizeof(MKLShaderMaterial)
+                                                               options:MTLResourceStorageModeShared];
+    
+    renderer->_enhancedRenderingEnabled = false; // Disabled by default for backwards compatibility
+}
+
 #pragma mark - Depth Stencil State
 
 void MKLDepetStencilStateLib(MKLRenderer *renderer)

@@ -6,6 +6,7 @@
 
 #import "MKLRenderer.h"
 #import "MKLLibraries.h"
+#import "MKLLight.h"
 #import "../Core/MKLError.h"
 #import "../Core/MKLTimer.h"
 #import "../Math/MKLMath.h"
@@ -285,6 +286,9 @@ MKLRenderer *MKLCreateRenderer(MKLWindow *window)
     MKLDepetStencilStateLib(renderer);
     MKL_NULL_CHECK(renderer->_depthStencilState, renderer, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, "MKLCreateRenderer: Failed to create Metal depth stencil state", NULL);
 
+    // Setup enhanced rendering (lighting and textures)
+    MKLSetupEnhancedRendering(renderer);
+    
     // Create reusable render pass descriptor
     renderer->_renderPassDescriptor = [[MTLRenderPassDescriptor alloc] init];
     
@@ -397,6 +401,42 @@ void MKLBeginDrawing(MKLRenderer *renderer)
     [renderer->_renderEncoder setVertexBuffer:renderer->_uniformBuffer.buffer
                                        offset:[renderer->_uniformBuffer currentBufferOffset]
                                       atIndex:1];
+    
+    // Update lighting data if enhanced rendering is enabled
+    if (renderer->_enhancedRenderingEnabled) {
+        // Update lighting uniforms
+        MKLLightingUniforms *lightingUniforms = (MKLLightingUniforms *)renderer->_lightingUniformsBuffer.contents;
+        lightingUniforms->lightCount = MKLGetLightCount(renderer);
+        lightingUniforms->cameraPos = renderer->camera.position;
+        
+        // Update light buffer
+        MKLShaderLight *shaderLights = (MKLShaderLight *)renderer->_lightBuffer.contents;
+        int lightCount = MKLGetLightCount(renderer);
+        
+        for (int i = 0; i < lightCount && i < 8; i++) {
+            MKLLight *light = MKLGetLight(renderer, i);
+            if (light && light->enabled) {
+                shaderLights[i].color = (vector_float3){light->color.x, light->color.y, light->color.z};
+                shaderLights[i].intensity = light->intensity;
+                shaderLights[i].position = light->position;
+                shaderLights[i].direction = light->direction;
+                shaderLights[i].constantAtten = light->constantAttenuation;
+                shaderLights[i].linearAtten = light->linearAttenuation;
+                shaderLights[i].quadraticAtten = light->quadraticAttenuation;
+                shaderLights[i].type = (uint32_t)light->type;
+                shaderLights[i].innerConeAngle = light->innerConeAngle;
+                shaderLights[i].outerConeAngle = light->outerConeAngle;
+            }
+        }
+        
+        // Update default material
+        MKLShaderMaterial *material = (MKLShaderMaterial *)renderer->_materialBuffer.contents;
+        material->albedo = (vector_float4){1, 1, 1, 1};
+        material->metallic = 0.0f;
+        material->roughness = 0.5f;
+        material->shininess = 32.0f;
+        material->opacity = 1.0f;
+    }
 }
 
 void MKLEndDrawing(MKLRenderer *renderer)
@@ -503,4 +543,23 @@ vector_float2 MKLGetRenderSize(MKLRenderer *renderer)
     }
     
     return (vector_float2){0.0f, 0.0f};
+}
+
+// ========== Enhanced Rendering Control ==========
+
+void MKLEnableEnhancedRendering(MKLRenderer *renderer, bool enable)
+{
+    if (renderer) {
+        renderer->_enhancedRenderingEnabled = enable;
+        if (enable) {
+            printf("✓ Enhanced rendering enabled (lighting + textures)\n");
+        } else {
+            printf("✓ Enhanced rendering disabled (simple rendering)\n");
+        }
+    }
+}
+
+bool MKLIsEnhancedRenderingEnabled(MKLRenderer *renderer)
+{
+    return renderer && renderer->_enhancedRenderingEnabled;
 }

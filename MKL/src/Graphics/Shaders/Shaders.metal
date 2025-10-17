@@ -59,3 +59,233 @@ fragment half4 fragmentShader(RasterizerData rd [[ stage_in ]])
     // Convert float4 to half4 for output
     return half4(rd.color);
 }
+
+// ========== ENHANCED SHADERS WITH LIGHTING AND TEXTURES ==========
+
+#define MAX_LIGHTS 8
+
+enum LightType : uint {
+    LightTypeAmbient = 0,
+    LightTypeDirectional = 1,
+    LightTypePoint = 2,
+    LightTypeSpot = 3
+};
+
+/**
+ * @brief Enhanced vertex input with normals and UVs
+ */
+struct VertexInEnhanced {
+    float4 position  [[attribute(0)]];
+    float3 normal    [[attribute(1)]];
+    float2 texCoords [[attribute(2)]];
+};
+
+/**
+ * @brief Enhanced rasterizer data
+ */
+struct RasterizerDataEnhanced {
+    float4 position   [[position]];
+    float3 worldPos;
+    float3 normal;
+    float2 texCoords;
+    float4 color;
+};
+
+/**
+ * @brief Light data structure
+ */
+struct Light {
+    float3 color;
+    float intensity;
+    float3 position;
+    float padding1;
+    float3 direction;
+    float padding2;
+    float constantAtten;
+    float linearAtten;
+    float quadraticAtten;
+    uint type;
+    float innerConeAngle;
+    float outerConeAngle;
+    float2 padding3;
+};
+
+/**
+ * @brief Material properties
+ */
+struct Material {
+    float4 albedo;
+    float metallic;
+    float roughness;
+    float shininess;
+    float opacity;
+};
+
+/**
+ * @brief Lighting uniforms
+ */
+struct LightingUniforms {
+    uint lightCount;
+    float3 cameraPos;
+};
+
+/**
+ * @brief Enhanced vertex shader with normal transformation
+ */
+vertex RasterizerDataEnhanced vertexShaderEnhanced(
+    const VertexInEnhanced vIn [[stage_in]],
+    constant Uniforms &uniforms [[buffer(1)]],
+    constant float4 &color [[buffer(2)]],
+    constant float4x4 &modelMatrix [[buffer(3)]]
+)
+{
+    RasterizerDataEnhanced out;
+    
+    float4 worldPos = modelMatrix * vIn.position;
+    float4 viewPos = uniforms.viewMatrix * worldPos;
+    out.position = uniforms.projectionMatrix * viewPos;
+    out.worldPos = worldPos.xyz;
+    
+    float3x3 normalMatrix = float3x3(modelMatrix[0].xyz, 
+                                      modelMatrix[1].xyz, 
+                                      modelMatrix[2].xyz);
+    out.normal = normalize(normalMatrix * vIn.normal);
+    out.texCoords = vIn.texCoords;
+    out.color = color;
+    
+    return out;
+}
+
+/**
+ * @brief Calculate attenuation for point/spot lights
+ */
+float calculateAttenuation(float distance, Light light) {
+    return 1.0 / (light.constantAtten + 
+                  light.linearAtten * distance + 
+                  light.quadraticAtten * distance * distance);
+}
+
+/**
+ * @brief Calculate lighting (Blinn-Phong)
+ */
+float3 calculateLighting(
+    Light light,
+    float3 worldPos,
+    float3 normal,
+    float3 viewDir,
+    float3 albedo,
+    float shininess
+)
+{
+    float3 result = float3(0.0);
+    
+    if (light.type == LightTypeAmbient) {
+        result = light.color * light.intensity * albedo;
+    }
+    else if (light.type == LightTypeDirectional) {
+        float3 lightDir = normalize(-light.direction);
+        float diff = max(dot(normal, lightDir), 0.0);
+        float3 diffuse = diff * light.color * light.intensity * albedo;
+        
+        float3 halfwayDir = normalize(lightDir + viewDir);
+        float spec = pow(max(dot(normal, halfwayDir), 0.0), shininess);
+        float3 specular = spec * light.color * light.intensity;
+        
+        result = diffuse + specular;
+    }
+    else if (light.type == LightTypePoint) {
+        float3 lightDir = normalize(light.position - worldPos);
+        float distance = length(light.position - worldPos);
+        float attenuation = calculateAttenuation(distance, light);
+        
+        float diff = max(dot(normal, lightDir), 0.0);
+        float3 diffuse = diff * light.color * light.intensity * albedo * attenuation;
+        
+        float3 halfwayDir = normalize(lightDir + viewDir);
+        float spec = pow(max(dot(normal, halfwayDir), 0.0), shininess);
+        float3 specular = spec * light.color * light.intensity * attenuation;
+        
+        result = diffuse + specular;
+    }
+    
+    return result;
+}
+
+/**
+ * @brief Enhanced fragment shader with lighting and textures
+ */
+fragment half4 fragmentShaderEnhanced(
+    RasterizerDataEnhanced in [[stage_in]],
+    constant LightingUniforms &lightingUniforms [[buffer(0)]],
+    constant Light *lights [[buffer(1)]],
+    constant Material &material [[buffer(2)]],
+    texture2d<float> albedoTexture [[texture(0)]],
+    sampler textureSampler [[sampler(0)]]
+)
+{
+    float4 texColor = albedoTexture.sample(textureSampler, in.texCoords);
+    float3 albedo = texColor.rgb * in.color.rgb * material.albedo.rgb;
+    
+    float3 viewDir = normalize(lightingUniforms.cameraPos - in.worldPos);
+    float3 normal = normalize(in.normal);
+    
+    float3 finalColor = float3(0.0);
+    
+    for (uint i = 0; i < lightingUniforms.lightCount && i < MAX_LIGHTS; i++) {
+        finalColor += calculateLighting(
+            lights[i],
+            in.worldPos,
+            normal,
+            viewDir,
+            albedo,
+            material.shininess
+        );
+    }
+    
+    float alpha = texColor.a * in.color.a * material.opacity;
+    return half4(half3(finalColor), half(alpha));
+}
+
+/**
+ * @brief Textured fragment shader (no lighting)
+ */
+fragment half4 fragmentShaderTextured(
+    RasterizerDataEnhanced in [[stage_in]],
+    texture2d<float> albedoTexture [[texture(0)]],
+    sampler textureSampler [[sampler(0)]]
+)
+{
+    float4 texColor = albedoTexture.sample(textureSampler, in.texCoords);
+    float4 finalColor = texColor * in.color;
+    return half4(finalColor);
+}
+
+/**
+ * @brief Lit fragment shader (no texture)
+ */
+fragment half4 fragmentShaderLit(
+    RasterizerDataEnhanced in [[stage_in]],
+    constant LightingUniforms &lightingUniforms [[buffer(0)]],
+    constant Light *lights [[buffer(1)]],
+    constant Material &material [[buffer(2)]]
+)
+{
+    float3 albedo = in.color.rgb * material.albedo.rgb;
+    float3 viewDir = normalize(lightingUniforms.cameraPos - in.worldPos);
+    float3 normal = normalize(in.normal);
+    
+    float3 finalColor = float3(0.0);
+    
+    for (uint i = 0; i < lightingUniforms.lightCount && i < MAX_LIGHTS; i++) {
+        finalColor += calculateLighting(
+            lights[i],
+            in.worldPos,
+            normal,
+            viewDir,
+            albedo,
+            material.shininess
+        );
+    }
+    
+    return half4(half3(finalColor), half(in.color.a * material.opacity));
+}

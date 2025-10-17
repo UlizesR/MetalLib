@@ -14,11 +14,16 @@
 
 void MKLMeshPlane(MKLMesh *mesh, MKLRenderer *renderer, const vector_float3 position, const vector_float2 dimensions, const simd_uint2 segments, const vector_float3 rotation)
 {
-    // Create ModelIO vertex descriptor from Metal vertex descriptor
-    MDLVertexDescriptor *mdlVertexDescriptor = MTKModelIOVertexDescriptorFromMetal(renderer->_vertexDescriptor);
+    // Use enhanced vertex descriptor if available (has normals and UVs)
+    MTLVertexDescriptor *metalDesc = renderer->_vertexDescriptorEnhanced ? renderer->_vertexDescriptorEnhanced : renderer->_vertexDescriptor;
+    MDLVertexDescriptor *mdlVertexDescriptor = MTKModelIOVertexDescriptorFromMetal(metalDesc);
     if (mdlVertexDescriptor)
     {
         mdlVertexDescriptor.attributes[0].name = MDLVertexAttributePosition;
+        if (renderer->_vertexDescriptorEnhanced) {
+            mdlVertexDescriptor.attributes[1].name = MDLVertexAttributeNormal;
+            mdlVertexDescriptor.attributes[2].name = MDLVertexAttributeTextureCoordinate;
+        }
     }
     
     // Create a new plane mesh
@@ -54,11 +59,16 @@ void MKLMeshPlane(MKLMesh *mesh, MKLRenderer *renderer, const vector_float3 posi
 
 void MKLMeshBox(MKLMesh *mesh, MKLRenderer *renderer, const vector_float3 position, const vector_float3 dimensions, const simd_uint3 segments, const vector_float3 rotation)
 {
-    // Create ModelIO vertex descriptor
-    MDLVertexDescriptor *mdlVertexDescriptor = MTKModelIOVertexDescriptorFromMetal(renderer->_vertexDescriptor);
+    // Use enhanced vertex descriptor if available
+    MTLVertexDescriptor *metalDesc = renderer->_vertexDescriptorEnhanced ? renderer->_vertexDescriptorEnhanced : renderer->_vertexDescriptor;
+    MDLVertexDescriptor *mdlVertexDescriptor = MTKModelIOVertexDescriptorFromMetal(metalDesc);
     if (mdlVertexDescriptor)
     {
         mdlVertexDescriptor.attributes[0].name = MDLVertexAttributePosition;
+        if (renderer->_vertexDescriptorEnhanced) {
+            mdlVertexDescriptor.attributes[1].name = MDLVertexAttributeNormal;
+            mdlVertexDescriptor.attributes[2].name = MDLVertexAttributeTextureCoordinate;
+        }
     }
     
     // Create a new box mesh
@@ -94,11 +104,16 @@ void MKLMeshBox(MKLMesh *mesh, MKLRenderer *renderer, const vector_float3 positi
 
 void MKLMeshSphere(MKLMesh *mesh, MKLRenderer *renderer, const vector_float3 position, const vector_float3 dimensions, const simd_uint2 segments, const vector_float3 rotation)
 {
-    // Create ModelIO vertex descriptor
-    MDLVertexDescriptor *mdlVertexDescriptor = MTKModelIOVertexDescriptorFromMetal(renderer->_vertexDescriptor);
+    // Use enhanced vertex descriptor if available
+    MTLVertexDescriptor *metalDesc = renderer->_vertexDescriptorEnhanced ? renderer->_vertexDescriptorEnhanced : renderer->_vertexDescriptor;
+    MDLVertexDescriptor *mdlVertexDescriptor = MTKModelIOVertexDescriptorFromMetal(metalDesc);
     if (mdlVertexDescriptor)
     {
         mdlVertexDescriptor.attributes[0].name = MDLVertexAttributePosition;
+        if (renderer->_vertexDescriptorEnhanced) {
+            mdlVertexDescriptor.attributes[1].name = MDLVertexAttributeNormal;
+            mdlVertexDescriptor.attributes[2].name = MDLVertexAttributeTextureCoordinate;
+        }
     }
     
     // Create a new sphere mesh
@@ -136,11 +151,16 @@ void MKLMeshSphere(MKLMesh *mesh, MKLRenderer *renderer, const vector_float3 pos
 
 void MKLMeshCylinder(MKLMesh *mesh, MKLRenderer *renderer, const vector_float3 position, const vector_float3 dimensions, const simd_uint3 segments, const vector_float3 rotation)
 {
-    // Create ModelIO vertex descriptor
-    MDLVertexDescriptor *mdlVertexDescriptor = MTKModelIOVertexDescriptorFromMetal(renderer->_vertexDescriptor);
+    // Use enhanced vertex descriptor if available
+    MTLVertexDescriptor *metalDesc = renderer->_vertexDescriptorEnhanced ? renderer->_vertexDescriptorEnhanced : renderer->_vertexDescriptor;
+    MDLVertexDescriptor *mdlVertexDescriptor = MTKModelIOVertexDescriptorFromMetal(metalDesc);
     if (mdlVertexDescriptor)
     {
         mdlVertexDescriptor.attributes[0].name = MDLVertexAttributePosition;
+        if (renderer->_vertexDescriptorEnhanced) {
+            mdlVertexDescriptor.attributes[1].name = MDLVertexAttributeNormal;
+            mdlVertexDescriptor.attributes[2].name = MDLVertexAttributeTextureCoordinate;
+        }
     }
     
     // Create a new cylinder mesh
@@ -178,11 +198,16 @@ void MKLMeshCylinder(MKLMesh *mesh, MKLRenderer *renderer, const vector_float3 p
 
 void MKLMeshCapsule(MKLMesh *mesh, MKLRenderer *renderer, const vector_float3 position, const vector_float3 dimensions, const simd_uint2 segments, const vector_float3 rotation)
 {
-    // Create ModelIO vertex descriptor
-    MDLVertexDescriptor *mdlVertexDescriptor = MTKModelIOVertexDescriptorFromMetal(renderer->_vertexDescriptor);
+    // Use enhanced vertex descriptor if available
+    MTLVertexDescriptor *metalDesc = renderer->_vertexDescriptorEnhanced ? renderer->_vertexDescriptorEnhanced : renderer->_vertexDescriptor;
+    MDLVertexDescriptor *mdlVertexDescriptor = MTKModelIOVertexDescriptorFromMetal(metalDesc);
     if (mdlVertexDescriptor)
     {
         mdlVertexDescriptor.attributes[0].name = MDLVertexAttributePosition;
+        if (renderer->_vertexDescriptorEnhanced) {
+            mdlVertexDescriptor.attributes[1].name = MDLVertexAttributeNormal;
+            mdlVertexDescriptor.attributes[2].name = MDLVertexAttributeTextureCoordinate;
+        }
     }
     
     // Create a new capsule mesh
@@ -266,14 +291,24 @@ MKLMesh MKLMeshCreateWithFile(MKLRenderer *renderer, const char* path)
     
     MDLMesh *mdlMesh = (MDLMesh *)object;
     
-    // Create ModelIO vertex descriptor from Metal vertex descriptor
-    MDLVertexDescriptor *mdlVertexDescriptor = MTKModelIOVertexDescriptorFromMetal(renderer->_vertexDescriptor);
+    // Use enhanced vertex descriptor to load normals and UVs from OBJ
+    MTLVertexDescriptor *metalDesc = renderer->_vertexDescriptorEnhanced ? renderer->_vertexDescriptorEnhanced : renderer->_vertexDescriptor;
+    MDLVertexDescriptor *mdlVertexDescriptor = MTKModelIOVertexDescriptorFromMetal(metalDesc);
     if (mdlVertexDescriptor) {
         mdlVertexDescriptor.attributes[0].name = MDLVertexAttributePosition;
+        if (renderer->_vertexDescriptorEnhanced) {
+            mdlVertexDescriptor.attributes[1].name = MDLVertexAttributeNormal;
+            mdlVertexDescriptor.attributes[2].name = MDLVertexAttributeTextureCoordinate;
+        }
     }
     
     // Set the vertex descriptor
     mdlMesh.vertexDescriptor = mdlVertexDescriptor;
+    
+    // Add normals if using enhanced rendering (will generate if not present)
+    if (renderer->_vertexDescriptorEnhanced) {
+        [mdlMesh addNormalsWithAttributeNamed:MDLVertexAttributeNormal creaseThreshold:0.0];
+    }
     
     // Create a MetalKit mesh from the Model I/O mesh
     NSError *error = nil;
@@ -308,17 +343,43 @@ void MKLDrawMesh(MKLRenderer *renderer, MKLMesh *mesh, const MKLColor color)
     matrix_float4x4 modelM = matrix_multiply(translateM, rotationM);
     modelM = matrix_multiply(modelM, scaleM);
 
-    [renderer->_renderEncoder setVertexBytes:&color length:sizeof(vector_float4) atIndex:2];
-    [renderer->_renderEncoder setVertexBytes:&modelM length:sizeof(matrix_float4x4) atIndex:3];
+    // Check if we should use enhanced rendering (MTKMesh already has normals from ModelIO!)
+    bool useLighting = renderer->_enhancedRenderingEnabled && renderer->_pipelineStateLit;
     
-    [renderer->_renderEncoder setVertexBuffer:mesh->_mtkMesh.vertexBuffers[0].buffer offset:0 atIndex:0];
+    if (useLighting) {
+        // Use enhanced pipeline - MTKMesh from ModelIO already has normals!
+        [renderer->_renderEncoder setRenderPipelineState:renderer->_pipelineStateLit];
+        [renderer->_renderEncoder setVertexBytes:&color length:sizeof(vector_float4) atIndex:2];
+        [renderer->_renderEncoder setVertexBytes:&modelM length:sizeof(matrix_float4x4) atIndex:3];
+        [renderer->_renderEncoder setVertexBuffer:mesh->_mtkMesh.vertexBuffers[0].buffer offset:0 atIndex:0];
+        
+        // Bind lighting data
+        [renderer->_renderEncoder setFragmentBuffer:renderer->_lightingUniformsBuffer offset:0 atIndex:0];
+        [renderer->_renderEncoder setFragmentBuffer:renderer->_lightBuffer offset:0 atIndex:1];
+        [renderer->_renderEncoder setFragmentBuffer:renderer->_materialBuffer offset:0 atIndex:2];
+        
+        for (MTKSubmesh *submesh in mesh->_mtkMesh.submeshes) {
+            [renderer->_renderEncoder drawIndexedPrimitives:submesh.primitiveType
+                                                indexCount:submesh.indexCount
+                                                 indexType:submesh.indexType
+                                              indexBuffer:submesh.indexBuffer.buffer
+                                        indexBufferOffset:submesh.indexBuffer.offset];
+        }
+        
+        // Restore default pipeline
+        [renderer->_renderEncoder setRenderPipelineState:renderer->_pipelineState];
+    } else {
+        // Use simple rendering (backwards compatible)
+        [renderer->_renderEncoder setVertexBytes:&color length:sizeof(vector_float4) atIndex:2];
+        [renderer->_renderEncoder setVertexBytes:&modelM length:sizeof(matrix_float4x4) atIndex:3];
+        [renderer->_renderEncoder setVertexBuffer:mesh->_mtkMesh.vertexBuffers[0].buffer offset:0 atIndex:0];
 
-    for (MTKSubmesh *submesh in mesh->_mtkMesh.submeshes)
-    {
-        [renderer->_renderEncoder drawIndexedPrimitives:submesh.primitiveType
-                                            indexCount:submesh.indexCount
-                                             indexType:submesh.indexType
-                                          indexBuffer:submesh.indexBuffer.buffer
-                                    indexBufferOffset:submesh.indexBuffer.offset];
+        for (MTKSubmesh *submesh in mesh->_mtkMesh.submeshes) {
+            [renderer->_renderEncoder drawIndexedPrimitives:submesh.primitiveType
+                                                indexCount:submesh.indexCount
+                                                 indexType:submesh.indexType
+                                              indexBuffer:submesh.indexBuffer.buffer
+                                        indexBufferOffset:submesh.indexBuffer.offset];
+        }
     }
 }

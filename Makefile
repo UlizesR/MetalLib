@@ -26,6 +26,15 @@ LIB_OBJC_FILES = $(shell find ./MKL/src -name "*.m")
 LIB_O_FILES = $(patsubst ./MKL/src/%.c, $(BUILD_DIR)/%.o, $(LIB_C_FILES)) \
               $(patsubst ./MKL/src/%.m, $(BUILD_DIR)/%.o, $(LIB_OBJC_FILES))
 
+# New graphics features
+# (These are already included via the find command above, but listed here for clarity)
+# - MKLTexture.m
+# - MKLLight.m
+# - MKLMaterial.m
+# - MKLText.m
+# - MKLRenderTarget.m
+# - MKLAnimation.m
+
 APP_C_FILES = ./examples/main.c
 APP_O_FILES = $(patsubst ./examples/%.c, $(BUILD_DIR)/%.o, $(APP_C_FILES))
 
@@ -42,8 +51,20 @@ TEST_WAVING_O_FILES = $(patsubst ./examples/%.c, $(BUILD_DIR)/%.o, $(TEST_WAVING
 TEST_OBJ_FILES = ./examples/test_obj_model.c
 TEST_OBJ_O_FILES = $(patsubst ./examples/%.c, $(BUILD_DIR)/%.o, $(TEST_OBJ_FILES))
 
+TEST_FEATURES_FILES = ./examples/test_new_features.c
+TEST_FEATURES_O_FILES = $(patsubst ./examples/%.c, $(BUILD_DIR)/%.o, $(TEST_FEATURES_FILES))
+
+TEST_TEXTURE_API_FILES = ./examples/test_texture_api.c
+TEST_TEXTURE_API_O_FILES = $(patsubst ./examples/%.c, $(BUILD_DIR)/%.o, $(TEST_TEXTURE_API_FILES))
+
+TEST_LIGHT_API_FILES = ./examples/test_light_api.c
+TEST_LIGHT_API_O_FILES = $(patsubst ./examples/%.c, $(BUILD_DIR)/%.o, $(TEST_LIGHT_API_FILES))
+
+TEST_LIGHTING_FILES = ./examples/test_lighting.c
+TEST_LIGHTING_O_FILES = $(patsubst ./examples/%.c, $(BUILD_DIR)/%.o, $(TEST_LIGHTING_FILES))
+
 # Targets
-.PHONY: all clean run buildLib buildApp shadertoy shapes waving obj
+.PHONY: all clean run buildLib buildApp shadertoy shapes waving obj features test-texture test-light lighting
 
 all: buildLib buildApp
 
@@ -74,6 +95,34 @@ obj: buildLib $(TEST_OBJ_O_FILES)
 	@mkdir -p $(BUILD_DIR)
 	$(CC) $(APP_LINKERS) $(TEST_OBJ_O_FILES) -o $(BUILD_DIR)/obj_viewer
 	@echo "✓ Successfully built OBJ model viewer!"
+
+# Build new features demo
+features: buildLib $(TEST_FEATURES_O_FILES)
+	@echo "Building New Features Demo..."
+	@mkdir -p $(BUILD_DIR)
+	$(CC) $(APP_LINKERS) $(TEST_FEATURES_O_FILES) -o $(BUILD_DIR)/features
+	@echo "✓ Successfully built features demo!"
+
+# Build texture API test
+test-texture: buildLib $(TEST_TEXTURE_API_O_FILES)
+	@echo "Building Texture API Test..."
+	@mkdir -p $(BUILD_DIR)
+	$(CC) $(APP_LINKERS) $(TEST_TEXTURE_API_O_FILES) -o $(BUILD_DIR)/test_texture_api
+	@echo "✓ Successfully built texture API test!"
+
+# Build light API test
+test-light: buildLib $(TEST_LIGHT_API_O_FILES)
+	@echo "Building Light API Test..."
+	@mkdir -p $(BUILD_DIR)
+	$(CC) $(APP_LINKERS) $(TEST_LIGHT_API_O_FILES) -o $(BUILD_DIR)/test_light_api
+	@echo "✓ Successfully built light API test!"
+
+# Build lighting demo
+lighting: buildLib $(TEST_LIGHTING_O_FILES)
+	@echo "Building Lighting Demo..."
+	@mkdir -p $(BUILD_DIR)
+	$(CC) $(APP_LINKERS) $(TEST_LIGHTING_O_FILES) -o $(BUILD_DIR)/lighting
+	@echo "✓ Successfully built lighting demo!"
 
 buildLib: $(LIB_O_FILES)
 	@echo "Building Library..."

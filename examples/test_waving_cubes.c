@@ -144,7 +144,7 @@ int main(void) {
         
         // Render
         MKLBeginDrawing(renderer);
-        MKLClearRenderer(renderer, MKL_COLOR_WHITE);
+        MKLClearRenderer(renderer, (MKLColor){0.231f, 0.278f, 0.322f});
         
         // Update camera matrices
         MKLCameraControls controls = {0};
