@@ -27,6 +27,8 @@
 // ============================================================================
 // Core System
 // ============================================================================
+#include "Core/MKLConfig.h"         // Configuration constants
+#include "Core/MKLDefaults.h"       // Default values
 #include "Core/MKLCore.h"           // Core definitions and types
 #include "Core/MKLError.h"          // Error handling
 #include "Core/MKLTimer.h"          // Timing utilities
@@ -48,8 +50,9 @@
 // ============================================================================
 // Graphics - Core
 // ============================================================================
-#include "Graphics/MKLRenderer.h"   // Core rendering engine
-#include "Graphics/MKLShader.h"     // Shader management
+#include "Graphics/MKLRenderer.h"      // Core rendering engine
+#include "Graphics/MKLCommandBuffer.h" // Command buffer for batching (Phase 3)
+#include "Graphics/MKLShader.h"        // Shader management
 
 // ============================================================================
 // Graphics - Objects and Geometry

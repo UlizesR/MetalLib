@@ -5,11 +5,12 @@
 
 #import "MKLLight.h"
 #import "MKLRenderer.h"
+#import "../Core/MKLConfig.h"
 #import <Foundation/Foundation.h>
 #import <simd/simd.h>
 
-// Define maximum number of lights
-#define MKL_MAX_LIGHTS 8
+// Use centralized constant from MKLConfig.h
+// MKL_MAX_LIGHTS is defined there
 
 // Light storage structure (internal)
 typedef struct MKLLightManager {

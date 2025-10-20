@@ -4,6 +4,7 @@
 //
 
 #include "MKLEntity.h"
+#include "../../Core/MKLConfig.h"
 #include "../../Core/MKLError.h"
 #include "../../Input/Mouse.h"
 #include "../../Input/Keyboard.h"
@@ -12,12 +13,12 @@
 #include <stdio.h>
 #include <math.h>
 
-// Camera configuration
-#define CAMERA_MOVE_SPEED                    5.0f
-#define CAMERA_ROTATION_SPEED                90.0f  // Degrees per second
-#define CAMERA_PAN_SPEED                     0.2f
-#define CAMERA_MOUSE_MOVE_SENSITIVITY        0.003f
-#define CAMERA_ORBITAL_SPEED                 0.5f   // Radians per second
+// Use centralized camera constants from MKLConfig.h
+#define CAMERA_MOVE_SPEED MKL_CAMERA_MOVE_SPEED
+#define CAMERA_ROTATION_SPEED MKL_CAMERA_ROTATION_SPEED
+#define CAMERA_PAN_SPEED MKL_CAMERA_PAN_SPEED
+#define CAMERA_MOUSE_MOVE_SENSITIVITY MKL_CAMERA_MOUSE_SENSITIVITY
+#define CAMERA_ORBITAL_SPEED MKL_CAMERA_ORBITAL_SPEED
 
 // ========== Utility Functions ==========
 

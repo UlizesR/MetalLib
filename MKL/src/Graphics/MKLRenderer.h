@@ -112,6 +112,10 @@ typedef struct MKLRenderer
     id<MTLCommandBuffer> _commandBuffer;
     id<MTLRenderCommandEncoder> _renderEncoder;
 #endif
+    
+    // PHASE 3: Draw command buffer for batching (C struct, works in both Obj-C and C)
+    void *_drawCommandBuffer;  // MKLCommandBuffer* (forward declaration)
+    bool _batchingEnabled;
 } MKLRenderer;
 
 MKLAPI MKLRenderer *MKLCreateRenderer(MKLWindow *window);
@@ -132,5 +136,25 @@ MKLAPI vector_float2 MKLGetRenderSize(MKLRenderer *renderer);
 // ========== Enhanced Rendering Control ==========
 MKLAPI void MKLEnableEnhancedRendering(MKLRenderer *renderer, bool enable);
 MKLAPI bool MKLIsEnhancedRenderingEnabled(MKLRenderer *renderer);
+
+// ========== Performance Control ==========
+/**
+ * @brief Set the target frames per second (FPS) limit
+ * @param renderer The renderer
+ * @param fps Target FPS (0 = unlimited, bypasses VSync)
+ * 
+ * Examples:
+ *   MKLSetTargetFPS(renderer, 60);  // Cap at 60 FPS (default)
+ *   MKLSetTargetFPS(renderer, 120); // Cap at 120 FPS
+ *   MKLSetTargetFPS(renderer, 0);   // Unlimited FPS (for benchmarking)
+ */
+MKLAPI void MKLSetTargetFPS(MKLRenderer *renderer, int fps);
+
+/**
+ * @brief Get the current target FPS setting
+ * @param renderer The renderer
+ * @return Current FPS target (0 = unlimited)
+ */
+MKLAPI int MKLGetTargetFPS(MKLRenderer *renderer);
 
 #endif // _MKL_VIEW_H_

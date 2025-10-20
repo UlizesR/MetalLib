@@ -1,5 +1,6 @@
 #import "MKLShapes.h"
 #import "../MKLTypes.h"
+#import "../../Core/MKLConfig.h"
 #import "../../Core/MKLError.h"
 #import "../../Math/MKLMath.h"
 
@@ -8,6 +9,28 @@
 #import <MetalKit/MetalKit.h>
 
 #pragma mark - Shape Geometry Cache
+
+// OPTIMIZATION: Cached Metal buffers for static cube geometry (never changes)
+static struct {
+    id<MTLBuffer> vertexBufferEnhanced;  // For lighting
+    id<MTLBuffer> indexBufferEnhanced;
+    id<MTLBuffer> vertexBufferSimple;    // For non-lighting
+    id<MTLBuffer> indexBufferSimple;
+    bool initialized;
+} _cubeGeometryCache = {nil, nil, nil, nil, false};
+
+
+#define MAX_PLANE_CACHE_ENTRIES MKL_MAX_PLANE_CACHE_ENTRIES
+static struct {
+    id<MTLBuffer> vertexBufferEnhanced;
+    id<MTLBuffer> indexBufferEnhanced;
+    id<MTLBuffer> vertexBufferSimple;
+    id<MTLBuffer> indexBufferSimple;
+    simd_uint2 segments;
+    int vertexCount;
+    int indexCount;
+    bool inUse;
+} _planeGeometryCache[MAX_PLANE_CACHE_ENTRIES] = {0};
 
 // Cached geometry for parametric shapes
 static struct {
@@ -48,6 +71,155 @@ static struct {
 } _torusCache = {NULL, NULL, 0, 0, 0, 0, false};
 
 #pragma mark - Helper Functions
+
+// OPTIMIZATION: Find or create cached plane geometry
+static int findOrCreatePlaneGeometry(MKLRenderer *renderer, simd_uint2 segments, bool enhanced) {
+    // First, try to find existing cache entry
+    for (int i = 0; i < MAX_PLANE_CACHE_ENTRIES; i++) {
+        if (_planeGeometryCache[i].inUse &&
+            _planeGeometryCache[i].segments.x == segments.x &&
+            _planeGeometryCache[i].segments.y == segments.y) {
+            return i; // Found!
+        }
+    }
+    
+    // Not found, need to create new entry
+    // Find empty slot (LRU would be better, but simple replacement works)
+    int slot = -1;
+    for (int i = 0; i < MAX_PLANE_CACHE_ENTRIES; i++) {
+        if (!_planeGeometryCache[i].inUse) {
+            slot = i;
+            break;
+        }
+    }
+    
+    // If cache full, replace first entry (could be improved with LRU)
+    if (slot == -1) {
+        slot = 0;
+        // Release old buffers
+        _planeGeometryCache[slot].vertexBufferEnhanced = nil;
+        _planeGeometryCache[slot].indexBufferEnhanced = nil;
+        _planeGeometryCache[slot].vertexBufferSimple = nil;
+        _planeGeometryCache[slot].indexBufferSimple = nil;
+    }
+    
+    // Generate plane geometry
+    const unsigned int vertexCount = (segments.x + 1) * (segments.y + 1);
+    const unsigned int indexCount = segments.x * segments.y * 6;
+    
+    // Generate vertices and indices
+    if (enhanced) {
+        const NSUInteger vertexSize = sizeof(MKLVertexEnhanced) * vertexCount;
+        const NSUInteger indexSize = sizeof(ushort) * indexCount;
+        
+        MKLVertexEnhanced *vertices = malloc(vertexSize);
+        ushort *indices = malloc(indexSize);
+        
+        // Generate enhanced vertices with normals
+        const float stepX = 1.0f / (float)segments.x;
+        const float stepY = 1.0f / (float)segments.y;
+        
+        for (unsigned int i = 0; i < segments.x + 1; i++) {
+            for (unsigned int j = 0; j < segments.y + 1; j++) {
+                const unsigned int index = i * (segments.y + 1) + j;
+                const float x = -0.5f + (float)i * stepX;
+                const float z = -0.5f + (float)j * stepY;
+                const float u = (float)i / (float)segments.x;
+                const float v = (float)j / (float)segments.y;
+                
+                vertices[index].position = (vector_float4){x, 0.0f, z, 1.0f};
+                vertices[index].normal = (vector_float3){0.0f, 1.0f, 0.0f};
+                vertices[index].texCoords = (vector_float2){u, v};
+            }
+        }
+        
+        // Generate indices
+        unsigned int idx = 0;
+        for (unsigned int i = 0; i < segments.x; i++) {
+            for (unsigned int j = 0; j < segments.y; j++) {
+                const unsigned int base = i * (segments.y + 1) + j;
+                const unsigned int next = base + (segments.y + 1);
+                
+                indices[idx++] = base;
+                indices[idx++] = next;
+                indices[idx++] = next + 1;
+                indices[idx++] = base;
+                indices[idx++] = next + 1;
+                indices[idx++] = base + 1;
+            }
+        }
+        
+        // Create Metal buffers
+        _planeGeometryCache[slot].vertexBufferEnhanced = 
+            [renderer->_device newBufferWithBytes:vertices
+                                           length:vertexSize
+                                          options:MTLResourceStorageModeShared];
+        _planeGeometryCache[slot].indexBufferEnhanced = 
+            [renderer->_device newBufferWithBytes:indices
+                                           length:indexSize
+                                          options:MTLResourceStorageModeShared];
+        
+        free(vertices);
+        free(indices);
+    } else {
+        const NSUInteger vertexSize = sizeof(MKLVertex) * vertexCount;
+        const NSUInteger indexSize = sizeof(ushort) * indexCount;
+        
+        MKLVertex *vertices = malloc(vertexSize);
+        ushort *indices = malloc(indexSize);
+        
+        // Generate simple vertices
+        const float stepX = 1.0f / (float)segments.x;
+        const float stepY = 1.0f / (float)segments.y;
+        
+        for (unsigned int i = 0; i < segments.x + 1; i++) {
+            for (unsigned int j = 0; j < segments.y + 1; j++) {
+                const unsigned int index = i * (segments.y + 1) + j;
+                const float x = -0.5f + (float)i * stepX;
+                const float z = -0.5f + (float)j * stepY;
+                
+                vertices[index].position = (vector_float4){x, 0.0f, z, 1.0f};
+            }
+        }
+        
+        // Generate indices
+        unsigned int idx = 0;
+        for (unsigned int i = 0; i < segments.x; i++) {
+            for (unsigned int j = 0; j < segments.y; j++) {
+                const unsigned int base = i * (segments.y + 1) + j;
+                const unsigned int next = base + (segments.y + 1);
+                
+                indices[idx++] = base;
+                indices[idx++] = next;
+                indices[idx++] = next + 1;
+                indices[idx++] = base;
+                indices[idx++] = next + 1;
+                indices[idx++] = base + 1;
+            }
+        }
+        
+        // Create Metal buffers
+        _planeGeometryCache[slot].vertexBufferSimple = 
+            [renderer->_device newBufferWithBytes:vertices
+                                           length:vertexSize
+                                          options:MTLResourceStorageModeShared];
+        _planeGeometryCache[slot].indexBufferSimple = 
+            [renderer->_device newBufferWithBytes:indices
+                                           length:indexSize
+                                          options:MTLResourceStorageModeShared];
+        
+        free(vertices);
+        free(indices);
+    }
+    
+    // Store metadata
+    _planeGeometryCache[slot].segments = segments;
+    _planeGeometryCache[slot].vertexCount = vertexCount;
+    _planeGeometryCache[slot].indexCount = indexCount;
+    _planeGeometryCache[slot].inUse = true;
+    
+    return slot;
+}
 
 static inline void DrawIndexedPrimitive(MKLRenderer *renderer, 
                                        id<MTLBuffer> vertexBuffer,
@@ -113,21 +285,23 @@ void MKLDrawCube(MKLRenderer *renderer, const MKLCube cube, const MKLColor color
     bool useLighting = renderer->_enhancedRenderingEnabled && renderer->_pipelineStateLit;
     
     if (useLighting) {
-        // Use enhanced vertices with normals
-        const NSUInteger vertexSize = sizeof(MKLVertexEnhanced) * 24;
-        const NSUInteger indexSize = sizeof(ushort) * 36;
-        
-        id<MTLBuffer> vertexBuffer = [renderer->_bufferPool getReuseableBufferWithLength:vertexSize];
-        id<MTLBuffer> indexBuffer = [renderer->_bufferPool getReuseableBufferWithLength:indexSize];
-        
-        if (!vertexBuffer || !indexBuffer) {
-            fprintf(stderr, "MKL Error: Failed to allocate buffers for cube\n");
-            return;
+        // OPTIMIZATION: Initialize cached geometry once, reuse forever
+        if (!_cubeGeometryCache.initialized || !_cubeGeometryCache.vertexBufferEnhanced) {
+            const NSUInteger vertexSize = sizeof(MKLVertexEnhanced) * 24;
+            const NSUInteger indexSize = sizeof(ushort) * 36;
+            
+            // Create persistent Metal buffers (MTLResourceStorageModeShared for CPU/GPU access)
+            _cubeGeometryCache.vertexBufferEnhanced = [renderer->_device newBufferWithBytes:cubeVerticesEnhanced
+                                                                                     length:vertexSize
+                                                                                    options:MTLResourceStorageModeShared];
+            _cubeGeometryCache.indexBufferEnhanced = [renderer->_device newBufferWithBytes:cubeIndicesEnhanced
+                                                                                    length:indexSize
+                                                                                   options:MTLResourceStorageModeShared];
+            _cubeGeometryCache.initialized = true;
         }
         
-        // Copy enhanced vertex data
-        memcpy(vertexBuffer.contents, cubeVerticesEnhanced, vertexSize);
-        memcpy(indexBuffer.contents, cubeIndicesEnhanced, indexSize);
+        id<MTLBuffer> vertexBuffer = _cubeGeometryCache.vertexBufferEnhanced;
+        id<MTLBuffer> indexBuffer = _cubeGeometryCache.indexBufferEnhanced;
         
         // Use enhanced pipeline with lighting
         [renderer->_renderEncoder setRenderPipelineState:renderer->_pipelineStateLit];
@@ -135,10 +309,7 @@ void MKLDrawCube(MKLRenderer *renderer, const MKLCube cube, const MKLColor color
         [renderer->_renderEncoder setVertexBytes:&modelM length:sizeof(matrix_float4x4) atIndex:3];
         [renderer->_renderEncoder setVertexBuffer:vertexBuffer offset:0 atIndex:0];
         
-        // Bind lighting data
-        [renderer->_renderEncoder setFragmentBuffer:renderer->_lightingUniformsBuffer offset:0 atIndex:0];
-        [renderer->_renderEncoder setFragmentBuffer:renderer->_lightBuffer offset:0 atIndex:1];
-        [renderer->_renderEncoder setFragmentBuffer:renderer->_materialBuffer offset:0 atIndex:2];
+        // OPTIMIZATION: Lighting buffers already bound in MKLBeginDrawing - no need to rebind
         
         [renderer->_renderEncoder drawIndexedPrimitives:MTLPrimitiveTypeTriangle
                                              indexCount:36
@@ -146,26 +317,28 @@ void MKLDrawCube(MKLRenderer *renderer, const MKLCube cube, const MKLColor color
                                             indexBuffer:indexBuffer
                                       indexBufferOffset:0];
         
-        // Restore default pipeline for other draws
+        // OPTIMIZATION: Don't restore pipeline here - will be handled by batch system later
         [renderer->_renderEncoder setRenderPipelineState:renderer->_pipelineState];
     } else {
-        // Use simple rendering (original code)
-        MKLVertex *cubeVertices = [MklDefs cubeVertices];
-        ushort *cubeIndices = [MklDefs cubeIndices];
-        
-        const NSUInteger vertexSize = sizeof(MKLVertex) * 8;
-        const NSUInteger indexSize = sizeof(ushort) * 36;
-        
-        id<MTLBuffer> vertexBuffer = [renderer->_bufferPool getReuseableBufferWithLength:vertexSize];
-        id<MTLBuffer> indexBuffer = [renderer->_bufferPool getReuseableBufferWithLength:indexSize];
-        
-        if (!vertexBuffer || !indexBuffer) {
-            fprintf(stderr, "MKL Error: Failed to allocate buffers for cube\n");
-            return;
+        // Use simple rendering (backwards compatible)
+        // OPTIMIZATION: Cache simple geometry too
+        if (!_cubeGeometryCache.vertexBufferSimple) {
+            MKLVertex *cubeVertices = [MklDefs cubeVertices];
+            ushort *cubeIndices = [MklDefs cubeIndices];
+            
+            const NSUInteger vertexSize = sizeof(MKLVertex) * 8;
+            const NSUInteger indexSize = sizeof(ushort) * 36;
+            
+            _cubeGeometryCache.vertexBufferSimple = [renderer->_device newBufferWithBytes:cubeVertices
+                                                                                   length:vertexSize
+                                                                                  options:MTLResourceStorageModeShared];
+            _cubeGeometryCache.indexBufferSimple = [renderer->_device newBufferWithBytes:cubeIndices
+                                                                                  length:indexSize
+                                                                                 options:MTLResourceStorageModeShared];
         }
         
-        memcpy(vertexBuffer.contents, cubeVertices, vertexSize);
-        memcpy(indexBuffer.contents, cubeIndices, indexSize);
+        id<MTLBuffer> vertexBuffer = _cubeGeometryCache.vertexBufferSimple;
+        id<MTLBuffer> indexBuffer = _cubeGeometryCache.indexBufferSimple;
         
         DrawIndexedPrimitive(renderer, vertexBuffer, indexBuffer, 36, &modelM, &color);
     }
@@ -176,85 +349,60 @@ void MKLDrawCube(MKLRenderer *renderer, const MKLCube cube, const MKLColor color
 void MKLDrawPlane(MKLRenderer *renderer, const MKLPlane plane, const MKLColor color)
 {
     // Calculate model matrix
+    // Plane is in XZ plane, so dimensions.x affects X axis and dimensions.y affects Z axis
     const matrix_float4x4 rotationM = MRotate(plane.rotation);
-    const matrix_float4x4 scaleM = MScale((vector_float3){plane.dimensions.x, plane.dimensions.y, 1.0f});
+    const matrix_float4x4 scaleM = MScale((vector_float3){plane.dimensions.x, 1.0f, plane.dimensions.y});
     const matrix_float4x4 translateM = MTranslate(plane.position);
     matrix_float4x4 modelM = matrix_multiply(translateM, rotationM);
     modelM = matrix_multiply(modelM, scaleM);
 
-    // Calculate vertex and index counts
-    const unsigned int vertexCount = (plane.segments.x + 1) * (plane.segments.y + 1);
-    const unsigned int indexCount = plane.segments.x * plane.segments.y * 6;
+    // Check if we should use enhanced rendering (with lighting)
+    bool useLighting = renderer->_enhancedRenderingEnabled && renderer->_pipelineStateLit;
     
-    // Allocate buffers
-    const NSUInteger vertexSize = sizeof(MKLVertex) * vertexCount;
-    const NSUInteger indexSize = sizeof(ushort) * indexCount;
+    // OPTIMIZATION PHASE 2: Use cached plane geometry (eliminates vertex generation!)
+    int cacheIndex = findOrCreatePlaneGeometry(renderer, plane.segments, useLighting);
     
-    id<MTLBuffer> vertexBuffer = [renderer->_bufferPool getReuseableBufferWithLength:vertexSize];
-    id<MTLBuffer> indexBuffer = [renderer->_bufferPool getReuseableBufferWithLength:indexSize];
-    
-    if (!vertexBuffer || !indexBuffer)
-    {
-        fprintf(stderr, "MKL Error: Failed to allocate buffers for plane\n");
-        return;
+    if (useLighting) {
+        // Use cached enhanced geometry
+        id<MTLBuffer> vertexBuffer = _planeGeometryCache[cacheIndex].vertexBufferEnhanced;
+        id<MTLBuffer> indexBuffer = _planeGeometryCache[cacheIndex].indexBufferEnhanced;
+        int indexCount = _planeGeometryCache[cacheIndex].indexCount;
+        
+        // Use enhanced pipeline with lighting
+        [renderer->_renderEncoder setRenderPipelineState:renderer->_pipelineStateLit];
+        [renderer->_renderEncoder setVertexBytes:&color length:sizeof(vector_float4) atIndex:2];
+        [renderer->_renderEncoder setVertexBytes:&modelM length:sizeof(matrix_float4x4) atIndex:3];
+        [renderer->_renderEncoder setVertexBuffer:vertexBuffer offset:0 atIndex:0];
+        
+        // OPTIMIZATION: Lighting buffers already bound in MKLBeginDrawing
+        
+        // Draw with lighting
+        [renderer->_renderEncoder drawIndexedPrimitives:MTLPrimitiveTypeTriangle 
+                                             indexCount:indexCount 
+                                              indexType:MTLIndexTypeUInt16 
+                                            indexBuffer:indexBuffer 
+                                      indexBufferOffset:0];
+        
+        // Restore default pipeline
+        [renderer->_renderEncoder setRenderPipelineState:renderer->_pipelineState];
+    } else {
+        // Use cached simple geometry
+        id<MTLBuffer> vertexBuffer = _planeGeometryCache[cacheIndex].vertexBufferSimple;
+        id<MTLBuffer> indexBuffer = _planeGeometryCache[cacheIndex].indexBufferSimple;
+        int indexCount = _planeGeometryCache[cacheIndex].indexCount;
+        
+        // Set per-draw state
+        [renderer->_renderEncoder setVertexBytes:&modelM length:sizeof(matrix_float4x4) atIndex:3];
+        [renderer->_renderEncoder setVertexBytes:&color length:sizeof(vector_float4) atIndex:2];
+        [renderer->_renderEncoder setVertexBuffer:vertexBuffer offset:0 atIndex:0];
+        
+        // Draw
+        [renderer->_renderEncoder drawIndexedPrimitives:MTLPrimitiveTypeTriangle 
+                                             indexCount:indexCount 
+                                              indexType:MTLIndexTypeUInt16 
+                                            indexBuffer:indexBuffer 
+                                      indexBufferOffset:0];
     }
-    
-    // Fill vertex buffer - generate vertices automatically
-    MKLVertex *vertices = (MKLVertex *)vertexBuffer.contents;
-    const float stepX = 1.0f / (float)plane.segments.x;
-    const float stepY = 1.0f / (float)plane.segments.y;
-    
-    for (unsigned int i = 0; i < plane.segments.x + 1; i++) 
-    {
-        for (unsigned int j = 0; j < plane.segments.y + 1; j++) 
-        {
-            const unsigned int index = i * (plane.segments.y + 1) + j;
-            const float x = -0.5f + (float)i * stepX;
-            const float z = -0.5f + (float)j * stepY;
-            
-            vertices[index].position = (vector_float4){x, 0.0f, z, 1.0f};
-        }
-    }
-
-    // Fill index buffer
-    ushort *indices = (ushort *)indexBuffer.contents;
-    unsigned int idx = 0;
-    for (unsigned int i = 0; i < plane.segments.x; i++) 
-    {
-        for (unsigned int j = 0; j < plane.segments.y; j++) 
-        {
-            const unsigned int base = i * (plane.segments.y + 1) + j;
-            const unsigned int next = base + (plane.segments.y + 1);
-            
-            // First triangle
-            indices[idx++] = base;
-            indices[idx++] = next;
-            indices[idx++] = next + 1;
-            
-            // Second triangle
-            indices[idx++] = base;
-            indices[idx++] = next + 1;
-            indices[idx++] = base + 1;
-        }
-    }
-
-    // Set per-draw state
-    [renderer->_renderEncoder setVertexBytes:&modelM length:sizeof(matrix_float4x4) atIndex:3];
-    [renderer->_renderEncoder setVertexBytes:&color length:sizeof(vector_float4) atIndex:2];
-    [renderer->_renderEncoder setVertexBuffer:vertexBuffer offset:0 atIndex:0];
-    
-    // Set wireframe mode for plane visualization
-    [renderer->_renderEncoder setTriangleFillMode:MTLTriangleFillModeLines];
-    
-    // Draw
-    [renderer->_renderEncoder drawIndexedPrimitives:MTLPrimitiveTypeTriangle 
-                                         indexCount:indexCount 
-                                          indexType:MTLIndexTypeUInt16 
-                                        indexBuffer:indexBuffer 
-                                  indexBufferOffset:0];
-    
-    // Reset fill mode for subsequent draws
-    [renderer->_renderEncoder setTriangleFillMode:MTLTriangleFillModeFill];
 }
 
 #pragma mark - Sphere Drawing
@@ -656,15 +804,13 @@ void MKLDrawLine(MKLRenderer *renderer, const MKLLine line, const MKLColor color
 
 void MKLGetPlaneVertices(MKLPlane *plane)
 {
-    MKL_NULL_CHECK_VOID(plane, NULL, MKL_ERROR_NULL_POINTER, 
-                        "MKLGetPlaneVertices: plane is NULL");
+    MKL_NULL_CHECK_VOID(plane, NULL, MKL_ERROR_NULL_POINTER, "MKLGetPlaneVertices: plane is NULL");
     
     const unsigned int vertexCount = (plane->segments.x + 1) * (plane->segments.y + 1);
     plane->vertexCount = vertexCount;
     
     plane->vertices = (vector_float3 *)malloc(sizeof(vector_float3) * vertexCount);
-    MKL_NULL_CHECK_VOID(plane->vertices, NULL, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, 
-                        "MKLGetPlaneVertices: Failed to allocate memory for vertices");
+    MKL_NULL_CHECK_VOID(plane->vertices, NULL, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, "MKLGetPlaneVertices: Failed to allocate memory for vertices");
     
     // Generate grid vertices
     for (unsigned int i = 0; i < plane->segments.x + 1; i++) 
@@ -947,6 +1093,22 @@ void MKLGetTorusVertices(MKLTorus *torus, vector_float3 **vertices, int *vertexC
 
 void MKLCleanupShapeCache(void)
 {
+    // Free cube geometry cache (ARC will handle Metal buffer cleanup)
+    _cubeGeometryCache.vertexBufferEnhanced = nil;
+    _cubeGeometryCache.indexBufferEnhanced = nil;
+    _cubeGeometryCache.vertexBufferSimple = nil;
+    _cubeGeometryCache.indexBufferSimple = nil;
+    _cubeGeometryCache.initialized = false;
+    
+    // Free plane geometry cache
+    for (int i = 0; i < MAX_PLANE_CACHE_ENTRIES; i++) {
+        _planeGeometryCache[i].vertexBufferEnhanced = nil;
+        _planeGeometryCache[i].indexBufferEnhanced = nil;
+        _planeGeometryCache[i].vertexBufferSimple = nil;
+        _planeGeometryCache[i].indexBufferSimple = nil;
+        _planeGeometryCache[i].inUse = false;
+    }
+    
     // Free sphere cache
     if (_sphereCache.vertices) {
         free(_sphereCache.vertices);

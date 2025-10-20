@@ -7,13 +7,15 @@
 #import "MKLRenderer.h"
 #import "MKLLibraries.h"
 #import "MKLLight.h"
+#import "MKLCommandBuffer.h"
+#import "../Core/MKLConfig.h"
 #import "../Core/MKLError.h"
 #import "../Core/MKLTimer.h"
 #import "../Math/MKLMath.h"
 #include "MKLTypes.h"
 
-// Triple buffering constant - allows 3 frames in flight
-#define MAX_FRAMES_IN_FLIGHT 3
+// Use centralized constant from MKLConfig.h
+#define MAX_FRAMES_IN_FLIGHT MKL_MAX_FRAMES_IN_FLIGHT
 
 static MKLUniforms _gUniforms = {0};
 
@@ -117,7 +119,7 @@ static MKLUniforms _gUniforms = {0};
 - (id<MTLBuffer>)getReuseableBufferWithLength:(NSUInteger)length
 {
     // Round up to nearest 4KB for better reuse and to reduce pool fragmentation
-    const NSUInteger alignedLength = (length + 4095) & ~4095;
+    const NSUInteger alignedLength = MKL_ALIGN_BUFFER(length);
     NSNumber *key = @(alignedLength); // Use NSNumber instead of NSString to avoid string allocation
     
     NSMutableArray<id<MTLBuffer>> *pool = self.bufferPools[key];
@@ -155,7 +157,7 @@ static MKLUniforms _gUniforms = {0};
 {
     if (!buffer) return;
     
-    const NSUInteger alignedLength = (buffer.length + 4095) & ~4095;
+    const NSUInteger alignedLength = MKL_ALIGN_BUFFER(buffer.length);
     NSNumber *key = @(alignedLength);
     
     NSMutableArray<id<MTLBuffer>> *pool = self.bufferPools[key];
@@ -297,14 +299,20 @@ MKLRenderer *MKLCreateRenderer(MKLWindow *window)
     renderer->uniforms.viewMatrix = matrix_identity_float4x4;
     renderer->uniforms.projectionMatrix = matrix_identity_float4x4;
     
+    // PHASE 3: Initialize command buffer for batching
+    renderer->_drawCommandBuffer = malloc(sizeof(MKLCommandBuffer));
+    if (renderer->_drawCommandBuffer) {
+        MKLInitCommandBuffer((MKLCommandBuffer *)renderer->_drawCommandBuffer);
+        renderer->_batchingEnabled = false;  // Disabled by default for compatibility
+    }
+    
     printf("✓ Metal renderer initialized with triple buffering\n");
     return renderer;
 }
 
 void MKLClearRenderer(MKLRenderer *renderer, const MKLColor color)
 {
-    MKL_NULL_CHECK_VOID(renderer, NULL, MKL_ERROR_NULL_POINTER, 
-                        "MKLClearRenderer: Failed to clear renderer because renderer is null");
+    MKL_NULL_CHECK_VOID(renderer, NULL, MKL_ERROR_NULL_POINTER, "MKLClearRenderer: Failed to clear renderer because renderer is null");
     renderer->_clearColor = MTLClearColorMake(color.r, color.g, color.b, color.a);
 }
 
@@ -312,8 +320,7 @@ void MKLClearRenderer(MKLRenderer *renderer, const MKLColor color)
 
 void MKLBeginDrawing(MKLRenderer *renderer)
 {
-    MKL_NULL_CHECK_VOID(renderer, NULL, MKL_ERROR_NULL_POINTER, 
-                        "MKLBeginDrawing: Failed to begin drawing because renderer is null");
+    MKL_NULL_CHECK_VOID(renderer, NULL, MKL_ERROR_NULL_POINTER, "MKLBeginDrawing: Failed to begin drawing because renderer is null");
 
     // Wait for a free slot in the triple buffer
     dispatch_semaphore_wait(renderer->_inFlightSemaphore, DISPATCH_TIME_FOREVER);
@@ -436,6 +443,20 @@ void MKLBeginDrawing(MKLRenderer *renderer)
         material->roughness = 0.5f;
         material->shininess = 32.0f;
         material->opacity = 1.0f;
+        
+        // OPTIMIZATION: Bind lighting buffers once at frame start
+        // This eliminates redundant binding in every draw call
+        [renderer->_renderEncoder setFragmentBuffer:renderer->_lightingUniformsBuffer 
+                                            offset:0 atIndex:0];
+        [renderer->_renderEncoder setFragmentBuffer:renderer->_lightBuffer 
+                                            offset:0 atIndex:1];
+        [renderer->_renderEncoder setFragmentBuffer:renderer->_materialBuffer 
+                                            offset:0 atIndex:2];
+    }
+    
+    // PHASE 3: Clear command buffer for new frame
+    if (renderer->_drawCommandBuffer) {
+        MKLClearCommandBuffer((MKLCommandBuffer *)renderer->_drawCommandBuffer);
     }
 }
 
@@ -447,6 +468,11 @@ void MKLEndDrawing(MKLRenderer *renderer)
         if (!renderer->_renderEncoder)
         {
             return; // Nothing to end
+        }
+        
+        // PHASE 3: Execute batched commands if batching is enabled
+        if (renderer->_batchingEnabled && renderer->_drawCommandBuffer) {
+            MKLExecuteCommandBuffer(renderer, (MKLCommandBuffer *)renderer->_drawCommandBuffer);
         }
 
         // End encoding
@@ -501,6 +527,12 @@ void MKLDestroyRenderer(MKLRenderer *renderer)
     renderer->_view = nil;
     
     renderer->_device = nil;
+    
+    // PHASE 3: Cleanup command buffer
+    if (renderer->_drawCommandBuffer) {
+        free(renderer->_drawCommandBuffer);
+        renderer->_drawCommandBuffer = NULL;
+    }
 
     free(renderer);
 }
@@ -562,4 +594,41 @@ void MKLEnableEnhancedRendering(MKLRenderer *renderer, bool enable)
 bool MKLIsEnhancedRenderingEnabled(MKLRenderer *renderer)
 {
     return renderer && renderer->_enhancedRenderingEnabled;
+}
+
+// ========== Performance Control ==========
+
+void MKLSetTargetFPS(MKLRenderer *renderer, int fps)
+{
+    MKL_NULL_CHECK_VOID(renderer, NULL, MKL_ERROR_NULL_POINTER,
+                        "MKLSetTargetFPS: renderer is NULL");
+    
+    if (renderer->_view) {
+        renderer->_view.preferredFramesPerSecond = fps;
+    }
+    
+    // Also update CAMetalLayer to fully bypass VSync
+    if (renderer->_metalLayer) {
+        if (fps == 0) {
+            // Disable VSync completely for unlimited FPS
+            renderer->_metalLayer.displaySyncEnabled = NO;
+            printf("✓ Target FPS set to UNLIMITED (VSync fully disabled)\n");
+        } else {
+            // Enable VSync for capped FPS
+            renderer->_metalLayer.displaySyncEnabled = YES;
+            printf("✓ Target FPS set to %d (VSync enabled)\n", fps);
+        }
+    }
+}
+
+int MKLGetTargetFPS(MKLRenderer *renderer)
+{
+    MKL_NULL_CHECK(renderer, NULL, MKL_ERROR_NULL_POINTER,
+                   "MKLGetTargetFPS: renderer is NULL", 0);
+    
+    if (renderer->_view) {
+        return (int)renderer->_view.preferredFramesPerSecond;
+    }
+    
+    return 0;
 }

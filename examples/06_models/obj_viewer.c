@@ -35,7 +35,7 @@ int main(void) {
     printf("Loading 3D model from OBJ file...\n");
     
     // Load OBJ file
-    MKLMesh mesh = MKLMeshCreateWithFile(renderer, "examples/FinalBaseMesh.obj");
+    MKLMesh mesh = MKLMeshCreateWithFile(renderer, "examples/assets/FinalBaseMesh.obj");
     
     if (mesh.vertexCount == 0) {
         fprintf(stderr, "Failed to load OBJ file!\n");

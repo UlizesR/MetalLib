@@ -353,10 +353,7 @@ void MKLDrawMesh(MKLRenderer *renderer, MKLMesh *mesh, const MKLColor color)
         [renderer->_renderEncoder setVertexBytes:&modelM length:sizeof(matrix_float4x4) atIndex:3];
         [renderer->_renderEncoder setVertexBuffer:mesh->_mtkMesh.vertexBuffers[0].buffer offset:0 atIndex:0];
         
-        // Bind lighting data
-        [renderer->_renderEncoder setFragmentBuffer:renderer->_lightingUniformsBuffer offset:0 atIndex:0];
-        [renderer->_renderEncoder setFragmentBuffer:renderer->_lightBuffer offset:0 atIndex:1];
-        [renderer->_renderEncoder setFragmentBuffer:renderer->_materialBuffer offset:0 atIndex:2];
+        // OPTIMIZATION: Lighting buffers already bound in MKLBeginDrawing
         
         for (MTKSubmesh *submesh in mesh->_mtkMesh.submeshes) {
             [renderer->_renderEncoder drawIndexedPrimitives:submesh.primitiveType

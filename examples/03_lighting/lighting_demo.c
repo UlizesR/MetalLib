@@ -208,10 +208,10 @@ int main(void) {
         
         // Draw floor
         MKLDrawPlane(renderer, (MKLPlane){
-            .position = {0, 0, 0},
+            .position = {0, 0, -5},
             .dimensions = {20, 20},
             .segments = {1, 1},
-            .rotation = {0, 0, 0}
+            .rotation = {0, -90, 0}
         }, MKL_COLOR_GRAY_7);
         
         // Draw cubes in a grid

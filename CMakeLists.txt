@@ -292,7 +292,6 @@ add_custom_target(list-targets
     COMMAND ls -lh ${CMAKE_BINARY_DIR}/bin/ 2>/dev/null || true
     COMMENT "Listing built executables"
 )
-
 # ==============================================================================
 # Summary
 # ==============================================================================
