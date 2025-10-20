@@ -93,6 +93,11 @@ typedef struct MKLRenderer
     // Depth texture for depth testing
     id<MTLTexture> _depthTexture;
     
+    // MSAA (Multi-Sample Anti-Aliasing) support
+    id<MTLTexture> _msaaColorTexture;
+    id<MTLTexture> _msaaDepthTexture;
+    NSUInteger _msaaSampleCount;
+    
     // Triple buffering synchronization
     dispatch_semaphore_t _inFlightSemaphore;
     NSUInteger _currentBufferIndex;
@@ -156,5 +161,28 @@ MKLAPI void MKLSetTargetFPS(MKLRenderer *renderer, int fps);
  * @return Current FPS target (0 = unlimited)
  */
 MKLAPI int MKLGetTargetFPS(MKLRenderer *renderer);
+
+/**
+ * @brief Set MSAA (Multi-Sample Anti-Aliasing) sample count
+ * @param renderer The renderer
+ * @param samples Sample count (1, 2, 4, or 8)
+ * 
+ * Higher sample counts provide smoother edges but cost more GPU memory and performance:
+ * - 1: No MSAA (fastest, sharp edges)
+ * - 2: 2x MSAA (minimal cost, noticeable improvement)
+ * - 4: 4x MSAA (recommended, excellent quality/performance balance)
+ * - 8: 8x MSAA (best quality, significant cost)
+ * 
+ * @note Must be called before first frame for proper initialization
+ * @note Invalid sample counts will be clamped to nearest valid value
+ */
+MKLAPI void MKLSetMSAASamples(MKLRenderer *renderer, int samples);
+
+/**
+ * @brief Get current MSAA sample count
+ * @param renderer The renderer
+ * @return Current MSAA sample count (1, 2, 4, or 8)
+ */
+MKLAPI int MKLGetMSAASamples(MKLRenderer *renderer);
 
 #endif // _MKL_VIEW_H_

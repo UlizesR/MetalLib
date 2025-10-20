@@ -116,11 +116,47 @@ MKLAPI void MKLDrawRectangle(MKLRenderer *renderer, MKLRect rect, MKLColor color
 MKLAPI void MKLDrawTriangle(MKLRenderer *renderer, MKLTriangle triangle, MKLColor color);
 MKLAPI void MKLDrawLine(MKLRenderer *renderer, MKLLine line, MKLColor color);
 
-// Utility Functions
+// Utility Functions - Geometry Generation
+/**
+ * @brief Generate vertices for a plane
+ * @param plane Plane structure to populate with vertices
+ * @warning This function allocates plane->vertices array
+ * @warning Caller MUST call free(plane->vertices) when done to avoid memory leak
+ * @example
+ *   MKLPlane plane = {.segments = {10, 10}};
+ *   MKLGetPlaneVertices(&plane);
+ *   // Use plane.vertices...
+ *   free(plane.vertices);  // Required!
+ */
 MKLAPI void MKLGetPlaneVertices(MKLPlane *plane);
+
+/**
+ * @brief Generate vertices for a sphere
+ * @param sphere Sphere to generate geometry for
+ * @param vertices Output vertex array (allocated by function)
+ * @param vertexCount Output vertex count
+ * @param indices Output index array (allocated by function)
+ * @param indexCount Output index count
+ * @warning Caller MUST free *vertices and *indices when done
+ */
 MKLAPI void MKLGetSphereVertices(MKLSphere *sphere, vector_float3 **vertices, int *vertexCount, unsigned short **indices, int *indexCount);
+
+/**
+ * @brief Generate vertices for a cylinder
+ * @warning Caller MUST free *vertices and *indices when done
+ */
 MKLAPI void MKLGetCylinderVertices(MKLCylinder *cylinder, vector_float3 **vertices, int *vertexCount, unsigned short **indices, int *indexCount);
+
+/**
+ * @brief Generate vertices for a cone
+ * @warning Caller MUST free *vertices and *indices when done
+ */
 MKLAPI void MKLGetConeVertices(MKLCone *cone, vector_float3 **vertices, int *vertexCount, unsigned short **indices, int *indexCount);
+
+/**
+ * @brief Generate vertices for a torus
+ * @warning Caller MUST free *vertices and *indices when done
+ */
 MKLAPI void MKLGetTorusVertices(MKLTorus *torus, vector_float3 **vertices, int *vertexCount, unsigned short **indices, int *indexCount);
 
 // Memory Management

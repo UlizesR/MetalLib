@@ -109,6 +109,34 @@ void MKLVertexDescriptorLib(MKLRenderer *renderer)
     printf("✓ Vertex descriptor configured\n");
 }
 
+#pragma mark - Pipeline Configuration Helpers
+
+static void configurePipelineBlending(MTLRenderPipelineDescriptor *desc) {
+    desc.colorAttachments[0].blendingEnabled = YES;
+    desc.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
+    desc.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
+    desc.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
+    desc.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorSourceAlpha;
+    desc.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+    desc.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+}
+
+static void configurePipelineFormats(MTLRenderPipelineDescriptor *desc, MKLRenderer *renderer) {
+    desc.colorAttachments[0].pixelFormat = renderer->_metalLayer.pixelFormat;
+    desc.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
+}
+
+static void configureSampleCount(MTLRenderPipelineDescriptor *desc, NSUInteger sampleCount) {
+    if (@available(macOS 13.0, *)) {
+        desc.rasterSampleCount = sampleCount;
+    } else {
+        #pragma clang diagnostic push
+        #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+        desc.sampleCount = sampleCount;
+        #pragma clang diagnostic pop
+    }
+}
+
 #pragma mark - Render Pipeline
 
 void MKLRenderPipelineLib(MKLRenderer *renderer)
@@ -135,30 +163,9 @@ void MKLRenderPipelineLib(MKLRenderer *renderer)
     pipelineDescriptor.fragmentFunction = fragmentFunction;
     pipelineDescriptor.vertexDescriptor = renderer->_vertexDescriptor;
     
-    // Color attachment configuration
-    pipelineDescriptor.colorAttachments[0].pixelFormat = renderer->_metalLayer.pixelFormat;
-    
-    // Enable blending for alpha transparency
-    pipelineDescriptor.colorAttachments[0].blendingEnabled = YES;
-    pipelineDescriptor.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
-    pipelineDescriptor.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
-    pipelineDescriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
-    pipelineDescriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorSourceAlpha;
-    pipelineDescriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
-    pipelineDescriptor.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
-    
-    // Depth configuration
-    pipelineDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
-    
-    // Sample count (for MSAA if needed in future)
-    if (@available(macOS 13.0, *)) {
-        pipelineDescriptor.rasterSampleCount = 1;
-    } else {
-        #pragma clang diagnostic push
-        #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        pipelineDescriptor.sampleCount = 1;
-        #pragma clang diagnostic pop
-    }
+    configurePipelineFormats(pipelineDescriptor, renderer);
+    configurePipelineBlending(pipelineDescriptor);
+    configureSampleCount(pipelineDescriptor, renderer->_msaaSampleCount);
 
     // Create pipeline state
     NSError *error = nil;
@@ -186,24 +193,10 @@ void MKLRenderPipelineLib(MKLRenderer *renderer)
         instancedPipelineDescriptor.vertexFunction = vertexFunctionInstanced;
         instancedPipelineDescriptor.fragmentFunction = fragmentFunctionInstanced;
         instancedPipelineDescriptor.vertexDescriptor = renderer->_vertexDescriptor;
-        instancedPipelineDescriptor.colorAttachments[0].pixelFormat = renderer->_metalLayer.pixelFormat;
-        instancedPipelineDescriptor.colorAttachments[0].blendingEnabled = YES;
-        instancedPipelineDescriptor.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
-        instancedPipelineDescriptor.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
-        instancedPipelineDescriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
-        instancedPipelineDescriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorSourceAlpha;
-        instancedPipelineDescriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
-        instancedPipelineDescriptor.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
-        instancedPipelineDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
         
-        if (@available(macOS 13.0, *)) {
-            instancedPipelineDescriptor.rasterSampleCount = 1;
-        } else {
-            #pragma clang diagnostic push
-            #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-            instancedPipelineDescriptor.sampleCount = 1;
-            #pragma clang diagnostic pop
-        }
+        configurePipelineFormats(instancedPipelineDescriptor, renderer);
+        configurePipelineBlending(instancedPipelineDescriptor);
+        configureSampleCount(instancedPipelineDescriptor, renderer->_msaaSampleCount);
         
         renderer->_instancedPipelineState = [renderer->_device newRenderPipelineStateWithDescriptor:instancedPipelineDescriptor error:&error];
         
@@ -261,15 +254,11 @@ void MKLSetupEnhancedRendering(MKLRenderer *renderer)
         desc.vertexFunction = vertexEnhanced;
         desc.fragmentFunction = fragmentEnhanced;
         desc.vertexDescriptor = renderer->_vertexDescriptorEnhanced;
-        desc.colorAttachments[0].pixelFormat = renderer->_metalLayer.pixelFormat;
-        desc.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
-        desc.colorAttachments[0].blendingEnabled = YES;
-        desc.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
-        desc.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
-        desc.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
-        desc.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorSourceAlpha;
-        desc.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
-        desc.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+        
+        // OPTIMIZATION: Use helper functions
+        configurePipelineFormats(desc, renderer);
+        configurePipelineBlending(desc);
+        configureSampleCount(desc, renderer->_msaaSampleCount);
         
         NSError *error = nil;
         renderer->_pipelineStateEnhanced = [renderer->_device newRenderPipelineStateWithDescriptor:desc error:&error];
@@ -289,15 +278,10 @@ void MKLSetupEnhancedRendering(MKLRenderer *renderer)
         desc.vertexFunction = vertexEnhanced;
         desc.fragmentFunction = fragmentLit;
         desc.vertexDescriptor = renderer->_vertexDescriptorEnhanced;
-        desc.colorAttachments[0].pixelFormat = renderer->_metalLayer.pixelFormat;
-        desc.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
-        desc.colorAttachments[0].blendingEnabled = YES;
-        desc.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
-        desc.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
-        desc.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
-        desc.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorSourceAlpha;
-        desc.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
-        desc.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+        
+        configurePipelineFormats(desc, renderer);
+        configurePipelineBlending(desc);
+        configureSampleCount(desc, renderer->_msaaSampleCount);
         
         NSError *error = nil;
         renderer->_pipelineStateLit = [renderer->_device newRenderPipelineStateWithDescriptor:desc error:&error];

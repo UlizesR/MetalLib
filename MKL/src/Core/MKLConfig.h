@@ -29,6 +29,19 @@
 #define MKL_DEFAULT_TARGET_FPS 60
 
 /**
+ * @brief MSAA (Multi-Sample Anti-Aliasing) sample count
+ * 
+ * Valid values: 1 (off), 2, 4, 8
+ * Higher = smoother edges but more GPU memory/performance cost
+ * 
+ * - 1: No MSAA (default, fastest)
+ * - 2: 2x MSAA (minimal cost, moderate improvement)
+ * - 4: 4x MSAA (recommended, good quality/performance balance)
+ * - 8: 8x MSAA (highest quality, 4-8x more memory/performance cost)
+ */
+#define MKL_DEFAULT_MSAA_SAMPLES 4
+
+/**
  * @brief Maximum number of draw commands that can be batched per frame
  * 
  * Increase if you need to render more than 10,000 objects per frame.

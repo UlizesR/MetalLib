@@ -275,6 +275,11 @@ MKLRenderer *MKLCreateRenderer(MKLWindow *window)
     // Initialize custom shader to NULL
     renderer->_customShader = NULL;
     
+    // Initialize MSAA (Multi-Sample Anti-Aliasing)
+    renderer->_msaaSampleCount = MKL_DEFAULT_MSAA_SAMPLES;
+    renderer->_msaaColorTexture = nil;
+    renderer->_msaaDepthTexture = nil;
+    
     // Load shaders and create pipeline
     MKLShaderLib(renderer, "MKL/src/Graphics/Shaders/Shaders.metal");
     MKL_NULL_CHECK(renderer->_library, renderer, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, "MKLCreateRenderer: Failed to create Metal library", NULL);
@@ -345,32 +350,89 @@ void MKLBeginDrawing(MKLRenderer *renderer)
         dispatch_semaphore_signal(blockSemaphore);
     }];
 
-    // Create or update depth texture if needed
-    if (!renderer->_depthTexture || 
-        renderer->_depthTexture.width != renderer->_drawable.texture.width ||
-        renderer->_depthTexture.height != renderer->_drawable.texture.height)
-    {
-        MTLTextureDescriptor *depthDesc = [MTLTextureDescriptor 
-            texture2DDescriptorWithPixelFormat:MTLPixelFormatDepth32Float
-                                         width:renderer->_drawable.texture.width
-                                        height:renderer->_drawable.texture.height
-                                     mipmapped:NO];
-        depthDesc.usage = MTLTextureUsageRenderTarget;
-        depthDesc.storageMode = MTLStorageModePrivate;
-        renderer->_depthTexture = [renderer->_device newTextureWithDescriptor:depthDesc];
-    }
-
-    // Configure render pass descriptor
-    renderer->_renderPassDescriptor.colorAttachments[0].texture = renderer->_drawable.texture;
-    renderer->_renderPassDescriptor.colorAttachments[0].clearColor = renderer->_clearColor;
-    renderer->_renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
-    renderer->_renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
+    const NSUInteger width = renderer->_drawable.texture.width;
+    const NSUInteger height = renderer->_drawable.texture.height;
     
-    // Configure depth attachment
-    renderer->_renderPassDescriptor.depthAttachment.texture = renderer->_depthTexture;
-    renderer->_renderPassDescriptor.depthAttachment.clearDepth = 1.0;
-    renderer->_renderPassDescriptor.depthAttachment.loadAction = MTLLoadActionClear;
-    renderer->_renderPassDescriptor.depthAttachment.storeAction = MTLStoreActionDontCare;
+    // MSAA: Create multisample textures if MSAA is enabled (sample count > 1)
+    if (renderer->_msaaSampleCount > 1) {
+        // Create or update MSAA color texture
+        if (!renderer->_msaaColorTexture ||
+            renderer->_msaaColorTexture.width != width ||
+            renderer->_msaaColorTexture.height != height ||
+            renderer->_msaaColorTexture.sampleCount != renderer->_msaaSampleCount)
+        {
+            MTLTextureDescriptor *msaaColorDesc = [MTLTextureDescriptor 
+                texture2DDescriptorWithPixelFormat:renderer->_metalLayer.pixelFormat
+                                             width:width
+                                            height:height
+                                         mipmapped:NO];
+            msaaColorDesc.textureType = MTLTextureType2DMultisample;
+            msaaColorDesc.sampleCount = renderer->_msaaSampleCount;
+            msaaColorDesc.usage = MTLTextureUsageRenderTarget;
+            msaaColorDesc.storageMode = MTLStorageModePrivate;
+            renderer->_msaaColorTexture = [renderer->_device newTextureWithDescriptor:msaaColorDesc];
+        }
+        
+        // Create or update MSAA depth texture
+        if (!renderer->_msaaDepthTexture ||
+            renderer->_msaaDepthTexture.width != width ||
+            renderer->_msaaDepthTexture.height != height ||
+            renderer->_msaaDepthTexture.sampleCount != renderer->_msaaSampleCount)
+        {
+            MTLTextureDescriptor *msaaDepthDesc = [MTLTextureDescriptor 
+                texture2DDescriptorWithPixelFormat:MTLPixelFormatDepth32Float
+                                             width:width
+                                            height:height
+                                         mipmapped:NO];
+            msaaDepthDesc.textureType = MTLTextureType2DMultisample;
+            msaaDepthDesc.sampleCount = renderer->_msaaSampleCount;
+            msaaDepthDesc.usage = MTLTextureUsageRenderTarget;
+            msaaDepthDesc.storageMode = MTLStorageModePrivate;
+            renderer->_msaaDepthTexture = [renderer->_device newTextureWithDescriptor:msaaDepthDesc];
+        }
+        
+        // Configure MSAA render pass: Render to MSAA texture, resolve to drawable
+        renderer->_renderPassDescriptor.colorAttachments[0].texture = renderer->_msaaColorTexture;
+        renderer->_renderPassDescriptor.colorAttachments[0].resolveTexture = renderer->_drawable.texture;
+        renderer->_renderPassDescriptor.colorAttachments[0].clearColor = renderer->_clearColor;
+        renderer->_renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
+        renderer->_renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionMultisampleResolve;
+        
+        // Configure MSAA depth attachment
+        renderer->_renderPassDescriptor.depthAttachment.texture = renderer->_msaaDepthTexture;
+        renderer->_renderPassDescriptor.depthAttachment.clearDepth = 1.0;
+        renderer->_renderPassDescriptor.depthAttachment.loadAction = MTLLoadActionClear;
+        renderer->_renderPassDescriptor.depthAttachment.storeAction = MTLStoreActionDontCare;
+    } else {
+        // No MSAA: Regular rendering
+        // Create or update depth texture if needed
+        if (!renderer->_depthTexture || 
+            renderer->_depthTexture.width != width ||
+            renderer->_depthTexture.height != height)
+        {
+            MTLTextureDescriptor *depthDesc = [MTLTextureDescriptor 
+                texture2DDescriptorWithPixelFormat:MTLPixelFormatDepth32Float
+                                             width:width
+                                            height:height
+                                         mipmapped:NO];
+            depthDesc.usage = MTLTextureUsageRenderTarget;
+            depthDesc.storageMode = MTLStorageModePrivate;
+            renderer->_depthTexture = [renderer->_device newTextureWithDescriptor:depthDesc];
+        }
+
+        // Configure regular render pass
+        renderer->_renderPassDescriptor.colorAttachments[0].texture = renderer->_drawable.texture;
+        renderer->_renderPassDescriptor.colorAttachments[0].clearColor = renderer->_clearColor;
+        renderer->_renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
+        renderer->_renderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
+        renderer->_renderPassDescriptor.colorAttachments[0].resolveTexture = nil;
+        
+        // Configure depth attachment
+        renderer->_renderPassDescriptor.depthAttachment.texture = renderer->_depthTexture;
+        renderer->_renderPassDescriptor.depthAttachment.clearDepth = 1.0;
+        renderer->_renderPassDescriptor.depthAttachment.loadAction = MTLLoadActionClear;
+        renderer->_renderPassDescriptor.depthAttachment.storeAction = MTLStoreActionDontCare;
+    }
     
     // Create render encoder
     renderer->_renderEncoder = [renderer->_commandBuffer 
@@ -540,8 +602,7 @@ void MKLDestroyRenderer(MKLRenderer *renderer)
 // ========== Renderer Query Functions ==========
 int MKLGetRenderWidth(MKLRenderer *renderer)
 {
-    MKL_NULL_CHECK(renderer, NULL, MKL_ERROR_NULL_POINTER,
-                   "MKLGetRenderWidth: Failed to get render width because renderer is null", 0);
+    MKL_NULL_CHECK(renderer, NULL, MKL_ERROR_NULL_POINTER, "MKLGetRenderWidth: Failed to get render width because renderer is null", 0);
     
     if (renderer->_view) {
         return (int)renderer->_view.drawableSize.width;
@@ -552,8 +613,7 @@ int MKLGetRenderWidth(MKLRenderer *renderer)
 
 int MKLGetRenderHeight(MKLRenderer *renderer)
 {
-    MKL_NULL_CHECK(renderer, NULL, MKL_ERROR_NULL_POINTER,
-                   "MKLGetRenderHeight: Failed to get render height because renderer is null", 0);
+    MKL_NULL_CHECK(renderer, NULL, MKL_ERROR_NULL_POINTER, "MKLGetRenderHeight: Failed to get render height because renderer is null", 0);
     
     if (renderer->_view) {
         return (int)renderer->_view.drawableSize.height;
@@ -600,8 +660,7 @@ bool MKLIsEnhancedRenderingEnabled(MKLRenderer *renderer)
 
 void MKLSetTargetFPS(MKLRenderer *renderer, int fps)
 {
-    MKL_NULL_CHECK_VOID(renderer, NULL, MKL_ERROR_NULL_POINTER,
-                        "MKLSetTargetFPS: renderer is NULL");
+    MKL_NULL_CHECK_VOID(renderer, NULL, MKL_ERROR_NULL_POINTER, "MKLSetTargetFPS: renderer is NULL");
     
     if (renderer->_view) {
         renderer->_view.preferredFramesPerSecond = fps;
@@ -623,12 +682,44 @@ void MKLSetTargetFPS(MKLRenderer *renderer, int fps)
 
 int MKLGetTargetFPS(MKLRenderer *renderer)
 {
-    MKL_NULL_CHECK(renderer, NULL, MKL_ERROR_NULL_POINTER,
-                   "MKLGetTargetFPS: renderer is NULL", 0);
+    MKL_NULL_CHECK(renderer, NULL, MKL_ERROR_NULL_POINTER, "MKLGetTargetFPS: renderer is NULL", 0);
     
     if (renderer->_view) {
         return (int)renderer->_view.preferredFramesPerSecond;
     }
     
     return 0;
+}
+
+void MKLSetMSAASamples(MKLRenderer *renderer, int samples)
+{
+    MKL_NULL_CHECK_VOID(renderer, NULL, MKL_ERROR_NULL_POINTER,
+                        "MKLSetMSAASamples: renderer is NULL");
+    
+    // Clamp to valid values (1, 2, 4, 8)
+    NSUInteger validSamples = 1;
+    if (samples >= 8) validSamples = 8;
+    else if (samples >= 4) validSamples = 4;
+    else if (samples >= 2) validSamples = 2;
+    else validSamples = 1;
+    
+    renderer->_msaaSampleCount = validSamples;
+    
+    // Clear existing MSAA textures (will be recreated on next frame)
+    renderer->_msaaColorTexture = nil;
+    renderer->_msaaDepthTexture = nil;
+    
+    if (validSamples > 1) {
+        printf("✓ MSAA enabled: %dx anti-aliasing (smoother edges)\n", (int)validSamples);
+    } else {
+        printf("✓ MSAA disabled (1x sample, sharp edges)\n");
+    }
+}
+
+int MKLGetMSAASamples(MKLRenderer *renderer)
+{
+    MKL_NULL_CHECK(renderer, NULL, MKL_ERROR_NULL_POINTER,
+                   "MKLGetMSAASamples: renderer is NULL", 1);
+    
+    return (int)renderer->_msaaSampleCount;
 }

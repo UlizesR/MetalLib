@@ -68,9 +68,7 @@
 #include "Graphics/MKLTexture.h"        // Texture loading and management
 #include "Graphics/MKLLight.h"          // Lighting system
 #include "Graphics/MKLMaterial.h"       // Material properties
-#include "Graphics/MKLText.h"           // Text rendering (in progress)
-#include "Graphics/MKLRenderTarget.h"   // Render targets (in progress)
-#include "Graphics/MKLAnimation.h"      // Animation system (in progress)
+
 
 #endif // MKL_H
 

@@ -166,7 +166,7 @@ float calculateAttenuation(float distance, Light light) {
 }
 
 /**
- * @brief Calculate lighting (Blinn-Phong)
+ * @brief Calculate lighting (Blinn-Phong with optimizations)
  */
 float3 calculateLighting(
     Light light,
@@ -184,25 +184,37 @@ float3 calculateLighting(
     }
     else if (light.type == LightTypeDirectional) {
         float3 lightDir = normalize(-light.direction);
-        float diff = max(dot(normal, lightDir), 0.0);
-        float3 diffuse = diff * light.color * light.intensity * albedo;
+        float NdotL = max(dot(normal, lightDir), 0.0);
+        
+        // OPTIMIZATION: Early exit if surface facing away from light
+        if (NdotL <= 0.0) return float3(0.0);
+        
+        float3 diffuse = NdotL * light.color * light.intensity * albedo;
         
         float3 halfwayDir = normalize(lightDir + viewDir);
-        float spec = pow(max(dot(normal, halfwayDir), 0.0), shininess);
+        float NdotH = max(dot(normal, halfwayDir), 0.0);
+        float spec = fast::pow(NdotH, shininess);
         float3 specular = spec * light.color * light.intensity;
         
         result = diffuse + specular;
     }
     else if (light.type == LightTypePoint) {
-        float3 lightDir = normalize(light.position - worldPos);
-        float distance = length(light.position - worldPos);
+        float3 toLight = light.position - worldPos;
+        float distance = length(toLight);
+        float3 lightDir = toLight / distance;  // Normalize by division (1 less op)
+        
         float attenuation = calculateAttenuation(distance, light);
         
-        float diff = max(dot(normal, lightDir), 0.0);
-        float3 diffuse = diff * light.color * light.intensity * albedo * attenuation;
+        float NdotL = max(dot(normal, lightDir), 0.0);
+        
+
+        if (NdotL <= 0.0 || attenuation <= 0.001) return float3(0.0);
+        
+        float3 diffuse = NdotL * light.color * light.intensity * albedo * attenuation;
         
         float3 halfwayDir = normalize(lightDir + viewDir);
-        float spec = pow(max(dot(normal, halfwayDir), 0.0), shininess);
+        float NdotH = max(dot(normal, halfwayDir), 0.0);
+        float spec = fast::pow(NdotH, shininess);
         float3 specular = spec * light.color * light.intensity * attenuation;
         
         result = diffuse + specular;
@@ -230,8 +242,9 @@ fragment half4 fragmentShaderEnhanced(
     float3 normal = normalize(in.normal);
     
     float3 finalColor = float3(0.0);
-    
-    for (uint i = 0; i < lightingUniforms.lightCount && i < MAX_LIGHTS; i++) {
+
+    uint maxLights = min(lightingUniforms.lightCount, uint(MAX_LIGHTS));
+    for (uint i = 0; i < maxLights; i++) {
         finalColor += calculateLighting(
             lights[i],
             in.worldPos,
@@ -276,7 +289,8 @@ fragment half4 fragmentShaderLit(
     
     float3 finalColor = float3(0.0);
     
-    for (uint i = 0; i < lightingUniforms.lightCount && i < MAX_LIGHTS; i++) {
+    uint maxLights = min(lightingUniforms.lightCount, uint(MAX_LIGHTS));
+    for (uint i = 0; i < maxLights; i++) {
         finalColor += calculateLighting(
             lights[i],
             in.worldPos,
