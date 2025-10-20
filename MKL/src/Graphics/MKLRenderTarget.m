@@ -72,7 +72,7 @@ MKLRenderTarget MKLLoadRenderTargetEx(MKLRenderer *renderer, MKLRenderTargetConf
     return target;
 }
 
-MKLRenderTarget MKLLoadRenderTargetDepth(MKLRenderer *renderer, int width, int height) {
+MKLRenderTarget MKLLoadRenderTargetDepth(MKLRenderer *renderer, int width, __unused int height) {
     return MKLLoadRenderTargetEx(renderer, MKLGetShadowMapConfig(width));
 }
 

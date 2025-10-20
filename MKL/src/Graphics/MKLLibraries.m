@@ -252,7 +252,7 @@ void MKLSetupEnhancedRendering(MKLRenderer *renderer)
     id<MTLFunction> vertexEnhanced = [renderer->_library newFunctionWithName:@"vertexShaderEnhanced"];
     id<MTLFunction> fragmentEnhanced = [renderer->_library newFunctionWithName:@"fragmentShaderEnhanced"];
     id<MTLFunction> fragmentLit = [renderer->_library newFunctionWithName:@"fragmentShaderLit"];
-    id<MTLFunction> fragmentTextured = [renderer->_library newFunctionWithName:@"fragmentShaderTextured"];
+    __unused id<MTLFunction> fragmentTextured = [renderer->_library newFunctionWithName:@"fragmentShaderTextured"];
     
     if (vertexEnhanced && fragmentEnhanced) {
         // Create enhanced pipeline (full: lighting + textures)

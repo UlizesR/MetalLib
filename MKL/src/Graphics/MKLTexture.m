@@ -167,7 +167,6 @@ MKLTexture MKLLoadTextureFromMemory(MKLRenderer *renderer,
         }
         
         // Upload data to texture
-        MTLRegion region = MTLRegionMake2D(0, 0, width, height);
         NSUInteger bytesPerRow = width * 4; // Assume 4 bytes per pixel for RGBA
         if (format == MKL_TEXTURE_FORMAT_GRAY8) {
             bytesPerRow = width;

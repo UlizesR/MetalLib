@@ -1,40 +1,73 @@
-#ifndef _MKL_HEADER_H_
-#define _MKL_HEADER_H_
+//
+// MKL.h
+// MetalLib (MKL) - Main Header File
+//
+// A modern, high-performance graphics library for macOS using the Metal API.
+// Provides a simple and intuitive API inspired by raylib for creating 3D graphics applications.
+//
+// Features:
+// - Simple API inspired by raylib
+// - High-performance Metal rendering
+// - Window management and input handling
+// - 3D primitives and mesh loading
+// - Lighting and materials system
+// - Texture mapping
+// - Camera system
+// - Performance monitoring
+//
+// Usage:
+//   #include <MKL.h>
+//
+// Copyright (c) 2025 MetalLib Contributors
+//
 
-#include "MKLWindow.h"
+#ifndef MKL_H
+#define MKL_H
 
-// include core files
-#include "Core/MKLCore.h"
-#include "Core/MKLError.h"
-#include "Core/MKLTimer.h"
+// ============================================================================
+// Core System
+// ============================================================================
+#include "Core/MKLCore.h"           // Core definitions and types
+#include "Core/MKLError.h"          // Error handling
+#include "Core/MKLTimer.h"          // Timing utilities
 
-// include input files
-#include "Input/KeyCodes.h"
-#include "Input/Keyboard.h"
-#include "Input/Mouse.h"
-#include "Input/MKLInput.h"
+// ============================================================================
+// Window and Input
+// ============================================================================
+#include "MKLWindow.h"              // Window management
+#include "Input/KeyCodes.h"         // Keyboard key codes
+#include "Input/Keyboard.h"         // Keyboard input
+#include "Input/Mouse.h"            // Mouse input
+#include "Input/MKLInput.h"         // Unified input system
 
+// ============================================================================
+// Math
+// ============================================================================
+#include "Math/MKLMath.h"           // Math utilities (vectors, matrices)
 
-// include renderer files
-#include "Graphics/MKLRenderer.h"
-#include "Graphics/MKLShader.h"
+// ============================================================================
+// Graphics - Core
+// ============================================================================
+#include "Graphics/MKLRenderer.h"   // Core rendering engine
+#include "Graphics/MKLShader.h"     // Shader management
 
-// include object files
-#include "Graphics/Objects/MKLShapes.h"
-#include "Graphics/Objects/MKLObjects.h"
-#include "Graphics/Objects/MKLEntity.h"
-#include "Graphics/Objects/MKLMesh.h"
+// ============================================================================
+// Graphics - Objects and Geometry
+// ============================================================================
+#include "Graphics/Objects/MKLEntity.h"   // Camera and entities
+#include "Graphics/Objects/MKLShapes.h"   // 2D/3D primitive shapes
+#include "Graphics/Objects/MKLMesh.h"     // Mesh loading and rendering
+#include "Graphics/Objects/MKLObjects.h"  // Object management
 
-// include graphics features
-#include "Graphics/MKLTexture.h"
-#include "Graphics/MKLLight.h"
-#include "Graphics/MKLMaterial.h"
-#include "Graphics/MKLText.h"
-#include "Graphics/MKLRenderTarget.h"
-#include "Graphics/MKLAnimation.h"
+// ============================================================================
+// Graphics - Visual Features
+// ============================================================================
+#include "Graphics/MKLTexture.h"        // Texture loading and management
+#include "Graphics/MKLLight.h"          // Lighting system
+#include "Graphics/MKLMaterial.h"       // Material properties
+#include "Graphics/MKLText.h"           // Text rendering (in progress)
+#include "Graphics/MKLRenderTarget.h"   // Render targets (in progress)
+#include "Graphics/MKLAnimation.h"      // Animation system (in progress)
 
-// include Math files
-#include "Math/MKLMath.h"
+#endif // MKL_H
 
-
-#endif // _MKL_HEADER_H_

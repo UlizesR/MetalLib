@@ -1,4 +1,17 @@
+//
+// 02_graphics/shapes_demo.c
+// Demonstrates all available 2D and 3D shapes
+//
+// Features demonstrated:
+// - 3D primitives (cube, sphere, cylinder, cone, torus)
+// - 2D shapes (circle, rectangle, triangle, polygon, line)
+// - Camera movement
+// - Enhanced rendering with lighting
+//
+
 #include "MKL.h"
+#include <stdio.h>
+#include <math.h>
 
 int main(void) {
     const int WIDTH = 1200;
@@ -7,7 +20,7 @@ int main(void) {
     
     // Initialize MKL
     MKLInitTimer();
-    MKLWindow *window = MKLCreateWindow(WIDTH, HEIGHT, "MKL - Shape Rendering Demo");
+    MKLWindow *window = MKLCreateWindow(WIDTH, HEIGHT, "02 - Shapes Demo");
     MKLRenderer *renderer = MKLCreateRenderer(window);
     
     if (!window || !renderer) {
@@ -15,43 +28,63 @@ int main(void) {
         return -1;
     }
     
-    // Setup camera (same as main.c)
-    const MKLCamera camera = {
-        .position = {0.0f, 2.0f, 8.0f},
+    // Setup camera
+    renderer->camera = (MKLCamera){
+        .position = {0.0f, 3.0f, 10.0f},
+        .target = {0.0f, 0.0f, 0.0f},
         .up = {0.0f, 1.0f, 0.0f},
-        .forward = {0.0f, 0.0f, -1.0f},
-        .right = {1.0f, 0.0f, 0.0f},
         .fov = 45.0f,
         .aspect = (float)HEIGHT / (float)WIDTH,
         .near = 0.1f,
         .far = 100.0f,
         .yaw = -90.0f,
         .pitch = 0.0f,
+        .mode = MKL_CAMERA_FIRST_PERSON,
+        .moveSpeed = 5.0f
     };
-    renderer->camera = camera;
     
-    printf("=== MKL Shape Rendering Demo ===\n");
+    // Enable lighting for better visuals
+    MKLEnableEnhancedRendering(renderer, true);
+    
+    MKLLight sun = MKLCreateDirectionalLight(
+        (vector_float3){-0.5f, -1.0f, -0.3f},
+        MKL_COLOR_WHITE, 0.7f
+    );
+    MKLAddLight(renderer, sun);
+    
+    MKLLight ambient = MKLCreateAmbientLight(MKL_COLOR_WHITE, 0.2f);
+    MKLAddLight(renderer, ambient);
+    
+    printf("=== MKL Shapes Demo ===\n");
     printf("Controls:\n");
-    printf("ESC - Exit\n");
-    printf("WASD - Move camera\n");
-    printf("Mouse - Look around (drag to rotate view)\n");
-    printf("\nRendering various 3D and 2D shapes...\n");
+    printf("  ESC - Exit\n");
+    printf("  WASD - Move camera\n");
+    printf("  Mouse Drag - Look around\n");
+    printf("  L - Toggle lighting\n");
+    printf("\nRendering 3D and 2D shapes with lighting...\n");
     
     // Mouse control variables
     float lastMouseX = (float)WIDTH / 2.0f;
     float lastMouseY = (float)HEIGHT / 2.0f;
     bool firstMouse = true;
-    const float mouseSensitivity = 0.1f;
+    bool lightingEnabled = true;
     
     // Main loop
     while (!MKLWindowShouldClose(window)) {
-        MKLTicks(TARGET_FPS);
+        float deltaTime = MKLTicks(TARGET_FPS) / 1000.0f;
         
         MKLPollEvents();
         
         // Handle input
         if (MKLIsKeyDown(MKL_KEY_ESCAPE)) {
             MKLSetWindowShouldClose(window, true);
+        }
+        
+        // Toggle lighting
+        if (MKLIsKeyPressed(MKL_KEY_L)) {
+            lightingEnabled = !lightingEnabled;
+            MKLEnableEnhancedRendering(renderer, lightingEnabled);
+            printf("Lighting: %s\n", lightingEnabled ? "ON" : "OFF");
         }
         
         // Mouse look controls
@@ -65,8 +98,8 @@ int main(void) {
                 firstMouse = false;
             }
             
-            float xOffset = (mouseX - lastMouseX) * mouseSensitivity;
-            float yOffset = (lastMouseY - mouseY) * mouseSensitivity; // Reversed: y-coordinates go from bottom to top
+            float xOffset = (mouseX - lastMouseX) * 0.1f;
+            float yOffset = (lastMouseY - mouseY) * 0.1f;
             
             lastMouseX = mouseX;
             lastMouseY = mouseY;
@@ -95,24 +128,14 @@ int main(void) {
             firstMouse = true;
         }
         
-        // Camera movement
-        const float moveSpeed = 5.0f * MKLTicks(TARGET_FPS) / 1000.0f;
-        if (MKLIsKeyDown(MKL_KEY_W)) {
-            renderer->camera.position = MAddVector(renderer->camera.position, 
-                                                   MMulVecByScalar(renderer->camera.forward, moveSpeed));
-        }
-        if (MKLIsKeyDown(MKL_KEY_S)) {
-            renderer->camera.position = MSubVector(renderer->camera.position, 
-                                                   MMulVecByScalar(renderer->camera.forward, moveSpeed));
-        }
-        if (MKLIsKeyDown(MKL_KEY_A)) {
-            renderer->camera.position = MSubVector(renderer->camera.position, 
-                                                   MMulVecByScalar(renderer->camera.right, moveSpeed));
-        }
-        if (MKLIsKeyDown(MKL_KEY_D)) {
-            renderer->camera.position = MAddVector(renderer->camera.position, 
-                                                   MMulVecByScalar(renderer->camera.right, moveSpeed));
-        }
+        // Camera movement using new camera functions
+        float moveSpeed = renderer->camera.moveSpeed * deltaTime;
+        if (MKLIsKeyDown(MKL_KEY_W)) MKLCameraMoveForward(&renderer->camera, moveSpeed, true);
+        if (MKLIsKeyDown(MKL_KEY_S)) MKLCameraMoveForward(&renderer->camera, -moveSpeed, true);
+        if (MKLIsKeyDown(MKL_KEY_A)) MKLCameraMoveRight(&renderer->camera, -moveSpeed, true);
+        if (MKLIsKeyDown(MKL_KEY_D)) MKLCameraMoveRight(&renderer->camera, moveSpeed, true);
+        if (MKLIsKeyDown(MKL_KEY_SPACE)) MKLCameraMoveUp(&renderer->camera, moveSpeed);
+        if (MKLIsKeyDown(MKL_KEY_Q)) MKLCameraMoveUp(&renderer->camera, -moveSpeed);
         
         MKLUpdateInputState();
         

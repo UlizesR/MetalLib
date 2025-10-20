@@ -21,7 +21,7 @@ typedef struct MKLLightManager {
 } MKLLightManager;
 
 // Add light manager to renderer (we'll need to update MKLRenderer.h later)
-static MKLLightManager* GetLightManager(MKLRenderer *renderer) {
+static MKLLightManager* GetLightManager(__unused MKLRenderer *renderer) {
     // For now, we'll create a global light manager
     // TODO: Move this into MKLRenderer structure
     static MKLLightManager manager = {

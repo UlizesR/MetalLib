@@ -1,6 +1,13 @@
 //
-// test_lighting.c  
-// Demonstrates lighting system with enhanced shaders
+// 03_lighting/lighting_demo.c  
+// Demonstrates the lighting system with Blinn-Phong shading
+//
+// Features demonstrated:
+// - Enhanced rendering with lighting
+// - Multiple light types (ambient, directional, point)
+// - Specular highlights (reflective surfaces)
+// - Dynamic lighting (moving lights)
+// - Toggle lighting on/off
 //
 
 #include "MKL.h"

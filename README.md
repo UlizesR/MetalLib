@@ -18,13 +18,19 @@ A modern, high-performance graphics library for macOS using the Metal API. Built
 - 🎯 **3D Primitives** - Cubes, spheres, cylinders, cones, torus, planes, and custom meshes
 - 🎨 **2D Shapes** - Circles, rectangles, triangles, polygons, and lines
 - 📁 **OBJ File Support** - Load and render 3D models from OBJ files using Model I/O
-- 🎭 **Camera System** - First-person and orbital camera controls
+- 🎭 **Camera System** - Multiple camera modes (Free, First Person, Orbital, Third Person)
 - 🖼️ **Texture System** - Load PNG/JPG images, generate procedural textures
 - 💡 **Lighting System** - Ambient, directional, and point lights with Blinn-Phong shading
 - 🎨 **Material System** - PBR and standard materials with texture mapping support
 - 📝 **Text Rendering API** - Font loading and text drawing (implementation in progress)
 - 🎬 **Animation API** - Skeletal animation support (implementation in progress)
 - 🎯 **Render Targets API** - Off-screen rendering for post-processing (implementation in progress)
+- 📊 **Performance Monitoring** - Comprehensive performance metrics system
+  - CPU usage (per-core and total)
+  - Memory tracking (RSS, peak, pressure)
+  - Frame rate analysis (FPS, jitter, percentiles)
+  - Adaptive sampling and alerts
+  - Standalone `mkl-perf` CLI tool
 
 ## 🚀 Quick Start
 
@@ -180,6 +186,26 @@ make features && ./bin/features
 ```
 
 Showcases the new API features including textures, lighting, and materials. Demonstrates procedural texture generation and material creation.
+
+### Camera Modes Demo 🎥 **NEW!**
+```bash
+make camera && ./bin/camera
+```
+
+Demonstrates all camera modes with interactive switching. Perfect for understanding different camera behaviors.
+
+**Camera Modes:**
+- **FREE** - Fly anywhere with full 6-DOF movement
+- **FIRST PERSON** - FPS-style, locked to ground plane
+- **ORBITAL** - Auto-rotate around center target
+- **THIRD PERSON** - Follow target from behind
+
+**Controls:**
+- 1-4 keys to switch camera modes
+- WASD to move
+- Mouse drag to look around
+- Space/Q for up/down
+- ESC to exit
 
 ### API Tests
 ```bash
