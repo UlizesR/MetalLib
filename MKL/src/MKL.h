@@ -53,6 +53,8 @@
 #include "Graphics/MKLRenderer.h"      // Core rendering engine
 #include "Graphics/MKLCommandBuffer.h" // Command buffer for batching (Phase 3)
 #include "Graphics/MKLShader.h"        // Shader management
+#include "Graphics/MKLMetal3.h"        // Metal 3 features (consolidated)
+#include "Graphics/MKLPerformanceMonitor.h" // Performance monitoring
 
 // ============================================================================
 // Graphics - Objects and Geometry

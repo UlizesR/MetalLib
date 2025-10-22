@@ -1,7 +1,6 @@
 # ==============================================================================
 # MetalLib (MKL) - CMake Build Configuration
 # ==============================================================================
-# A modern, high-performance graphics library for macOS using the Metal API
 # 
 # Requirements:
 #   - macOS 10.15+ (Catalina or later)

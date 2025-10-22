@@ -5,6 +5,7 @@
 
 #import "MKLTexture.h"
 #import "MKLRenderer.h"
+#import "MKLMetal3.h"
 #import <Metal/Metal.h>
 #import <MetalKit/MetalKit.h>
 #import <Foundation/Foundation.h>
@@ -159,7 +160,11 @@ MKLTexture MKLLoadTextureFromMemory(MKLRenderer *renderer,
                                                                                         height:height
                                                                                      mipmapped:config.generateMipmaps];
         desc.usage = MTLTextureUsageShaderRead;
-        desc.storageMode = MTLStorageModePrivate;
+        
+        // Use Metal 3 optimized storage mode
+        MKLGPUCapabilities *gpuCaps = (MKLGPUCapabilities *)renderer->_gpuCapabilities;
+        desc.storageMode = gpuCaps ? MKLGetOptimalTextureStorageMode(MKL_TEXTURE_GPU_ONLY, gpuCaps->isAppleSilicon) 
+                                   : MTLStorageModePrivate;
         
         id<MTLTexture> mtlTexture = [renderer->_device newTextureWithDescriptor:desc];
         if (!mtlTexture) {
@@ -225,7 +230,11 @@ MKLTexture MKLCreateTexture(MKLRenderer *renderer,
                                                                                         height:height
                                                                                      mipmapped:config.generateMipmaps];
         desc.usage = MTLTextureUsageShaderRead | MTLTextureUsageRenderTarget;
-        desc.storageMode = MTLStorageModePrivate;
+        
+        // Use Metal 3 optimized storage mode for render targets
+        MKLGPUCapabilities *gpuCaps = (MKLGPUCapabilities *)renderer->_gpuCapabilities;
+        desc.storageMode = gpuCaps ? MKLGetOptimalTextureStorageMode(MKL_TEXTURE_RENDER_TARGET, gpuCaps->isAppleSilicon)
+                                   : MTLStorageModePrivate;
         
         id<MTLTexture> mtlTexture = [renderer->_device newTextureWithDescriptor:desc];
         if (!mtlTexture) {

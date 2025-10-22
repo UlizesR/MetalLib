@@ -8,6 +8,7 @@
 #import "MKLLibraries.h"
 #import "MKLLight.h"
 #import "MKLCommandBuffer.h"
+#import "MKLMetal3.h"
 #import "../Core/MKLConfig.h"
 #import "../Core/MKLError.h"
 #import "../Core/MKLTimer.h"
@@ -216,6 +217,16 @@ MKLRenderer *MKLCreateRenderer(MKLWindow *window)
     renderer->_device = MTLCreateSystemDefaultDevice();
     MKL_NULL_CHECK(renderer, renderer, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, "MKLCreateRenderer: Failed to create MTLDevice", NULL);
     
+    // Detect GPU capabilities (Metal 3 optimizations)
+    MKLGPUCapabilities *gpuCaps = (MKLGPUCapabilities *)malloc(sizeof(MKLGPUCapabilities));
+    if (gpuCaps) {
+        *gpuCaps = MKLDetectGPUCapabilities(renderer->_device);
+        renderer->_gpuCapabilities = gpuCaps;
+        
+        // Print GPU capabilities for debugging
+        MKLPrintGPUCapabilities(gpuCaps);
+    }
+    
     // Create Metal view
     renderer->_view = [[MTKView alloc] init];
     MKL_NULL_CHECK(renderer->_view, renderer, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, "MKLCreateRenderer: Failed to create MTKView", NULL);
@@ -369,7 +380,15 @@ void MKLBeginDrawing(MKLRenderer *renderer)
             msaaColorDesc.textureType = MTLTextureType2DMultisample;
             msaaColorDesc.sampleCount = renderer->_msaaSampleCount;
             msaaColorDesc.usage = MTLTextureUsageRenderTarget;
-            msaaColorDesc.storageMode = MTLStorageModePrivate;
+            
+            // Use Metal 3 optimized storage mode (memoryless on Apple Silicon)
+            MKLGPUCapabilities *gpuCaps = (MKLGPUCapabilities *)renderer->_gpuCapabilities;
+            if (gpuCaps) {
+                msaaColorDesc.storageMode = MKLGetOptimalMSAAStorageMode(gpuCaps);
+            } else {
+                msaaColorDesc.storageMode = MTLStorageModePrivate;
+            }
+            
             renderer->_msaaColorTexture = [renderer->_device newTextureWithDescriptor:msaaColorDesc];
         }
         
@@ -387,7 +406,15 @@ void MKLBeginDrawing(MKLRenderer *renderer)
             msaaDepthDesc.textureType = MTLTextureType2DMultisample;
             msaaDepthDesc.sampleCount = renderer->_msaaSampleCount;
             msaaDepthDesc.usage = MTLTextureUsageRenderTarget;
-            msaaDepthDesc.storageMode = MTLStorageModePrivate;
+            
+            // Use optimal storage mode based on GPU capabilities (Metal 3 optimization)
+            MKLGPUCapabilities *gpuCaps = (MKLGPUCapabilities *)renderer->_gpuCapabilities;
+            if (gpuCaps) {
+                msaaDepthDesc.storageMode = MKLGetOptimalMSAAStorageMode(gpuCaps);
+            } else {
+                msaaDepthDesc.storageMode = MTLStorageModePrivate;
+            }
+            
             renderer->_msaaDepthTexture = [renderer->_device newTextureWithDescriptor:msaaDepthDesc];
         }
         
@@ -416,7 +443,16 @@ void MKLBeginDrawing(MKLRenderer *renderer)
                                             height:height
                                          mipmapped:NO];
             depthDesc.usage = MTLTextureUsageRenderTarget;
-            depthDesc.storageMode = MTLStorageModePrivate;
+            
+            // Use optimal storage mode based on GPU capabilities (Metal 3 optimization)
+            // On Apple GPUs, use memoryless storage for ~30% bandwidth reduction
+            MKLGPUCapabilities *gpuCaps = (MKLGPUCapabilities *)renderer->_gpuCapabilities;
+            if (gpuCaps) {
+                depthDesc.storageMode = MKLGetOptimalDepthStorageMode(gpuCaps);
+            } else {
+                depthDesc.storageMode = MTLStorageModePrivate;
+            }
+            
             renderer->_depthTexture = [renderer->_device newTextureWithDescriptor:depthDesc];
         }
 
@@ -569,6 +605,12 @@ void MKLDestroyRenderer(MKLRenderer *renderer)
         dispatch_semaphore_wait(renderer->_inFlightSemaphore, DISPATCH_TIME_FOREVER);
     }
 
+    // Clean up GPU capabilities
+    if (renderer->_gpuCapabilities) {
+        free(renderer->_gpuCapabilities);
+        renderer->_gpuCapabilities = NULL;
+    }
+    
     // Clean up Metal objects
     renderer->_depthTexture = nil;
     renderer->_depthStencilState = nil;
@@ -635,6 +677,43 @@ vector_float2 MKLGetRenderSize(MKLRenderer *renderer)
     }
     
     return (vector_float2){0.0f, 0.0f};
+}
+
+// ========== Metal 3 Feature Query Functions ==========
+
+const void *MKLGetGPUCapabilities(MKLRenderer *renderer)
+{
+    return renderer ? renderer->_gpuCapabilities : NULL;
+}
+
+bool MKLIsUsingMemorylessDepth(MKLRenderer *renderer)
+{
+    if (!renderer || !renderer->_gpuCapabilities) {
+        return false;
+    }
+    
+    MKLGPUCapabilities *caps = (MKLGPUCapabilities *)renderer->_gpuCapabilities;
+    return caps->supportsMemorylessTargets;
+}
+
+bool MKLSupportsFastResourceLoading(MKLRenderer *renderer)
+{
+    if (!renderer || !renderer->_gpuCapabilities) {
+        return false;
+    }
+    
+    MKLGPUCapabilities *caps = (MKLGPUCapabilities *)renderer->_gpuCapabilities;
+    return caps->supportsFastResourceLoading;
+}
+
+bool MKLSupportsMeshShaders(MKLRenderer *renderer)
+{
+    if (!renderer || !renderer->_gpuCapabilities) {
+        return false;
+    }
+    
+    MKLGPUCapabilities *caps = (MKLGPUCapabilities *)renderer->_gpuCapabilities;
+    return caps->supportsMeshShaders;
 }
 
 // ========== Enhanced Rendering Control ==========

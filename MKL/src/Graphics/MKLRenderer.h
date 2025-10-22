@@ -63,6 +63,10 @@ typedef struct MKLRenderer
     // Render state caching
     bool _cullingEnabled;
     bool _depthTestEnabled;
+    
+    // GPU capabilities (C struct, works in both Obj-C and C)
+    void *_gpuCapabilities; // MKLGPUCapabilities* (forward declaration)
+    
 #ifdef __OBJC__
     // Device and command queue
     id<MTLDevice> _device;
@@ -141,6 +145,36 @@ MKLAPI vector_float2 MKLGetRenderSize(MKLRenderer *renderer);
 // ========== Enhanced Rendering Control ==========
 MKLAPI void MKLEnableEnhancedRendering(MKLRenderer *renderer, bool enable);
 MKLAPI bool MKLIsEnhancedRenderingEnabled(MKLRenderer *renderer);
+
+// ========== Metal 3 Features ==========
+
+/**
+ * @brief Get GPU capabilities for this renderer
+ * @param renderer The renderer
+ * @return Pointer to GPU capabilities (valid for renderer lifetime)
+ */
+MKLAPI const void *MKLGetGPUCapabilities(MKLRenderer *renderer);
+
+/**
+ * @brief Check if memoryless depth buffers are enabled
+ * @param renderer The renderer
+ * @return true if using memoryless storage (Apple Silicon optimization)
+ */
+MKLAPI bool MKLIsUsingMemorylessDepth(MKLRenderer *renderer);
+
+/**
+ * @brief Check if Metal 3 fast resource loading is available
+ * @param renderer The renderer
+ * @return true if fast loading is supported on this GPU
+ */
+MKLAPI bool MKLSupportsFastResourceLoading(MKLRenderer *renderer);
+
+/**
+ * @brief Check if mesh shaders are supported
+ * @param renderer The renderer
+ * @return true if mesh shaders are available
+ */
+MKLAPI bool MKLSupportsMeshShaders(MKLRenderer *renderer);
 
 // ========== Performance Control ==========
 /**
