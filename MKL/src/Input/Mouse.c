@@ -26,7 +26,7 @@ void MKLSetMouseButtonPressed(const MouseCodes button, const bool isPressed)
         fprintf(stderr, "MKL Warning: Invalid mouse button %d (max: %d)\n", button, MOUSE_BUTTON_COUNT - 1);
         return;
     }
-    
+
     _gCurrentMouseButtonState[button] = isPressed;
 }
 
@@ -34,7 +34,7 @@ void MKLUpdateMouseState(void)
 {
     // Copy current state to previous state for next frame
     memcpy(_gPreviousMouseButtonState, _gCurrentMouseButtonState, sizeof(_gCurrentMouseButtonState));
-    
+
     // Reset per-frame values
     _gMouseDelta = (vector_float2){0.0f, 0.0f};
     _gScrollWheelMove = 0.0f;
@@ -59,7 +59,7 @@ bool MKLIsMouseButtonPressed(const MouseCodes button)
     {
         return false;
     }
-    
+
     // Button was just pressed if it's down now but wasn't down before
     return (_gPreviousMouseButtonState[button] == false) && (_gCurrentMouseButtonState[button] == true);
 }
@@ -71,7 +71,7 @@ bool MKLIsMouseButtonDown(const MouseCodes button)
     {
         return false;
     }
-    
+
     return _gCurrentMouseButtonState[button];
 }
 
@@ -82,7 +82,7 @@ bool MKLIsMouseButtonReleased(const MouseCodes button)
     {
         return false;
     }
-    
+
     // Button was just released if it was down before but isn't now
     return (_gPreviousMouseButtonState[button] == true) && (_gCurrentMouseButtonState[button] == false);
 }
@@ -94,7 +94,7 @@ bool MKLIsMouseButtonUp(const MouseCodes button)
     {
         return true; // Assume button is up if invalid
     }
-    
+
     return !_gCurrentMouseButtonState[button];
 }
 
@@ -148,7 +148,7 @@ vector_float2 MKLGetMouseViewportPosition(const float viewportWidth, const float
 void MKLSetCursorMode(const MKLCursorMode mode)
 {
     _gCursorMode = mode;
-    
+
     // TODO: Implement actual cursor show/hide/lock behavior
     // This would require window handle to call NSCursor operations
 }

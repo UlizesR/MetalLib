@@ -1,5 +1,5 @@
-#ifndef __MKL_MOUSE_H__
-#define __MKL_MOUSE_H__
+#ifndef _MKL_MOUSE_H_
+#define _MKL_MOUSE_H_
 
 #include "../Core/MKLCore.h"
 
@@ -53,7 +53,7 @@ void MKLSetMouseDelta(const float dx, const float dy);
 
 /**
  * @brief Checks if a mouse button was just pressed (transitioned from up to down).
- * 
+ *
  * @param button The mouse button to check
  * @return true if the button was just pressed this frame, false otherwise
  */
@@ -61,7 +61,7 @@ MKLAPI bool MKLIsMouseButtonPressed(const MouseCodes button);
 
 /**
  * @brief Checks if a mouse button is currently being held down.
- * 
+ *
  * @param button The mouse button to check
  * @return true if the button is down, false otherwise
  */
@@ -69,7 +69,7 @@ MKLAPI bool MKLIsMouseButtonDown(const MouseCodes button);
 
 /**
  * @brief Checks if a mouse button was just released.
- * 
+ *
  * @param button The mouse button to check
  * @return true if the button was just released this frame, false otherwise
  */
@@ -77,7 +77,7 @@ MKLAPI bool MKLIsMouseButtonReleased(const MouseCodes button);
 
 /**
  * @brief Checks if a mouse button is currently up (not pressed).
- * 
+ *
  * @param button The mouse button to check
  * @return true if the button is up, false otherwise
  */
@@ -85,42 +85,42 @@ MKLAPI bool MKLIsMouseButtonUp(const MouseCodes button);
 
 /**
  * @brief Gets the mouse X position in window coordinates.
- * 
+ *
  * @return X coordinate
  */
 MKLAPI float MKLGetMouseX(void);
 
 /**
  * @brief Gets the mouse Y position in window coordinates.
- * 
+ *
  * @return Y coordinate
  */
 MKLAPI float MKLGetMouseY(void);
 
 /**
  * @brief Gets the mouse position in window coordinates.
- * 
+ *
  * @return Mouse position as vector
  */
 MKLAPI vector_float2 MKLGetMousePosition(void);
 
 /**
  * @brief Gets the mouse X delta since last frame.
- * 
+ *
  * @return X delta
  */
 MKLAPI float MKLGetMouseDeltaX(void);
 
 /**
  * @brief Gets the mouse Y delta since last frame.
- * 
+ *
  * @return Y delta
  */
 MKLAPI float MKLGetMouseDeltaY(void);
 
 /**
  * @brief Gets the mouse delta since last frame.
- * 
+ *
  * @return Mouse delta as vector
  */
 MKLAPI vector_float2 MKLGetMouseDelta(void);
@@ -133,7 +133,7 @@ MKLAPI void MKLScrollMouse(const float deltaY);
 
 /**
  * @brief Gets the mouse wheel movement this frame.
- * 
+ *
  * @return Mouse wheel delta
  */
 MKLAPI float MKLGetMouseWheelMove(void);
@@ -148,16 +148,16 @@ MKLAPI vector_float2 MKLGetMouseViewportPosition(const float viewportWidth, cons
 
 /**
  * @brief Sets the cursor mode.
- * 
+ *
  * @param mode The cursor mode to set
  */
 MKLAPI void MKLSetCursorMode(const MKLCursorMode mode);
 
 /**
  * @brief Gets the current cursor mode.
- * 
+ *
  * @return The current cursor mode
  */
 MKLAPI MKLCursorMode MKLGetCursorMode(void);
 
-#endif // __MKL_MOUSE_H__
+#endif // _MKL_MOUSE_H_

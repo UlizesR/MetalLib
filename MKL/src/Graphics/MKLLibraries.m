@@ -10,7 +10,7 @@
 void MKLShaderLib(MKLRenderer *renderer, const char *shaderPath)
 {
     NSError *error = nil;
-    
+
     // First, try to load default library embedded in app binary
     renderer->_library = [renderer->_device newDefaultLibrary];
     if (renderer->_library)
@@ -18,7 +18,7 @@ void MKLShaderLib(MKLRenderer *renderer, const char *shaderPath)
         printf("✓ Loaded default Metal library from app binary\n");
         return;
     }
-    
+
     // Second, try to load from the provided path (if it exists)
     if (shaderPath != NULL)
     {
@@ -26,14 +26,14 @@ void MKLShaderLib(MKLRenderer *renderer, const char *shaderPath)
         NSString *shaderString = [NSString stringWithContentsOfFile:shaderPathStr
                                                            encoding:NSUTF8StringEncoding
                                                               error:&error];
-        
+
         // Also load instancing shaders if they exist
         NSString *instancingPath = [shaderPathStr stringByDeletingLastPathComponent];
         instancingPath = [instancingPath stringByAppendingPathComponent:@"InstancingShaders.metal"];
         NSString *instancingString = [NSString stringWithContentsOfFile:instancingPath
                                                                encoding:NSUTF8StringEncoding
                                                                   error:nil];
-        
+
         // Combine both shader files
         NSMutableString *combinedShaders = [NSMutableString string];
         if (shaderString) {
@@ -43,7 +43,7 @@ void MKLShaderLib(MKLRenderer *renderer, const char *shaderPath)
         if (instancingString) {
             [combinedShaders appendString:instancingString];
         }
-        
+
         if (combinedShaders.length > 0)
         {
             MTLCompileOptions *options = [[MTLCompileOptions alloc] init];
@@ -56,7 +56,7 @@ void MKLShaderLib(MKLRenderer *renderer, const char *shaderPath)
                 #pragma clang diagnostic pop
             }
             options.languageVersion = MTLLanguageVersion2_4;
-            
+
             renderer->_library = [renderer->_device newLibraryWithSource:combinedShaders
                                                                   options:options
                                                                     error:&error];
@@ -76,7 +76,7 @@ void MKLShaderLib(MKLRenderer *renderer, const char *shaderPath)
             }
         }
     }
-    
+
     // If we got here, no shader library was found
     fprintf(stderr, "MKL FATAL ERROR: No Metal shader library found!\n");
     fprintf(stderr, "  - No default library embedded in binary\n");
@@ -89,11 +89,11 @@ void MKLShaderLib(MKLRenderer *renderer, const char *shaderPath)
 
 void MKLVertexDescriptorLib(MKLRenderer *renderer)
 {
-    MKL_NULL_CHECK_VOID(renderer, NULL, MKL_ERROR_NULL_POINTER, 
+    MKL_NULL_CHECK_VOID(renderer, NULL, MKL_ERROR_NULL_POINTER,
                         "MKLVertexDescriptor: renderer is NULL");
 
     renderer->_vertexDescriptor = [[MTLVertexDescriptor alloc] init];
-    MKL_NULL_CHECK_VOID(renderer->_vertexDescriptor, NULL, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, 
+    MKL_NULL_CHECK_VOID(renderer->_vertexDescriptor, NULL, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY,
                         "MKLVertexDescriptor: Failed to create MTLVertexDescriptor");
 
     // Position attribute (float4)
@@ -141,69 +141,69 @@ static void configureSampleCount(MTLRenderPipelineDescriptor *desc, NSUInteger s
 
 void MKLRenderPipelineLib(MKLRenderer *renderer)
 {
-    MKL_NULL_CHECK_VOID(renderer, NULL, MKL_ERROR_NULL_POINTER, 
+    MKL_NULL_CHECK_VOID(renderer, NULL, MKL_ERROR_NULL_POINTER,
                         "MKLRenderPipeline: renderer is NULL");
 
     // Load shader functions
     id<MTLFunction> vertexFunction = [renderer->_library newFunctionWithName:@"vertexShader"];
-    MKL_NULL_CHECK_VOID(vertexFunction, NULL, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, 
+    MKL_NULL_CHECK_VOID(vertexFunction, NULL, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY,
                         "MKLRenderPipeline: Failed to load vertex shader");
 
     id<MTLFunction> fragmentFunction = [renderer->_library newFunctionWithName:@"fragmentShader"];
-    MKL_NULL_CHECK_VOID(fragmentFunction, NULL, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, 
+    MKL_NULL_CHECK_VOID(fragmentFunction, NULL, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY,
                         "MKLRenderPipeline: Failed to load fragment shader");
 
     // Create pipeline descriptor
     MTLRenderPipelineDescriptor *pipelineDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
-    MKL_NULL_CHECK_VOID(pipelineDescriptor, NULL, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, 
+    MKL_NULL_CHECK_VOID(pipelineDescriptor, NULL, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY,
                         "MKLRenderPipeline: Failed to create pipeline descriptor");
 
     pipelineDescriptor.label = @"MKL Main Pipeline";
     pipelineDescriptor.vertexFunction = vertexFunction;
     pipelineDescriptor.fragmentFunction = fragmentFunction;
     pipelineDescriptor.vertexDescriptor = renderer->_vertexDescriptor;
-    
+
     configurePipelineFormats(pipelineDescriptor, renderer);
     configurePipelineBlending(pipelineDescriptor);
     configureSampleCount(pipelineDescriptor, renderer->_msaaSampleCount);
 
     // Create pipeline state
     NSError *error = nil;
-    renderer->_pipelineState = [renderer->_device newRenderPipelineStateWithDescriptor:pipelineDescriptor 
+    renderer->_pipelineState = [renderer->_device newRenderPipelineStateWithDescriptor:pipelineDescriptor
                                                                                  error:&error];
 
     if (!renderer->_pipelineState)
     {
-        fprintf(stderr, "MKL Error: Failed to create pipeline state: %s\n", 
+        fprintf(stderr, "MKL Error: Failed to create pipeline state: %s\n",
                 [[error localizedDescription] UTF8String]);
         gError.type = MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY;
         gError.message = "Failed to create Metal render pipeline";
         return;
     }
-    
+
     printf("✓ Render pipeline created successfully\n");
-    
+
     // Create instanced rendering pipeline
     id<MTLFunction> vertexFunctionInstanced = [renderer->_library newFunctionWithName:@"vertexShaderInstanced"];
     id<MTLFunction> fragmentFunctionInstanced = [renderer->_library newFunctionWithName:@"fragmentShaderInstanced"];
-    
+
     if (vertexFunctionInstanced && fragmentFunctionInstanced) {
         MTLRenderPipelineDescriptor *instancedPipelineDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
         instancedPipelineDescriptor.label = @"MKL Instanced Pipeline";
         instancedPipelineDescriptor.vertexFunction = vertexFunctionInstanced;
         instancedPipelineDescriptor.fragmentFunction = fragmentFunctionInstanced;
         instancedPipelineDescriptor.vertexDescriptor = renderer->_vertexDescriptor;
-        
+
         configurePipelineFormats(instancedPipelineDescriptor, renderer);
         configurePipelineBlending(instancedPipelineDescriptor);
         configureSampleCount(instancedPipelineDescriptor, renderer->_msaaSampleCount);
-        
+
         renderer->_instancedPipelineState = [renderer->_device newRenderPipelineStateWithDescriptor:instancedPipelineDescriptor error:&error];
-        
+
         if (renderer->_instancedPipelineState) {
             printf("✓ Instanced render pipeline created successfully\n");
         } else {
-            fprintf(stderr, "MKL Warning: Failed to create instanced pipeline: %s\n", 
+            fprintf(stderr, "MKL Warning: Failed to create instanced pipeline: %s\n",
                     [[error localizedDescription] UTF8String]);
         }
     } else {
@@ -215,38 +215,38 @@ void MKLRenderPipelineLib(MKLRenderer *renderer)
 
 void MKLSetupEnhancedRendering(MKLRenderer *renderer)
 {
-    MKL_NULL_CHECK_VOID(renderer, NULL, MKL_ERROR_NULL_POINTER, 
+    MKL_NULL_CHECK_VOID(renderer, NULL, MKL_ERROR_NULL_POINTER,
                         "MKLSetupEnhancedRendering: renderer is NULL");
-    
+
     // Create enhanced vertex descriptor
     renderer->_vertexDescriptorEnhanced = [[MTLVertexDescriptor alloc] init];
-    
+
     // Position (float4) - attribute 0
     renderer->_vertexDescriptorEnhanced.attributes[0].format = MTLVertexFormatFloat4;
     renderer->_vertexDescriptorEnhanced.attributes[0].offset = 0;
     renderer->_vertexDescriptorEnhanced.attributes[0].bufferIndex = 0;
-    
+
     // Normal (float3) - attribute 1
     renderer->_vertexDescriptorEnhanced.attributes[1].format = MTLVertexFormatFloat3;
     renderer->_vertexDescriptorEnhanced.attributes[1].offset = offsetof(MKLVertexEnhanced, normal);
     renderer->_vertexDescriptorEnhanced.attributes[1].bufferIndex = 0;
-    
+
     // TexCoords (float2) - attribute 2
     renderer->_vertexDescriptorEnhanced.attributes[2].format = MTLVertexFormatFloat2;
     renderer->_vertexDescriptorEnhanced.attributes[2].offset = offsetof(MKLVertexEnhanced, texCoords);
     renderer->_vertexDescriptorEnhanced.attributes[2].bufferIndex = 0;
-    
+
     // Layout for buffer 0
     renderer->_vertexDescriptorEnhanced.layouts[0].stride = sizeof(MKLVertexEnhanced);
     renderer->_vertexDescriptorEnhanced.layouts[0].stepFunction = MTLVertexStepFunctionPerVertex;
     renderer->_vertexDescriptorEnhanced.layouts[0].stepRate = 1;
-    
+
     // Load enhanced shader functions
     id<MTLFunction> vertexEnhanced = [renderer->_library newFunctionWithName:@"vertexShaderEnhanced"];
     id<MTLFunction> fragmentEnhanced = [renderer->_library newFunctionWithName:@"fragmentShaderEnhanced"];
     id<MTLFunction> fragmentLit = [renderer->_library newFunctionWithName:@"fragmentShaderLit"];
     __unused id<MTLFunction> fragmentTextured = [renderer->_library newFunctionWithName:@"fragmentShaderTextured"];
-    
+
     if (vertexEnhanced && fragmentEnhanced) {
         // Create enhanced pipeline (full: lighting + textures)
         MTLRenderPipelineDescriptor *desc = [[MTLRenderPipelineDescriptor alloc] init];
@@ -254,23 +254,23 @@ void MKLSetupEnhancedRendering(MKLRenderer *renderer)
         desc.vertexFunction = vertexEnhanced;
         desc.fragmentFunction = fragmentEnhanced;
         desc.vertexDescriptor = renderer->_vertexDescriptorEnhanced;
-        
+
         // OPTIMIZATION: Use helper functions
         configurePipelineFormats(desc, renderer);
         configurePipelineBlending(desc);
         configureSampleCount(desc, renderer->_msaaSampleCount);
-        
+
         NSError *error = nil;
         renderer->_pipelineStateEnhanced = [renderer->_device newRenderPipelineStateWithDescriptor:desc error:&error];
-        
+
         if (renderer->_pipelineStateEnhanced) {
             printf("✓ Enhanced pipeline created (lighting + textures)\n");
         } else {
-            fprintf(stderr, "MKL Warning: Failed to create enhanced pipeline: %s\n", 
+            fprintf(stderr, "MKL Warning: Failed to create enhanced pipeline: %s\n",
                     [[error localizedDescription] UTF8String]);
         }
     }
-    
+
     if (vertexEnhanced && fragmentLit) {
         // Create lit pipeline (lighting only)
         MTLRenderPipelineDescriptor *desc = [[MTLRenderPipelineDescriptor alloc] init];
@@ -278,19 +278,19 @@ void MKLSetupEnhancedRendering(MKLRenderer *renderer)
         desc.vertexFunction = vertexEnhanced;
         desc.fragmentFunction = fragmentLit;
         desc.vertexDescriptor = renderer->_vertexDescriptorEnhanced;
-        
+
         configurePipelineFormats(desc, renderer);
         configurePipelineBlending(desc);
         configureSampleCount(desc, renderer->_msaaSampleCount);
-        
+
         NSError *error = nil;
         renderer->_pipelineStateLit = [renderer->_device newRenderPipelineStateWithDescriptor:desc error:&error];
-        
+
         if (renderer->_pipelineStateLit) {
             printf("✓ Lit pipeline created (lighting only)\n");
         }
     }
-    
+
     // Create default sampler
     MTLSamplerDescriptor *samplerDesc = [[MTLSamplerDescriptor alloc] init];
     samplerDesc.minFilter = MTLSamplerMinMagFilterLinear;
@@ -300,15 +300,15 @@ void MKLSetupEnhancedRendering(MKLRenderer *renderer)
     samplerDesc.tAddressMode = MTLSamplerAddressModeRepeat;
     samplerDesc.normalizedCoordinates = YES;
     renderer->_defaultSampler = [renderer->_device newSamplerStateWithDescriptor:samplerDesc];
-    
+
     // Create buffers for lighting data
-    renderer->_lightBuffer = [renderer->_device newBufferWithLength:sizeof(MKLShaderLight) * 8 
+    renderer->_lightBuffer = [renderer->_device newBufferWithLength:sizeof(MKLShaderLight) * 8
                                                             options:MTLResourceStorageModeShared];
     renderer->_lightingUniformsBuffer = [renderer->_device newBufferWithLength:sizeof(MKLLightingUniforms)
                                                                        options:MTLResourceStorageModeShared];
     renderer->_materialBuffer = [renderer->_device newBufferWithLength:sizeof(MKLShaderMaterial)
                                                                options:MTLResourceStorageModeShared];
-    
+
     renderer->_enhancedRenderingEnabled = false; // Disabled by default for backwards compatibility
 }
 
@@ -316,20 +316,20 @@ void MKLSetupEnhancedRendering(MKLRenderer *renderer)
 
 void MKLDepetStencilStateLib(MKLRenderer *renderer)
 {
-    MKL_NULL_CHECK_VOID(renderer, NULL, MKL_ERROR_NULL_POINTER, 
+    MKL_NULL_CHECK_VOID(renderer, NULL, MKL_ERROR_NULL_POINTER,
                         "MKLDepthStencilState: renderer is NULL");
 
     MTLDepthStencilDescriptor *depthStencilDescriptor = [[MTLDepthStencilDescriptor alloc] init];
-    MKL_NULL_CHECK_VOID(depthStencilDescriptor, NULL, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, 
+    MKL_NULL_CHECK_VOID(depthStencilDescriptor, NULL, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY,
                         "MKLDepthStencilState: Failed to create descriptor");
 
     depthStencilDescriptor.label = @"MKL Depth Stencil State";
     depthStencilDescriptor.depthWriteEnabled = YES;
     depthStencilDescriptor.depthCompareFunction = MTLCompareFunctionLess;
-    
+
     renderer->_depthStencilState = [renderer->_device newDepthStencilStateWithDescriptor:depthStencilDescriptor];
-    MKL_NULL_CHECK_VOID(renderer->_depthStencilState, NULL, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, 
+    MKL_NULL_CHECK_VOID(renderer->_depthStencilState, NULL, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY,
                         "MKLDepthStencilState: Failed to create depth stencil state");
-    
+
     printf("✓ Depth stencil state configured\n");
 }

@@ -48,7 +48,7 @@ typedef struct MKLShader {
     id<MTLFunction> _fragmentFunction;
     id<MTLRenderPipelineState> _pipelineState;
     id<MTLDevice> _device;
-    
+
     // Uniform buffer management
     id<MTLBuffer> _uniformBuffer;
     id<MTLBuffer> _fullscreenQuadBuffer;
@@ -65,7 +65,7 @@ typedef struct MKLShader {
     size_t _uniformBufferSize;
     void *_uniformData;
 #endif
-    
+
     // Track if this is a valid shader
     bool _isValid;
 } MKLShader;
@@ -83,7 +83,7 @@ typedef struct MKLRenderer MKLRenderer;
  * @param fragmentFunc Name of the fragment function
  * @return Custom shader object
  */
-MKLAPI MKLShader *MKLLoadShader(MKLRenderer *renderer, 
+MKLAPI MKLShader *MKLLoadShader(MKLRenderer *renderer,
                                  const char *shaderPath,
                                  const char *vertexFunc,
                                  const char *fragmentFunc);
@@ -213,7 +213,7 @@ MKLAPI void MKLEndFullscreenShader(MKLRenderer *renderer);
  * @brief Draw a 2D rectangle for shader rendering (similar to raylib's DrawRectangle)
  * @param renderer The renderer context
  * @param x X position
- * @param y Y position  
+ * @param y Y position
  * @param width Rectangle width
  * @param height Rectangle height
  * @param color Rectangle color

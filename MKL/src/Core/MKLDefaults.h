@@ -1,7 +1,7 @@
 /**
  * @file MKLDefaults.h
  * @brief Default values for MetalLib objects and parameters
- * 
+ *
  * Centralized default values for cameras, lights, materials, and other
  * library objects. Modify these to change library-wide defaults.
  */

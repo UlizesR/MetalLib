@@ -31,27 +31,27 @@ typedef struct {
     MKLColor color;
     int geometryCacheIndex;  // For cached geometry lookup
     bool useLighting;
-    
+
     // Union for type-specific data
     union {
         struct {
             float width, height, depth;
         } cube;
-        
+
         struct {
             simd_uint2 segments;
             int indexCount;
         } plane;
-        
+
         struct {
             float radius;
             int segments;
         } sphere;
-        
+
         struct {
             void *meshPtr;  // MKLMesh pointer
         } mesh;
-        
+
         struct {
             int count;
             void *data;  // Array of objects

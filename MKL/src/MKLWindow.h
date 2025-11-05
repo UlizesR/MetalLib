@@ -22,8 +22,8 @@
  * @param flags Window configuration flags
  * @return Initialized delegate instance or nil on failure
  */
-- (nonnull instancetype)initWithTitle:(nonnull NSString *)title 
-                                width:(int)width 
+- (nonnull instancetype)initWithTitle:(nonnull NSString *)title
+                                width:(int)width
                                height:(int)height
                                 flags:(uint32_t)flags;
 
@@ -84,7 +84,7 @@ typedef struct MKLWindow
 #ifdef __OBJC__
     NSWindow *_nswindow;        ///< Underlying NSWindow (Objective-C only)
     void *_delegate;            ///< Window delegate (Objective-C only)
-#endif 
+#endif
 } MKLWindow;
 
 // ========== Window Creation & Destruction ==========

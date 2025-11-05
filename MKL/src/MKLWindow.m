@@ -1,11 +1,11 @@
 #import "MKLWindow.h"
 #include "Core/MKLTimer.h"
-#import "Core/MKLError.h" 
+#import "Core/MKLError.h"
 
 @implementation MklDelegate
 
-- (nonnull instancetype)initWithTitle:(nonnull NSString *)title 
-                                width:(int)width 
+- (nonnull instancetype)initWithTitle:(nonnull NSString *)title
+                                width:(int)width
                                height:(int)height
                                 flags:(uint32_t)flags
 {
@@ -19,10 +19,10 @@
     }
 
     const NSRect frame = NSMakeRect(0, 0, width, height);
-    
+
     // Build style mask based on flags
     NSWindowStyleMask styleMask = 0;
-    
+
     if (flags & MKL_WINDOW_UNDECORATED)
     {
         styleMask = NSWindowStyleMaskBorderless;
@@ -30,18 +30,18 @@
     else
     {
         styleMask = NSWindowStyleMaskTitled | NSWindowStyleMaskClosable;
-        
+
         if (flags & MKL_WINDOW_RESIZABLE)
         {
             styleMask |= NSWindowStyleMaskResizable;
         }
-        
+
         styleMask |= NSWindowStyleMaskMiniaturizable;
     }
 
-    self.window = [[NSWindow alloc] initWithContentRect:frame 
-                                              styleMask:styleMask 
-                                                backing:NSBackingStoreBuffered 
+    self.window = [[NSWindow alloc] initWithContentRect:frame
+                                              styleMask:styleMask
+                                                backing:NSBackingStoreBuffered
                                                   defer:NO];
 
     if (!self.window)
@@ -56,30 +56,30 @@
     [self.window center];
     [self.window setAcceptsMouseMovedEvents:YES];
     [self.window setDelegate:self];
-    
+
     // Apply window flags
     if (flags & MKL_WINDOW_TOPMOST)
     {
         [self.window setLevel:NSFloatingWindowLevel];
     }
-    
+
     if (flags & MKL_WINDOW_MOUSE_PASSTHROUGH)
     {
         [self.window setIgnoresMouseEvents:YES];
     }
-    
+
     // Show window unless hidden flag is set
     if (!(flags & MKL_WINDOW_HIDDEN))
     {
         [self.window makeKeyAndOrderFront:nil];
-        
+
         // Focus unless unfocused flag is set
         if (!(flags & MKL_WINDOW_UNFOCUSED))
         {
             [self.window makeMainWindow];
         }
     }
-    
+
     if (flags & MKL_WINDOW_MINIMIZED)
     {
         [self.window miniaturize:nil];
@@ -94,12 +94,12 @@
 
 #pragma mark - NSApplicationDelegate
 
-- (void)applicationDidFinishLaunching:(NSNotification *)aNotification 
+- (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
     (void)aNotification;
 }
 
-- (void)applicationWillTerminate:(NSNotification *)aNotification 
+- (void)applicationWillTerminate:(NSNotification *)aNotification
 {
     (void)aNotification;
 }
@@ -115,14 +115,14 @@
 - (void)windowDidMove:(NSNotification *)notification
 {
     (void)notification;
-    
+
     if (self.mklWindow)
     {
         MKLWindow *window = (MKLWindow *)self.mklWindow;
         const NSRect frame = [self.window frame];
         window->posX = (int)frame.origin.x;
         window->posY = (int)frame.origin.y;
-        
+
         if (window->callbacks.windowPosCallback)
         {
             window->callbacks.windowPosCallback(window->posX, window->posY);
@@ -133,14 +133,14 @@
 - (void)windowDidResize:(NSNotification *)notification
 {
     (void)notification;
-    
+
     if (self.mklWindow)
     {
         MKLWindow *window = (MKLWindow *)self.mklWindow;
         const NSRect frame = [self.window contentRectForFrameRect:[self.window frame]];
         window->width = (int)frame.size.width;
         window->height = (int)frame.size.height;
-        
+
         if (window->callbacks.windowSizeCallback)
         {
             window->callbacks.windowSizeCallback(window->width, window->height);
@@ -148,15 +148,15 @@
     }
 }
 
-- (void)windowWillClose:(NSNotification *)notification 
+- (void)windowWillClose:(NSNotification *)notification
 {
     (void)notification;
-    
+
     if (self.mklWindow)
     {
         MKLWindow *window = (MKLWindow *)self.mklWindow;
         window->shouldClose = true;
-        
+
         if (window->callbacks.windowCloseCallback)
         {
             window->callbacks.windowCloseCallback();
@@ -167,12 +167,12 @@
 - (void)windowDidBecomeKey:(NSNotification *)notification
 {
     (void)notification;
-    
+
     if (self.mklWindow)
     {
         MKLWindow *window = (MKLWindow *)self.mklWindow;
         window->focused = true;
-        
+
         if (window->callbacks.windowFocusCallback)
         {
             window->callbacks.windowFocusCallback(true);
@@ -183,12 +183,12 @@
 - (void)windowDidResignKey:(NSNotification *)notification
 {
     (void)notification;
-    
+
     if (self.mklWindow)
     {
         MKLWindow *window = (MKLWindow *)self.mklWindow;
         window->focused = false;
-        
+
         if (window->callbacks.windowFocusCallback)
         {
             window->callbacks.windowFocusCallback(false);
@@ -199,12 +199,12 @@
 - (void)windowDidMiniaturize:(NSNotification *)notification
 {
     (void)notification;
-    
+
     if (self.mklWindow)
     {
         MKLWindow *window = (MKLWindow *)self.mklWindow;
         window->minimized = true;
-        
+
         if (window->callbacks.windowIconifyCallback)
         {
             window->callbacks.windowIconifyCallback(true);
@@ -215,12 +215,12 @@
 - (void)windowDidDeminiaturize:(NSNotification *)notification
 {
     (void)notification;
-    
+
     if (self.mklWindow)
     {
         MKLWindow *window = (MKLWindow *)self.mklWindow;
         window->minimized = false;
-        
+
         if (window->callbacks.windowIconifyCallback)
         {
             window->callbacks.windowIconifyCallback(false);
@@ -257,7 +257,7 @@ MKLWindow *MKLCreateWindowEx(const int width, const int height, const char *titl
 
     // Allocate memory for the window structure
     MKLWindow *window = (MKLWindow *)calloc(1, sizeof(MKLWindow));
-    MKL_NULL_CHECK(window, NULL, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, 
+    MKL_NULL_CHECK(window, NULL, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY,
                    "Failed to allocate memory for MKLWindow", NULL);
 
     // Store window properties
@@ -273,11 +273,11 @@ MKLWindow *MKLCreateWindowEx(const int width, const int height, const char *titl
 
     // Create the Delegate
     NSString *titleString = [NSString stringWithUTF8String:title];
-    MklDelegate *delegate = [[MklDelegate alloc] initWithTitle:titleString 
-                                                         width:width 
+    MklDelegate *delegate = [[MklDelegate alloc] initWithTitle:titleString
+                                                         width:width
                                                         height:height
                                                          flags:flags];
-    MKL_NULL_CHECK(delegate, window, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY, 
+    MKL_NULL_CHECK(delegate, window, MKL_ERROR_FAILED_TO_ALLOCATE_MEMORY,
                    "Failed to allocate memory for MklDelegate", NULL);
 
     window->_nswindow = delegate.window;
@@ -302,7 +302,7 @@ MKLWindow *MKLCreateWindowEx(const int width, const int height, const char *titl
 
 void MKLDestroyWindow(MKLWindow *window)
 {
-    MKL_NULL_CHECK_VOID(window, NULL, MKL_ERROR_NULL_POINTER, 
+    MKL_NULL_CHECK_VOID(window, NULL, MKL_ERROR_NULL_POINTER,
                         "Failed to destroy window: window is NULL");
 
     if (window->_nswindow)
@@ -310,7 +310,7 @@ void MKLDestroyWindow(MKLWindow *window)
         [window->_nswindow close];
         window->_nswindow = nil;
     }
-    
+
     window->_delegate = NULL;
     free(window);
 }
@@ -319,11 +319,11 @@ void MKLDestroyWindow(MKLWindow *window)
 
 void MKLCloseWindow(MKLWindow *window)
 {
-    MKL_NULL_CHECK_VOID(window, NULL, MKL_ERROR_NULL_POINTER, 
+    MKL_NULL_CHECK_VOID(window, NULL, MKL_ERROR_NULL_POINTER,
                         "Failed to close window: window is NULL");
-    
+
     window->shouldClose = true;
-    
+
     if (window->_nswindow)
     {
     [window->_nswindow close];
@@ -332,28 +332,28 @@ void MKLCloseWindow(MKLWindow *window)
 
 bool MKLWindowShouldClose(MKLWindow *window)
 {
-    MKL_NULL_CHECK(window, NULL, MKL_ERROR_NULL_POINTER, 
+    MKL_NULL_CHECK(window, NULL, MKL_ERROR_NULL_POINTER,
                    "Failed to check if window should close: window is NULL", true);
-    
+
     if (!window->_nswindow)
     {
         return true;
     }
-    
+
     if (window->shouldClose)
     {
         return true;
     }
-    
+
     // Return true if window is not visible (closed)
     return ![window->_nswindow isVisible];
 }
 
 void MKLSetWindowShouldClose(MKLWindow *window, const bool shouldClose)
 {
-    MKL_NULL_CHECK_VOID(window, NULL, MKL_ERROR_NULL_POINTER, 
+    MKL_NULL_CHECK_VOID(window, NULL, MKL_ERROR_NULL_POINTER,
                         "Failed to set window should close: window is NULL");
-    
+
     window->shouldClose = shouldClose;
 }
 
@@ -362,7 +362,7 @@ void MKLSetWindowShouldClose(MKLWindow *window, const bool shouldClose)
 bool MKLIsWindowFocused(MKLWindow *window)
 {
     MKL_NULL_CHECK(window, NULL, MKL_ERROR_NULL_POINTER, "Window is NULL", false);
-    
+
     if (window->_nswindow)
     {
         return [window->_nswindow isKeyWindow];
@@ -373,7 +373,7 @@ bool MKLIsWindowFocused(MKLWindow *window)
 bool MKLIsWindowMinimized(MKLWindow *window)
 {
     MKL_NULL_CHECK(window, NULL, MKL_ERROR_NULL_POINTER, "Window is NULL", false);
-    
+
     if (window->_nswindow)
     {
         return [window->_nswindow isMiniaturized];
@@ -384,7 +384,7 @@ bool MKLIsWindowMinimized(MKLWindow *window)
 bool MKLIsWindowMaximized(MKLWindow *window)
 {
     MKL_NULL_CHECK(window, NULL, MKL_ERROR_NULL_POINTER, "Window is NULL", false);
-    
+
     if (window->_nswindow)
     {
         return [window->_nswindow isZoomed];
@@ -395,7 +395,7 @@ bool MKLIsWindowMaximized(MKLWindow *window)
 bool MKLIsWindowHidden(MKLWindow *window)
 {
     MKL_NULL_CHECK(window, NULL, MKL_ERROR_NULL_POINTER, "Window is NULL", false);
-    
+
     if (window->_nswindow)
     {
         return ![window->_nswindow isVisible];
@@ -406,7 +406,7 @@ bool MKLIsWindowHidden(MKLWindow *window)
 bool MKLIsWindowVisible(MKLWindow *window)
 {
     MKL_NULL_CHECK(window, NULL, MKL_ERROR_NULL_POINTER, "Window is NULL", false);
-    
+
     if (window->_nswindow)
     {
         return [window->_nswindow isVisible];
@@ -420,9 +420,9 @@ void MKLSetWindowTitle(MKLWindow *window, const char *title)
 {
     MKL_NULL_CHECK_VOID(window, NULL, MKL_ERROR_NULL_POINTER, "Window is NULL");
     MKL_NULL_CHECK_VOID(title, NULL, MKL_ERROR_NULL_POINTER, "Title is NULL");
-    
+
     window->title = title;
-    
+
     if (window->_nswindow)
     {
         NSString *titleString = [NSString stringWithUTF8String:title];
@@ -433,10 +433,10 @@ void MKLSetWindowTitle(MKLWindow *window, const char *title)
 void MKLSetWindowPosition(MKLWindow *window, const int x, const int y)
 {
     MKL_NULL_CHECK_VOID(window, NULL, MKL_ERROR_NULL_POINTER, "Window is NULL");
-    
+
     window->posX = x;
     window->posY = y;
-    
+
     if (window->_nswindow)
     {
         const NSPoint point = NSMakePoint(x, y);
@@ -447,7 +447,7 @@ void MKLSetWindowPosition(MKLWindow *window, const int x, const int y)
 void MKLGetWindowPosition(MKLWindow *window, int *x, int *y)
 {
     MKL_NULL_CHECK_VOID(window, NULL, MKL_ERROR_NULL_POINTER, "Window is NULL");
-    
+
     if (window->_nswindow)
     {
         const NSRect frame = [window->_nswindow frame];
@@ -464,16 +464,16 @@ void MKLGetWindowPosition(MKLWindow *window, int *x, int *y)
 void MKLSetWindowSize(MKLWindow *window, const int width, const int height)
 {
     MKL_NULL_CHECK_VOID(window, NULL, MKL_ERROR_NULL_POINTER, "Window is NULL");
-    
+
     if (width <= 0 || height <= 0)
     {
         fprintf(stderr, "MKL Warning: Invalid window size (%dx%d)\n", width, height);
         return;
     }
-    
+
     window->width = width;
     window->height = height;
-    
+
     if (window->_nswindow)
     {
         NSRect frame = [window->_nswindow frame];
@@ -485,7 +485,7 @@ void MKLSetWindowSize(MKLWindow *window, const int width, const int height)
 void MKLGetWindowSize(MKLWindow *window, int *width, int *height)
 {
     MKL_NULL_CHECK_VOID(window, NULL, MKL_ERROR_NULL_POINTER, "Window is NULL");
-    
+
     if (window->_nswindow)
     {
         const NSRect frame = [window->_nswindow contentRectForFrameRect:[window->_nswindow frame]];
@@ -502,9 +502,9 @@ void MKLGetWindowSize(MKLWindow *window, int *width, int *height)
 void MKLMinimizeWindow(MKLWindow *window)
 {
     MKL_NULL_CHECK_VOID(window, NULL, MKL_ERROR_NULL_POINTER, "Window is NULL");
-    
+
     window->minimized = true;
-    
+
     if (window->_nswindow)
     {
         [window->_nswindow miniaturize:nil];
@@ -514,9 +514,9 @@ void MKLMinimizeWindow(MKLWindow *window)
 void MKLMaximizeWindow(MKLWindow *window)
 {
     MKL_NULL_CHECK_VOID(window, NULL, MKL_ERROR_NULL_POINTER, "Window is NULL");
-    
+
     window->maximized = true;
-    
+
     if (window->_nswindow && ![window->_nswindow isZoomed])
     {
         [window->_nswindow zoom:nil];
@@ -526,7 +526,7 @@ void MKLMaximizeWindow(MKLWindow *window)
 void MKLRestoreWindow(MKLWindow *window)
 {
     MKL_NULL_CHECK_VOID(window, NULL, MKL_ERROR_NULL_POINTER, "Window is NULL");
-    
+
     if (window->_nswindow)
     {
         if ([window->_nswindow isMiniaturized])
@@ -545,9 +545,9 @@ void MKLRestoreWindow(MKLWindow *window)
 void MKLShowWindow(MKLWindow *window)
 {
     MKL_NULL_CHECK_VOID(window, NULL, MKL_ERROR_NULL_POINTER, "Window is NULL");
-    
+
     window->hidden = false;
-    
+
     if (window->_nswindow)
     {
         [window->_nswindow makeKeyAndOrderFront:nil];
@@ -557,9 +557,9 @@ void MKLShowWindow(MKLWindow *window)
 void MKLHideWindow(MKLWindow *window)
 {
     MKL_NULL_CHECK_VOID(window, NULL, MKL_ERROR_NULL_POINTER, "Window is NULL");
-    
+
     window->hidden = true;
-    
+
     if (window->_nswindow)
     {
         [window->_nswindow orderOut:nil];
@@ -569,7 +569,7 @@ void MKLHideWindow(MKLWindow *window)
 void MKLFocusWindow(MKLWindow *window)
 {
     MKL_NULL_CHECK_VOID(window, NULL, MKL_ERROR_NULL_POINTER, "Window is NULL");
-    
+
     if (window->_nswindow)
     {
         [window->_nswindow makeKeyAndOrderFront:nil];
@@ -581,11 +581,11 @@ void MKLFocusWindow(MKLWindow *window)
 void MKLCenterWindow(MKLWindow *window)
 {
     MKL_NULL_CHECK_VOID(window, NULL, MKL_ERROR_NULL_POINTER, "Window is NULL");
-    
+
     if (window->_nswindow)
     {
         [window->_nswindow center];
-        
+
         // Update stored position
         const NSRect frame = [window->_nswindow frame];
         window->posX = (int)frame.origin.x;
@@ -598,9 +598,9 @@ void MKLCenterWindow(MKLWindow *window)
 void MKLSetWindowOpacity(MKLWindow *window, const float opacity)
 {
     MKL_NULL_CHECK_VOID(window, NULL, MKL_ERROR_NULL_POINTER, "Window is NULL");
-    
+
     const float clampedOpacity = fminf(1.0f, fmaxf(0.0f, opacity));
-    
+
     if (window->_nswindow)
     {
         [window->_nswindow setAlphaValue:clampedOpacity];
@@ -610,7 +610,7 @@ void MKLSetWindowOpacity(MKLWindow *window, const float opacity)
 float MKLGetWindowOpacity(MKLWindow *window)
 {
     MKL_NULL_CHECK(window, NULL, MKL_ERROR_NULL_POINTER, "Window is NULL", 1.0f);
-    
+
     if (window->_nswindow)
     {
         return (float)[window->_nswindow alphaValue];
@@ -621,7 +621,7 @@ float MKLGetWindowOpacity(MKLWindow *window)
 void MKLToggleFullscreen(MKLWindow *window)
 {
     MKL_NULL_CHECK_VOID(window, NULL, MKL_ERROR_NULL_POINTER, "Window is NULL");
-    
+
     if (window->_nswindow)
     {
         [window->_nswindow toggleFullScreen:nil];
@@ -631,7 +631,7 @@ void MKLToggleFullscreen(MKLWindow *window)
 bool MKLIsWindowFullscreen(MKLWindow *window)
 {
     MKL_NULL_CHECK(window, NULL, MKL_ERROR_NULL_POINTER, "Window is NULL", false);
-    
+
     if (window->_nswindow)
     {
         return ([window->_nswindow styleMask] & NSWindowStyleMaskFullScreen) != 0;

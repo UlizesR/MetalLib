@@ -23,7 +23,7 @@ void MKLSetKeyPressed(const unsigned short keyCode, const bool isPressed)
         fprintf(stderr, "MKL Warning: Invalid key code %u (max: %d)\n", keyCode, KEY_COUNT - 1);
         return;
     }
-    
+
     // Only add to queue on key press (not release)
     if (isPressed && !_gCurrentKeyState[keyCode])
     {
@@ -34,7 +34,7 @@ void MKLSetKeyPressed(const unsigned short keyCode, const bool isPressed)
             _gKeyPressedQueueCount++;
         }
     }
-    
+
     _gCurrentKeyState[keyCode] = isPressed;
 }
 
@@ -42,7 +42,7 @@ void MKLUpdateKeyboardState(void)
 {
     // Copy current state to previous state for next frame
     memcpy(_gPreviousKeyState, _gCurrentKeyState, sizeof(_gCurrentKeyState));
-    
+
     // Clear the key press queue
     _gKeyPressedQueueCount = 0;
 }
@@ -54,7 +54,7 @@ bool MKLIsKeyPressed(const unsigned short keyCode)
     {
         return false;
     }
-    
+
     // Key was just pressed if it's down now but wasn't down before (following raylib)
     return (_gPreviousKeyState[keyCode] == false) && (_gCurrentKeyState[keyCode] == true);
 }
@@ -66,7 +66,7 @@ bool MKLIsKeyDown(const unsigned short keyCode)
     {
         return false;
     }
-    
+
     return _gCurrentKeyState[keyCode];
 }
 
@@ -77,7 +77,7 @@ bool MKLIsKeyReleased(const unsigned short keyCode)
     {
         return false;
     }
-    
+
     // Key was just released if it was down before but isn't now
     return (_gPreviousKeyState[keyCode] == true) && (_gCurrentKeyState[keyCode] == false);
 }
@@ -89,30 +89,30 @@ bool MKLIsKeyUp(const unsigned short keyCode)
     {
         return true; // Assume key is up if invalid
     }
-    
+
     return !_gCurrentKeyState[keyCode];
 }
 
 int MKLGetKeyPressed(void)
 {
     int keyCode = 0;
-    
+
     if (_gKeyPressedQueueCount > 0)
     {
         // Get key from the queue head
         keyCode = _gKeyPressedQueue[0];
-        
+
         // Shift elements 1 step toward the head
         for (unsigned int i = 0; i < (_gKeyPressedQueueCount - 1); i++)
         {
             _gKeyPressedQueue[i] = _gKeyPressedQueue[i + 1];
         }
-        
+
         // Reset last key in the queue
         _gKeyPressedQueue[_gKeyPressedQueueCount - 1] = 0;
         _gKeyPressedQueueCount--;
     }
-    
+
     return keyCode;
 }
 

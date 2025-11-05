@@ -50,10 +50,10 @@ static id<MTLSamplerState> CreateSamplerState(id<MTLDevice> device, MKLTextureCo
     desc.minFilter = MKLTextureFilterToMTL(config.minFilter);
     desc.magFilter = MKLTextureFilterToMTL(config.magFilter);
     desc.mipFilter = config.generateMipmaps ? MTLSamplerMipFilterLinear : MTLSamplerMipFilterNotMipmapped;
-    desc.maxAnisotropy = (config.minFilter == MKL_TEXTURE_FILTER_ANISOTROPIC || 
+    desc.maxAnisotropy = (config.minFilter == MKL_TEXTURE_FILTER_ANISOTROPIC ||
                           config.magFilter == MKL_TEXTURE_FILTER_ANISOTROPIC) ? config.maxAnisotropy : 1;
     desc.normalizedCoordinates = YES;
-    
+
     return [device newSamplerStateWithDescriptor:desc];
 }
 
@@ -101,34 +101,34 @@ MKLTexture MKLLoadTexture(MKLRenderer *renderer, const char *fileName) {
 MKLTexture MKLLoadTextureEx(MKLRenderer *renderer, const char *fileName, MKLTextureConfig config) {
     MKLTexture texture = {0};
     texture.valid = false;
-    
+
     if (!renderer || !fileName) {
         return texture;
     }
-    
+
     @autoreleasepool {
         NSString *filePath = [NSString stringWithUTF8String:fileName];
         NSURL *fileURL = [NSURL fileURLWithPath:filePath];
-        
+
         MTKTextureLoader *loader = [[MTKTextureLoader alloc] initWithDevice:renderer->_device];
-        
+
         NSDictionary *options = @{
             MTKTextureLoaderOptionTextureUsage: @(MTLTextureUsageShaderRead),
             MTKTextureLoaderOptionTextureStorageMode: @(MTLStorageModePrivate),
             MTKTextureLoaderOptionGenerateMipmaps: @(config.generateMipmaps),
             MTKTextureLoaderOptionOrigin: MTKTextureLoaderOriginBottomLeft
         };
-        
+
         NSError *error = nil;
         id<MTLTexture> mtlTexture = [loader newTextureWithContentsOfURL:fileURL
                                                                   options:options
                                                                     error:&error];
-        
+
         if (error || !mtlTexture) {
             NSLog(@"Failed to load texture from %s: %@", fileName, error);
             return texture;
         }
-        
+
         texture._texture = mtlTexture;
         texture._sampler = CreateSamplerState(renderer->_device, config);
         texture.width = (int)mtlTexture.width;
@@ -137,55 +137,55 @@ MKLTexture MKLLoadTextureEx(MKLRenderer *renderer, const char *fileName, MKLText
         texture.format = MKL_TEXTURE_FORMAT_RGBA8; // Assume RGBA8 for loaded images
         texture.valid = true;
     }
-    
+
     return texture;
 }
 
-MKLTexture MKLLoadTextureFromMemory(MKLRenderer *renderer, 
-                                      const void *data, 
-                                      int width, 
+MKLTexture MKLLoadTextureFromMemory(MKLRenderer *renderer,
+                                      const void *data,
+                                      int width,
                                       int height,
                                       MKLTextureFormat format,
                                       MKLTextureConfig config) {
     MKLTexture texture = {0};
     texture.valid = false;
-    
+
     if (!renderer || !data || width <= 0 || height <= 0) {
         return texture;
     }
-    
+
     @autoreleasepool {
         MTLTextureDescriptor *desc = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MKLTextureFormatToMTL(format)
                                                                                          width:width
                                                                                         height:height
                                                                                      mipmapped:config.generateMipmaps];
         desc.usage = MTLTextureUsageShaderRead;
-        
+
         // Use Metal 3 optimized storage mode
         MKLGPUCapabilities *gpuCaps = (MKLGPUCapabilities *)renderer->_gpuCapabilities;
-        desc.storageMode = gpuCaps ? MKLGetOptimalTextureStorageMode(MKL_TEXTURE_GPU_ONLY, gpuCaps->isAppleSilicon) 
+        desc.storageMode = gpuCaps ? MKLGetOptimalTextureStorageMode(MKL_TEXTURE_GPU_ONLY, gpuCaps->isAppleSilicon)
                                    : MTLStorageModePrivate;
-        
+
         id<MTLTexture> mtlTexture = [renderer->_device newTextureWithDescriptor:desc];
         if (!mtlTexture) {
             return texture;
         }
-        
+
         // Upload data to texture
         NSUInteger bytesPerRow = width * 4; // Assume 4 bytes per pixel for RGBA
         if (format == MKL_TEXTURE_FORMAT_GRAY8) {
             bytesPerRow = width;
         }
-        
+
         // Create temporary buffer for upload
         id<MTLBuffer> uploadBuffer = [renderer->_device newBufferWithBytes:data
                                                                      length:bytesPerRow * height
                                                                     options:MTLResourceStorageModeShared];
-        
+
         // Use blit command encoder to copy to private storage
         id<MTLCommandBuffer> commandBuffer = [renderer->_commandQueue commandBuffer];
         id<MTLBlitCommandEncoder> blitEncoder = [commandBuffer blitCommandEncoder];
-        
+
         [blitEncoder copyFromBuffer:uploadBuffer
                        sourceOffset:0
                   sourceBytesPerRow:bytesPerRow
@@ -195,11 +195,11 @@ MKLTexture MKLLoadTextureFromMemory(MKLRenderer *renderer,
                    destinationSlice:0
                    destinationLevel:0
                   destinationOrigin:MTLOriginMake(0, 0, 0)];
-        
+
         [blitEncoder endEncoding];
         [commandBuffer commit];
         [commandBuffer waitUntilCompleted];
-        
+
         texture._texture = mtlTexture;
         texture._sampler = CreateSamplerState(renderer->_device, config);
         texture.width = width;
@@ -208,7 +208,7 @@ MKLTexture MKLLoadTextureFromMemory(MKLRenderer *renderer,
         texture.format = format;
         texture.valid = true;
     }
-    
+
     return texture;
 }
 
@@ -219,28 +219,28 @@ MKLTexture MKLCreateTexture(MKLRenderer *renderer,
                              MKLTextureConfig config) {
     MKLTexture texture = {0};
     texture.valid = false;
-    
+
     if (!renderer || width <= 0 || height <= 0) {
         return texture;
     }
-    
+
     @autoreleasepool {
         MTLTextureDescriptor *desc = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MKLTextureFormatToMTL(format)
                                                                                          width:width
                                                                                         height:height
                                                                                      mipmapped:config.generateMipmaps];
         desc.usage = MTLTextureUsageShaderRead | MTLTextureUsageRenderTarget;
-        
+
         // Use Metal 3 optimized storage mode for render targets
         MKLGPUCapabilities *gpuCaps = (MKLGPUCapabilities *)renderer->_gpuCapabilities;
         desc.storageMode = gpuCaps ? MKLGetOptimalTextureStorageMode(MKL_TEXTURE_RENDER_TARGET, gpuCaps->isAppleSilicon)
                                    : MTLStorageModePrivate;
-        
+
         id<MTLTexture> mtlTexture = [renderer->_device newTextureWithDescriptor:desc];
         if (!mtlTexture) {
             return texture;
         }
-        
+
         texture._texture = mtlTexture;
         texture._sampler = CreateSamplerState(renderer->_device, config);
         texture.width = width;
@@ -249,7 +249,7 @@ MKLTexture MKLCreateTexture(MKLRenderer *renderer,
         texture.format = format;
         texture.valid = true;
     }
-    
+
     return texture;
 }
 
@@ -265,22 +265,22 @@ MKLTexture MKLGenTextureCheckerboard(MKLRenderer *renderer,
     if (width <= 0 || height <= 0 || checksX <= 0 || checksY <= 0) {
         return (MKLTexture){.valid = false};
     }
-    
+
     // Generate checkerboard pixel data
     unsigned char *pixels = malloc(width * height * 4);
     if (!pixels) {
         return (MKLTexture){.valid = false};
     }
-    
+
     int checkWidth = width / checksX;
     int checkHeight = height / checksY;
-    
+
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
             int checkX = x / checkWidth;
             int checkY = y / checkHeight;
             bool useColor1 = ((checkX + checkY) % 2) == 0;
-            
+
             vector_float4 color = useColor1 ? color1 : color2;
             int index = (y * width + x) * 4;
             pixels[index + 0] = (unsigned char)(color.x * 255);
@@ -289,14 +289,14 @@ MKLTexture MKLGenTextureCheckerboard(MKLRenderer *renderer,
             pixels[index + 3] = (unsigned char)(color.w * 255);
         }
     }
-    
+
     MKLTextureConfig config = MKLGetDefaultTextureConfig();
     config.generateMipmaps = false;
-    
-    MKLTexture texture = MKLLoadTextureFromMemory(renderer, pixels, width, height, 
+
+    MKLTexture texture = MKLLoadTextureFromMemory(renderer, pixels, width, height,
                                                     MKL_TEXTURE_FORMAT_RGBA8, config);
     free(pixels);
-    
+
     return texture;
 }
 
@@ -307,32 +307,32 @@ MKLTexture MKLGenTextureColor(MKLRenderer *renderer,
     if (width <= 0 || height <= 0) {
         return (MKLTexture){.valid = false};
     }
-    
+
     // Generate solid color pixel data
     unsigned char *pixels = malloc(width * height * 4);
     if (!pixels) {
         return (MKLTexture){.valid = false};
     }
-    
+
     unsigned char r = (unsigned char)(color.x * 255);
     unsigned char g = (unsigned char)(color.y * 255);
     unsigned char b = (unsigned char)(color.z * 255);
     unsigned char a = (unsigned char)(color.w * 255);
-    
+
     for (int i = 0; i < width * height; i++) {
         pixels[i * 4 + 0] = r;
         pixels[i * 4 + 1] = g;
         pixels[i * 4 + 2] = b;
         pixels[i * 4 + 3] = a;
     }
-    
+
     MKLTextureConfig config = MKLGetDefaultTextureConfig();
     config.generateMipmaps = false;
-    
+
     MKLTexture texture = MKLLoadTextureFromMemory(renderer, pixels, width, height,
                                                     MKL_TEXTURE_FORMAT_RGBA8, config);
     free(pixels);
-    
+
     return texture;
 }
 
@@ -361,13 +361,13 @@ void MKLUpdateTexture(MKLTexture *texture,
     if (!MKLIsTextureValid(texture) || !data) {
         return;
     }
-    
+
     @autoreleasepool {
         id<MTLTexture> mtlTexture = texture->_texture;
-        
+
         MTLRegion region = MTLRegionMake2D(offsetX, offsetY, width, height);
         NSUInteger bytesPerRow = width * 4; // Assume RGBA8
-        
+
         [mtlTexture replaceRegion:region
                       mipmapLevel:0
                         withBytes:data

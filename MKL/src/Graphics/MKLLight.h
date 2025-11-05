@@ -35,22 +35,22 @@ typedef enum MKLLightType {
 typedef struct MKLLight {
     MKLLightType type;              ///< Type of light
     bool enabled;                   ///< Is light active
-    
+
     // Color and intensity
     MKLColor color;                 ///< Light color (RGB)
     float intensity;                ///< Light intensity/brightness
-    
+
     // Position (for point and spot lights)
     vector_float3 position;         ///< World position
-    
+
     // Direction (for directional and spot lights)
     vector_float3 direction;        ///< Light direction (normalized)
-    
+
     // Attenuation (for point and spot lights)
     float constantAttenuation;      ///< Constant attenuation factor
     float linearAttenuation;        ///< Linear attenuation factor
     float quadraticAttenuation;     ///< Quadratic attenuation factor
-    
+
     // Spotlight specific
     float innerConeAngle;           ///< Inner cone angle in radians
     float outerConeAngle;           ///< Outer cone angle in radians
@@ -98,9 +98,9 @@ MKLAPI MKLLight MKLCreatePointLight(vector_float3 position, MKLColor color, floa
  * @param outerAngle Outer cone angle in radians
  * @return Spotlight
  */
-MKLAPI MKLLight MKLCreateSpotLight(vector_float3 position, 
+MKLAPI MKLLight MKLCreateSpotLight(vector_float3 position,
                                      vector_float3 direction,
-                                     MKLColor color, 
+                                     MKLColor color,
                                      float intensity,
                                      float innerAngle,
                                      float outerAngle);

@@ -17,7 +17,7 @@ void MKLInitTimer(void)
     }
 
     _gStartTime = mach_absolute_time();
-    
+
     kern_return_t result = mach_timebase_info(&_gTimebaseInfo);
     if (result == KERN_SUCCESS)
     {

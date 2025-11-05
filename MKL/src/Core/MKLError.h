@@ -21,7 +21,7 @@ typedef enum MKLErrorCode {
 
 /**
  * @brief Error structure containing error information.
- * 
+ *
  * Note: NSError is not included in the struct when using ARC
  * to avoid retain cycle issues with global variables.
  */
@@ -36,7 +36,7 @@ extern MKLError gError;
 
 /**
  * @brief Check for NULL pointer and return with error handling.
- * 
+ *
  * @param ptr Pointer to check for NULL
  * @param fObj Object to free if ptr is NULL (use NULL if no cleanup needed)
  * @param errCode MKLErrorCode to set on error
@@ -59,9 +59,9 @@ extern MKLError gError;
 
 /**
  * @brief Check for NULL pointer in void functions.
- * 
+ *
  * Similar to MKL_NULL_CHECK but for functions that return void.
- * 
+ *
  * @param ptr Pointer to check for NULL
  * @param fObj Object to free if ptr is NULL (use NULL if no cleanup needed)
  * @param errCode MKLErrorCode to set on error

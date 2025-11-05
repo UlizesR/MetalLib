@@ -59,29 +59,29 @@ typedef struct MKLRenderer
     MKLWindow *window;
     MKLUniforms uniforms;
     MKLCamera camera;
-    
+
     // Render state caching
     bool _cullingEnabled;
     bool _depthTestEnabled;
-    
+
     // GPU capabilities (C struct, works in both Obj-C and C)
     void *_gpuCapabilities; // MKLGPUCapabilities* (forward declaration)
-    
+
 #ifdef __OBJC__
     // Device and command queue
     id<MTLDevice> _device;
     id<MTLCommandQueue> _commandQueue;
-    
+
     // View and layer
     MTKView *_view;
     CAMetalLayer *_metalLayer;
     MTLClearColor _clearColor;
-    
+
     // Buffer management
     MklBufferPool *_bufferPool;
     MklUniformBuffer *_uniformBuffer;
     MTKMeshBufferAllocator *_bufferAllocator;
-    
+
     // Pipeline state objects
     id<MTLLibrary> _library;
     MTLRenderPassDescriptor *_renderPassDescriptor;
@@ -93,35 +93,35 @@ typedef struct MKLRenderer
     id<MTLRenderPipelineState> _pipelineStateLit;      // Lighting only (no texture)
     id<MTLRenderPipelineState> _pipelineStateTextured; // Texture only (no lighting)
     id<MTLDepthStencilState> _depthStencilState;
-    
+
     // Depth texture for depth testing
     id<MTLTexture> _depthTexture;
-    
+
     // MSAA (Multi-Sample Anti-Aliasing) support
     id<MTLTexture> _msaaColorTexture;
     id<MTLTexture> _msaaDepthTexture;
     NSUInteger _msaaSampleCount;
-    
+
     // Triple buffering synchronization
     dispatch_semaphore_t _inFlightSemaphore;
     NSUInteger _currentBufferIndex;
-    
+
     // Custom shader support
     void *_customShader; // MKLShader* (forward declaration to avoid circular dependency)
-    
+
     // Enhanced rendering support (lighting and textures)
     id<MTLBuffer> _lightBuffer;
     id<MTLBuffer> _lightingUniformsBuffer;
     id<MTLBuffer> _materialBuffer;
     bool _enhancedRenderingEnabled;
     id<MTLSamplerState> _defaultSampler;
-    
+
     // Per-frame drawing state
     id<CAMetalDrawable> _drawable;
     id<MTLCommandBuffer> _commandBuffer;
     id<MTLRenderCommandEncoder> _renderEncoder;
 #endif
-    
+
     // PHASE 3: Draw command buffer for batching (C struct, works in both Obj-C and C)
     void *_drawCommandBuffer;  // MKLCommandBuffer* (forward declaration)
     bool _batchingEnabled;
@@ -181,7 +181,7 @@ MKLAPI bool MKLSupportsMeshShaders(MKLRenderer *renderer);
  * @brief Set the target frames per second (FPS) limit
  * @param renderer The renderer
  * @param fps Target FPS (0 = unlimited, bypasses VSync)
- * 
+ *
  * Examples:
  *   MKLSetTargetFPS(renderer, 60);  // Cap at 60 FPS (default)
  *   MKLSetTargetFPS(renderer, 120); // Cap at 120 FPS
@@ -200,13 +200,13 @@ MKLAPI int MKLGetTargetFPS(MKLRenderer *renderer);
  * @brief Set MSAA (Multi-Sample Anti-Aliasing) sample count
  * @param renderer The renderer
  * @param samples Sample count (1, 2, 4, or 8)
- * 
+ *
  * Higher sample counts provide smoother edges but cost more GPU memory and performance:
  * - 1: No MSAA (fastest, sharp edges)
  * - 2: 2x MSAA (minimal cost, noticeable improvement)
  * - 4: 4x MSAA (recommended, excellent quality/performance balance)
  * - 8: 8x MSAA (best quality, significant cost)
- * 
+ *
  * @note Must be called before first frame for proper initialization
  * @note Invalid sample counts will be clamped to nearest valid value
  */

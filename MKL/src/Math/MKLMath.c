@@ -75,8 +75,6 @@ matrix_float4x4 MTranslate(const vector_float3 direction)
     return result;
 }
 
-
-
 matrix_float4x4 MLookAt(const vector_float3 eye, const vector_float3 target, const vector_float3 up)
 {
     const simd_float3 fV = simd_normalize(target - eye);
@@ -111,7 +109,6 @@ matrix_float4x4 MPerspective(const float fovy, const float aspect, const float n
 
     return result;
 }
-
 
 vector_float3 MAddVector(const vector_float3 vec1, const vector_float3 vec2)
 {

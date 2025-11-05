@@ -28,13 +28,13 @@
 
 MKLGPUCapabilities MKLDetectGPUCapabilities(id<MTLDevice> device) {
     MKLGPUCapabilities caps = {0};
-    
+
     if (!device) {
         return caps;
     }
-    
+
     caps.deviceName = [device.name UTF8String];
-    
+
     // Detect platform
     #if TARGET_OS_IOS
     caps.isiOS = true;
@@ -43,7 +43,7 @@ MKLGPUCapabilities MKLDetectGPUCapabilities(id<MTLDevice> device) {
     caps.isiOS = false;
     caps.isMac = true;
     #endif
-    
+
     // Detect GPU family (newest to oldest)
     if ([device supportsFamily:MTLGPUFamilyApple9]) {
         caps.primaryFamily = MTLGPUFamilyApple9;
@@ -90,7 +90,7 @@ MKLGPUCapabilities MKLDetectGPUCapabilities(id<MTLDevice> device) {
         caps.familyName = "Common1";
         caps.isAppleSilicon = false;
     }
-    
+
     // Feature detection
     caps.supportsMemorylessTargets = [device supportsFamily:MTLGPUFamilyApple1];
     caps.supportsFastResourceLoading = [device supportsFamily:MTLGPUFamilyApple7] || [device supportsFamily:MTLGPUFamilyMac2];
@@ -99,7 +99,7 @@ MKLGPUCapabilities MKLDetectGPUCapabilities(id<MTLDevice> device) {
     caps.supportsNonuniformThreadgroups = [device supportsFamily:MTLGPUFamilyApple6] || [device supportsFamily:MTLGPUFamilyMac2];
     caps.supportsReadWriteTextures = [device supportsFamily:MTLGPUFamilyApple3];
     caps.supportsTileShaders = [device supportsFamily:MTLGPUFamilyApple4];
-    
+
     return caps;
 }
 
@@ -187,41 +187,41 @@ MKLFastResourceLoader *MKLCreateFastResourceLoader(id<MTLDevice> device) {
     if (!device) {
         return NULL;
     }
-    
+
     MKLGPUCapabilities caps = MKLDetectGPUCapabilities(device);
     if (!caps.supportsFastResourceLoading) {
         return NULL;
     }
-    
+
     MKLFastResourceLoader *loader = (MKLFastResourceLoader *)calloc(1, sizeof(MKLFastResourceLoader));
     if (!loader) {
         return NULL;
     }
-    
+
     loader->device = device;
     loader->callbackQueue = dispatch_queue_create("com.metallib.fastresourceloading", DISPATCH_QUEUE_SERIAL);
-    
+
     if (@available(macOS 13.0, iOS 16.0, *)) {
         MTLIOCommandQueueDescriptor *desc = [MTLIOCommandQueueDescriptor new];
         desc.type = MTLIOCommandQueueTypeConcurrent;
         desc.priority = MTLIOPriorityNormal;
         desc.maxCommandBufferCount = 64;
-        
+
         NSError *error = nil;
         loader->ioQueue = [device newIOCommandQueueWithDescriptor:desc error:&error];
-        
+
         if (!loader->ioQueue || error) {
             free(loader);
             return NULL;
         }
-        
+
         loader->isSupported = true;
         printf("✓ Metal 3 Fast Resource Loading initialized\n");
     } else {
         free(loader);
         return NULL;
     }
-    
+
     return loader;
 }
 
@@ -248,16 +248,16 @@ bool MKLLoadBufferFromFileAsync(MKLFastResourceLoader *loader,
         if (callback) callback(userData, false, "Invalid parameters");
         return false;
     }
-    
+
     NSURL *fileURL = [NSURL fileURLWithPath:@(filePath)];
     NSError *error = nil;
     NSDictionary *attributes = [[NSFileManager defaultManager] attributesOfItemAtPath:fileURL.path error:&error];
-    
+
     if (error || !attributes || buffer.length < [attributes fileSize]) {
         if (callback) callback(userData, false, "File error");
         return false;
     }
-    
+
     if (@available(macOS 13.0, iOS 16.0, *)) {
         id<MTLIOFileHandle> fileHandle = [loader->device newIOFileHandleWithURL:fileURL error:&error];
         if (!fileHandle) {
@@ -265,19 +265,19 @@ bool MKLLoadBufferFromFileAsync(MKLFastResourceLoader *loader,
             loader->totalLoadsFailed++;
             return false;
         }
-        
+
         id<MTLIOCommandBuffer> ioCommandBuffer = [loader->ioQueue commandBuffer];
         [ioCommandBuffer loadBuffer:buffer offset:0 size:(size_t)[attributes fileSize]
                        sourceHandle:fileHandle sourceHandleOffset:0];
-        
+
         loader->pendingCount++;
         loader->totalLoadsQueued++;
-        
+
         __block MKLFastResourceLoader *blockLoader = loader;
         __block MKLResourceLoadCallback blockCallback = callback;
         __block void *blockUserData = userData;
         __block size_t blockSize = (size_t)[attributes fileSize];
-        
+
         [ioCommandBuffer addCompletedHandler:^(id<MTLIOCommandBuffer> cb) {
             blockLoader->pendingCount--;
             if (cb.error) {
@@ -297,11 +297,11 @@ bool MKLLoadBufferFromFileAsync(MKLFastResourceLoader *loader,
                 }
             }
         }];
-        
+
         [ioCommandBuffer commit];
         return true;
     }
-    
+
     if (callback) callback(userData, false, "Metal 3 not available");
     return false;
 }
@@ -344,28 +344,28 @@ MKLArgumentBuffer *MKLCreateArgumentBuffer(id<MTLDevice> device,
                                            id<MTLFunction> function,
                                            NSUInteger bufferIndex) {
     if (!device || !function) return NULL;
-    
+
     MKLArgumentBuffer *argBuffer = (MKLArgumentBuffer *)calloc(1, sizeof(MKLArgumentBuffer));
     if (!argBuffer) return NULL;
-    
+
     argBuffer->device = device;
     argBuffer->bufferIndex = bufferIndex;
     argBuffer->argumentEncoder = [function newArgumentEncoderWithBufferIndex:bufferIndex];
-    
+
     if (!argBuffer->argumentEncoder) {
         free(argBuffer);
         return NULL;
     }
-    
+
     NSUInteger encodedLength = argBuffer->argumentEncoder.encodedLength;
     argBuffer->argumentBuffer = [device newBufferWithLength:encodedLength
                                                     options:MTLResourceStorageModeShared];
-    
+
     if (!argBuffer->argumentBuffer) {
         free(argBuffer);
         return NULL;
     }
-    
+
     [argBuffer->argumentEncoder setArgumentBuffer:argBuffer->argumentBuffer offset:0];
     return argBuffer;
 }
@@ -390,9 +390,9 @@ void MKLSetArgumentBufferSampler(MKLArgumentBuffer *argBuffer, id<MTLSamplerStat
 
 void MKLEncodeArgumentBuffer(MKLArgumentBuffer *argBuffer, id<MTLRenderCommandEncoder> encoder, NSUInteger bufferIndex) {
     if (!argBuffer || !encoder) return;
-    
+
     [encoder setFragmentBuffer:argBuffer->argumentBuffer offset:0 atIndex:bufferIndex];
-    
+
     if (@available(macOS 13.0, iOS 16.0, *)) {
         [encoder useResource:argBuffer->argumentBuffer usage:MTLResourceUsageRead stages:MTLRenderStageFragment];
     } else {
@@ -427,13 +427,13 @@ MKLIndirectCommandBuffer *MKLCreateIndirectCommandBuffer(id<MTLDevice> device,
     if (!device || !MKLIsIndirectCommandBufferSupported(device)) {
         return NULL;
     }
-    
+
     MKLIndirectCommandBuffer *icb = (MKLIndirectCommandBuffer *)calloc(1, sizeof(MKLIndirectCommandBuffer));
     if (!icb) return NULL;
-    
+
     icb->device = device;
     icb->maxCommandCount = maxCommandCount;
-    
+
     MTLIndirectCommandBufferDescriptor *desc = [[MTLIndirectCommandBufferDescriptor alloc] init];
     if (commandTypes & MKL_INDIRECT_DRAW) {
         desc.commandTypes = MTLIndirectCommandTypeDraw;
@@ -445,16 +445,16 @@ MKLIndirectCommandBuffer *MKLCreateIndirectCommandBuffer(id<MTLDevice> device,
     desc.inheritPipelineState = NO;
     desc.maxVertexBufferBindCount = 25;
     desc.maxFragmentBufferBindCount = 25;
-    
+
     icb->commandBuffer = [device newIndirectCommandBufferWithDescriptor:desc
                                                          maxCommandCount:maxCommandCount
                                                                  options:0];
-    
+
     if (!icb->commandBuffer) {
         free(icb);
         return NULL;
     }
-    
+
     return icb;
 }
 
@@ -501,22 +501,22 @@ MKLMeshShaderPipeline *MKLCreateMeshShaderPipeline(id<MTLDevice> device,
     if (!device || !library || !MKLIsMeshShaderSupported(device)) {
         return NULL;
     }
-    
+
     if (@available(macOS 13.0, iOS 16.0, *)) {
         MKLMeshShaderPipeline *pipeline = (MKLMeshShaderPipeline *)calloc(1, sizeof(MKLMeshShaderPipeline));
         if (!pipeline) return NULL;
-        
+
         pipeline->device = device;
-        
+
         id<MTLFunction> objectFunc = objectFunctionName ? [library newFunctionWithName:@(objectFunctionName)] : nil;
         id<MTLFunction> meshFunc = meshFunctionName ? [library newFunctionWithName:@(meshFunctionName)] : nil;
         id<MTLFunction> fragFunc = fragmentFunctionName ? [library newFunctionWithName:@(fragmentFunctionName)] : nil;
-        
+
         if (!meshFunc) {
             free(pipeline);
             return NULL;
         }
-        
+
         MTLMeshRenderPipelineDescriptor *descriptor = [[MTLMeshRenderPipelineDescriptor alloc] init];
         descriptor.objectFunction = objectFunc;
         descriptor.meshFunction = meshFunc;
@@ -524,21 +524,21 @@ MKLMeshShaderPipeline *MKLCreateMeshShaderPipeline(id<MTLDevice> device,
         descriptor.colorAttachments[0].pixelFormat = colorFormat;
         descriptor.depthAttachmentPixelFormat = depthFormat;
         descriptor.rasterSampleCount = 1;
-        
+
         NSError *error = nil;
         pipeline->pipelineState = [device newRenderPipelineStateWithMeshDescriptor:descriptor
                                                                             options:MTLPipelineOptionNone
                                                                          reflection:nil
                                                                               error:&error];
-        
+
         if (!pipeline->pipelineState) {
             free(pipeline);
             return NULL;
         }
-        
+
         return pipeline;
     }
-    
+
     return NULL;
 }
 
@@ -552,7 +552,7 @@ void MKLEncodeMeshShaderDraw(MKLMeshShaderPipeline *pipeline,
                               NSUInteger threadsPerObjectThreadgroup,
                               NSUInteger threadsPerMeshThreadgroup) {
     if (!pipeline || !encoder) return;
-    
+
     if (@available(macOS 13.0, iOS 16.0, *)) {
         [encoder setRenderPipelineState:pipeline->pipelineState];
         [encoder drawMeshThreadgroups:MTLSizeMake(threadgroupsPerGrid, 1, 1)
@@ -583,20 +583,20 @@ MKLSparseTexture *MKLCreateSparseTexture(id<MTLDevice> device, MTLTextureDescrip
     if (!device || !descriptor || !MKLIsSparseTextureSupported(device)) {
         return NULL;
     }
-    
+
     MKLSparseTexture *sparseTexture = (MKLSparseTexture *)calloc(1, sizeof(MKLSparseTexture));
     if (!sparseTexture) return NULL;
-    
+
     sparseTexture->device = device;
     descriptor.storageMode = MTLStorageModePrivate;
     descriptor.usage |= MTLTextureUsageShaderRead;
-    
+
     sparseTexture->texture = [device newTextureWithDescriptor:descriptor];
     if (!sparseTexture->texture) {
         free(sparseTexture);
         return NULL;
     }
-    
+
     sparseTexture->tileSize = MTLSizeMake(256, 256, 1);
     return sparseTexture;
 }
@@ -644,28 +644,28 @@ MKLDisplayLink *MKLCreateDisplayLink(CAMetalLayer *layer, MKLDisplayLinkCallback
     if (!layer || !callback || !MKLIsDisplayLinkSupported()) {
         return NULL;
     }
-    
+
     if (@available(macOS 14.0, iOS 17.0, *)) {
         MKLDisplayLink *displayLink = (MKLDisplayLink *)calloc(1, sizeof(MKLDisplayLink));
         if (!displayLink) return NULL;
-        
+
         displayLink->delegate = [[MKLDisplayLinkDelegate alloc] init];
         displayLink->delegate.callback = callback;
         displayLink->delegate.userData = userData;
         displayLink->displayLink = [[CAMetalDisplayLink alloc] initWithMetalLayer:layer];
-        
+
         if (!displayLink->displayLink) {
             free(displayLink);
             return NULL;
         }
-        
+
         [displayLink->displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
         displayLink->displayLink.delegate = displayLink->delegate;
         displayLink->isPaused = true;
-        
+
         return displayLink;
     }
-    
+
     return NULL;
 }
 

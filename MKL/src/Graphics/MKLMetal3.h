@@ -33,7 +33,7 @@ typedef struct MKLGPUCapabilities {
     bool supportsNonuniformThreadgroups;
     bool supportsReadWriteTextures;
     bool supportsTileShaders;
-    
+
     // GPU info
     int primaryFamily;
     const char *familyName;
@@ -113,11 +113,11 @@ MKLAPI void MKLDestroyFastResourceLoader(MKLFastResourceLoader *loader);
 typedef struct MKLArgumentBuffer MKLArgumentBuffer;
 
 #ifdef __OBJC__
-MKLAPI MKLArgumentBuffer *MKLCreateArgumentBuffer(id<MTLDevice> device, 
+MKLAPI MKLArgumentBuffer *MKLCreateArgumentBuffer(id<MTLDevice> device,
                                                    id<MTLFunction> function,
                                                    NSUInteger bufferIndex);
-MKLAPI void MKLSetArgumentBufferTexture(MKLArgumentBuffer *argBuffer, 
-                                        id<MTLTexture> texture, 
+MKLAPI void MKLSetArgumentBufferTexture(MKLArgumentBuffer *argBuffer,
+                                        id<MTLTexture> texture,
                                         NSUInteger index);
 MKLAPI void MKLEncodeArgumentBuffer(MKLArgumentBuffer *argBuffer,
                                     id<MTLRenderCommandEncoder> encoder,

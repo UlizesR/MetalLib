@@ -10,7 +10,7 @@ void MKLPollEvents(void)
 {
     @autoreleasepool {
         NSEvent *event;
-        
+
         // Poll all available events (following GLFW pattern)
         while ((event = [NSApp nextEventMatchingMask:NSEventMaskAny
                                            untilDate:[NSDate distantPast]
@@ -68,10 +68,10 @@ void MKLPollEvents(void)
                 case NSEventTypeOtherMouseDragged:
                 {
                     const NSPoint locationInWindow = [event locationInWindow];
-                    
+
                     // Update absolute position
                     MKLSetMousePosition((float)locationInWindow.x, (float)locationInWindow.y);
-                    
+
                     // Update delta
                     MKLSetMouseDelta((float)event.deltaX, (float)event.deltaY);
                     break;
@@ -101,7 +101,7 @@ void MKLWaitEventsTimeout(const double timeout)
         {
             [NSApp sendEvent:event];
         }
-        
+
         // Poll remaining events
         MKLPollEvents();
     }

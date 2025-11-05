@@ -11,7 +11,7 @@
 #include "../MKLRenderer.h"
 #include "MKLShapes.h"
 
-typedef struct MKLMesh 
+typedef struct MKLMesh
 {
     vector_float3 position;
     vector_float3 rotation;

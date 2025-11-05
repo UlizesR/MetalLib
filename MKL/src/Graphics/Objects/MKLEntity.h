@@ -29,22 +29,22 @@ typedef struct MKLCamera {
     vector_float3 up;
     vector_float3 forward;
     vector_float3 right;
-    
+
     // Projection parameters
     float fov, aspect, near, far;
     MKLCameraProjection projection;
-    
+
     // Euler angles (for first-person mode)
     float yaw, pitch, roll;
-    
+
     // Camera mode
     MKLCameraMode mode;
-    
+
     // Camera speeds
     float moveSpeed;                // Movement speed
     float rotationSpeed;            // Rotation speed (degrees/second)
     float mouseSensitivity;         // Mouse sensitivity
-    
+
     // Internal
     simd_quatf rotation;
 } MKLCamera;

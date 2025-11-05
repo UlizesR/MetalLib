@@ -19,7 +19,7 @@ void MKLDrawAxis(MKLRenderer* renderer, float length)
     vector_float4 z_axis = simd_make_float4(0.0f, 0.0f, length, 1.0f);
 
     const vector_float4 origin = MKL_WORLD_ORIGIN;
-    
+
     matrix_float4x4 axisModelMatrix = {
         .columns[0] = x_axis,
         .columns[1] = y_axis,
@@ -43,7 +43,7 @@ void MKLDrawAxis(MKLRenderer* renderer, float length)
     id<MTLBuffer> vertexBuffer = [renderer->_bufferPool getBufferWithBytes:lineVertices
                                                                      length:sizeof(lineVertices)];
 
-    if (vertexBuffer == nil) 
+    if (vertexBuffer == nil)
     {
         NSLog(@"MKLDrawAxisHelper: Failed to create vertex buffer");
         return;

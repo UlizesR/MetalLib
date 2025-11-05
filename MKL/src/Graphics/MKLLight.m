@@ -76,7 +76,7 @@ MKLLight MKLCreatePointLight(vector_float3 position, MKLColor color, float inten
     light.intensity = intensity;
     light.position = position;
     light.direction = (vector_float3){0, -1, 0};
-    
+
     // Calculate attenuation based on range
     if (range > 0.0f) {
         light.constantAttenuation = 1.0f;
@@ -87,15 +87,15 @@ MKLLight MKLCreatePointLight(vector_float3 position, MKLColor color, float inten
         light.linearAttenuation = 0.0f;
         light.quadraticAttenuation = 0.0f;
     }
-    
+
     light.innerConeAngle = 0.0f;
     light.outerConeAngle = 0.0f;
     return light;
 }
 
-MKLLight MKLCreateSpotLight(vector_float3 position, 
+MKLLight MKLCreateSpotLight(vector_float3 position,
                              vector_float3 direction,
-                             MKLColor color, 
+                             MKLColor color,
                              float intensity,
                              float innerAngle,
                              float outerAngle) {
@@ -120,18 +120,18 @@ int MKLAddLight(MKLRenderer *renderer, MKLLight light) {
     if (!renderer) {
         return -1;
     }
-    
+
     MKLLightManager *manager = GetLightManager(renderer);
-    
+
     if (manager->lightCount >= MKL_MAX_LIGHTS) {
         NSLog(@"Warning: Maximum number of lights (%d) reached", MKL_MAX_LIGHTS);
         return -1;
     }
-    
+
     int index = manager->lightCount;
     manager->lights[index] = light;
     manager->lightCount++;
-    
+
     return index;
 }
 
@@ -139,18 +139,18 @@ void MKLRemoveLight(MKLRenderer *renderer, int index) {
     if (!renderer) {
         return;
     }
-    
+
     MKLLightManager *manager = GetLightManager(renderer);
-    
+
     if (index < 0 || index >= manager->lightCount) {
         return;
     }
-    
+
     // Shift lights down
     for (int i = index; i < manager->lightCount - 1; i++) {
         manager->lights[i] = manager->lights[i + 1];
     }
-    
+
     manager->lightCount--;
 }
 
@@ -158,13 +158,13 @@ void MKLUpdateLight(MKLRenderer *renderer, int index, MKLLight light) {
     if (!renderer) {
         return;
     }
-    
+
     MKLLightManager *manager = GetLightManager(renderer);
-    
+
     if (index < 0 || index >= manager->lightCount) {
         return;
     }
-    
+
     manager->lights[index] = light;
 }
 
@@ -172,13 +172,13 @@ MKLLight* MKLGetLight(MKLRenderer *renderer, int index) {
     if (!renderer) {
         return NULL;
     }
-    
+
     MKLLightManager *manager = GetLightManager(renderer);
-    
+
     if (index < 0 || index >= manager->lightCount) {
         return NULL;
     }
-    
+
     return &manager->lights[index];
 }
 
@@ -193,7 +193,7 @@ int MKLGetLightCount(MKLRenderer *renderer) {
     if (!renderer) {
         return 0;
     }
-    
+
     MKLLightManager *manager = GetLightManager(renderer);
     return manager->lightCount;
 }
@@ -202,7 +202,7 @@ void MKLClearLights(MKLRenderer *renderer) {
     if (!renderer) {
         return;
     }
-    
+
     MKLLightManager *manager = GetLightManager(renderer);
     manager->lightCount = 0;
 }
@@ -213,7 +213,7 @@ void MKLEnableLighting(MKLRenderer *renderer, bool enabled) {
     if (!renderer) {
         return;
     }
-    
+
     MKLLightManager *manager = GetLightManager(renderer);
     manager->lightingEnabled = enabled;
 }
@@ -222,7 +222,7 @@ bool MKLIsLightingEnabled(MKLRenderer *renderer) {
     if (!renderer) {
         return false;
     }
-    
+
     MKLLightManager *manager = GetLightManager(renderer);
     return manager->lightingEnabled;
 }
@@ -231,7 +231,7 @@ void MKLSetAmbientLight(MKLRenderer *renderer, MKLColor color, float intensity) 
     if (!renderer) {
         return;
     }
-    
+
     MKLLightManager *manager = GetLightManager(renderer);
     manager->ambientColor = color;
     manager->ambientIntensity = intensity;

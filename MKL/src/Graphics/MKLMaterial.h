@@ -34,24 +34,24 @@ typedef enum MKLMaterialType {
  */
 typedef struct MKLMaterial {
     MKLMaterialType type;           ///< Material shading model
-    
+
     // Base colors (Standard/PBR)
     MKLColor albedo;                ///< Base color / Diffuse color
     MKLColor emissive;              ///< Emissive color (glowing)
-    
+
     // Standard shading properties (Phong/Blinn-Phong)
     MKLColor ambient;               ///< Ambient color
     MKLColor specular;              ///< Specular color
     float shininess;                ///< Shininess/glossiness (1-1000)
-    
+
     // PBR properties
     float metallic;                 ///< Metallic factor (0-1)
     float roughness;                ///< Roughness factor (0-1)
     float ao;                       ///< Ambient occlusion factor (0-1)
-    
+
     // Transparency
     float opacity;                  ///< Opacity (0=transparent, 1=opaque)
-    
+
     // Texture maps
     MKLTexture *albedoMap;          ///< Albedo/Diffuse texture
     MKLTexture *normalMap;          ///< Normal map for bump mapping
@@ -60,12 +60,12 @@ typedef struct MKLMaterial {
     MKLTexture *aoMap;              ///< Ambient occlusion map
     MKLTexture *emissiveMap;        ///< Emissive map
     MKLTexture *specularMap;        ///< Specular map (Standard)
-    
+
     // Flags
     bool useTextures;               ///< Use texture maps if available
     bool receiveShadows;            ///< Receive shadows from lights
     bool castShadows;               ///< Cast shadows
-    
+
     // Internal
     void *_userData;                ///< User data pointer
 } MKLMaterial;

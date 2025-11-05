@@ -74,17 +74,17 @@ void MKLSetCameraProjection(MKLCamera *camera, MKLCameraProjection projection) {
 
 void MKLCameraMoveForward(MKLCamera *camera, float distance, bool moveInWorldPlane) {
     if (!camera) return;
-    
+
     vector_float3 forward = MKLGetCameraForward(camera);
-    
+
     if (moveInWorldPlane) {
         // Project onto XZ plane (lock Y)
         forward.y = 0;
         forward = simd_normalize(forward);
     }
-    
+
     forward = simd_make_float3(forward.x * distance, forward.y * distance, forward.z * distance);
-    
+
     camera->position = simd_make_float3(
         camera->position.x + forward.x,
         camera->position.y + forward.y,
@@ -99,10 +99,10 @@ void MKLCameraMoveForward(MKLCamera *camera, float distance, bool moveInWorldPla
 
 void MKLCameraMoveUp(MKLCamera *camera, float distance) {
     if (!camera) return;
-    
+
     vector_float3 up = MKLGetCameraUp(camera);
     up = simd_make_float3(up.x * distance, up.y * distance, up.z * distance);
-    
+
     camera->position = simd_make_float3(
         camera->position.x + up.x,
         camera->position.y + up.y,
@@ -117,17 +117,17 @@ void MKLCameraMoveUp(MKLCamera *camera, float distance) {
 
 void MKLCameraMoveRight(MKLCamera *camera, float distance, bool moveInWorldPlane) {
     if (!camera) return;
-    
+
     vector_float3 right = MKLGetCameraRight(camera);
-    
+
     if (moveInWorldPlane) {
         // Project onto XZ plane
         right.y = 0;
         right = simd_normalize(right);
     }
-    
+
     right = simd_make_float3(right.x * distance, right.y * distance, right.z * distance);
-    
+
     camera->position = simd_make_float3(
         camera->position.x + right.x,
         camera->position.y + right.y,
@@ -142,12 +142,12 @@ void MKLCameraMoveRight(MKLCamera *camera, float distance, bool moveInWorldPlane
 
 void MKLCameraMoveToTarget(MKLCamera *camera, float delta) {
     if (!camera) return;
-    
+
     float distance = simd_distance(camera->position, camera->target);
     distance += delta;
-    
+
     if (distance <= 0.001f) distance = 0.001f;
-    
+
     vector_float3 forward = MKLGetCameraForward(camera);
     camera->position = simd_make_float3(
         camera->target.x - forward.x * distance,
@@ -160,13 +160,13 @@ void MKLCameraMoveToTarget(MKLCamera *camera, float delta) {
 
 void MKLCameraYaw(MKLCamera *camera, float angle, bool rotateAroundTarget) {
     if (!camera) return;
-    
+
     vector_float3 targetPosition = simd_make_float3(
         camera->target.x - camera->position.x,
         camera->target.y - camera->position.y,
         camera->target.z - camera->position.z
     );
-    
+
     // Rotate around up axis
     float c = cosf(angle);
     float s = sinf(angle);
@@ -175,7 +175,7 @@ void MKLCameraYaw(MKLCamera *camera, float angle, bool rotateAroundTarget) {
         targetPosition.y,
         targetPosition.x * s + targetPosition.z * c
     };
-    
+
     if (rotateAroundTarget) {
         // Move position relative to target (orbital)
         camera->position = simd_make_float3(
@@ -195,29 +195,29 @@ void MKLCameraYaw(MKLCamera *camera, float angle, bool rotateAroundTarget) {
 
 void MKLCameraPitch(MKLCamera *camera, float angle, bool lockView, bool rotateAroundTarget, bool rotateUp) {
     if (!camera) return;
-    
+
     vector_float3 up = MKLGetCameraUp(camera);
     vector_float3 targetPosition = simd_make_float3(
         camera->target.x - camera->position.x,
         camera->target.y - camera->position.y,
         camera->target.z - camera->position.z
     );
-    
+
     if (lockView) {
         // Clamp angle to prevent camera flipping
         float maxAngleUp = simd_length(simd_make_float2(targetPosition.x, targetPosition.z));
         maxAngleUp = atan2f(maxAngleUp, targetPosition.y);
         float maxAngleDown = atan2f(maxAngleUp, -targetPosition.y);
-        
+
         angle = fmaxf(-maxAngleDown, fminf(maxAngleUp, angle));
     }
-    
+
     vector_float3 right = MKLGetCameraRight(camera);
-    
+
     // Rotate around right axis
     float c = cosf(angle);
     float s = sinf(angle);
-    
+
     // Rodriguez rotation formula
     float dot = simd_dot(targetPosition, right);
     vector_float3 rotated = {
@@ -225,7 +225,7 @@ void MKLCameraPitch(MKLCamera *camera, float angle, bool lockView, bool rotateAr
         targetPosition.y * c + (right.z * targetPosition.x - right.x * targetPosition.z) * s + right.y * dot * (1 - c),
         targetPosition.z * c + (right.x * targetPosition.y - right.y * targetPosition.x) * s + right.z * dot * (1 - c)
     };
-    
+
     if (rotateAroundTarget) {
         camera->position = simd_make_float3(
             camera->target.x - rotated.x,
@@ -239,7 +239,7 @@ void MKLCameraPitch(MKLCamera *camera, float angle, bool lockView, bool rotateAr
             camera->position.z + rotated.z
         );
     }
-    
+
     if (rotateUp) {
         // Rotate up vector as well
         dot = simd_dot(up, right);
@@ -253,13 +253,13 @@ void MKLCameraPitch(MKLCamera *camera, float angle, bool lockView, bool rotateAr
 
 void MKLCameraRoll(MKLCamera *camera, float angle) {
     if (!camera) return;
-    
+
     vector_float3 forward = MKLGetCameraForward(camera);
-    
+
     // Rotate up vector around forward axis
     float c = cosf(angle);
     float s = sinf(angle);
-    
+
     float dot = simd_dot(camera->up, forward);
     camera->up = simd_make_float3(
         camera->up.x * c + (forward.y * camera->up.z - forward.z * camera->up.y) * s + forward.x * dot * (1 - c),
@@ -272,16 +272,16 @@ void MKLCameraRoll(MKLCamera *camera, float angle) {
 
 void MKLUpdateCamera(MKLCamera *camera, MKLCameraControls controls) {
     if (!camera) return;
-    
+
     // Legacy mode handling
     if (controls == MKL_CAMERA_ORBIT) {
         camera->mode = MKL_CAMERA_ORBITAL;
     }
-    
+
     // Handle different camera modes
     // Note: Input handling should be done by the application
     // This function just updates camera vectors based on yaw/pitch/target
-    
+
     // Update forward, right, up vectors based on target and position
     camera->forward = MKLGetCameraForward(camera);
     camera->right = MKLGetCameraRight(camera);
@@ -290,22 +290,22 @@ void MKLUpdateCamera(MKLCamera *camera, MKLCameraControls controls) {
 
 void MKLUpdateCameraPro(MKLCamera *camera, vector_float3 movement, vector_float3 rotation, float zoom) {
     if (!camera) return;
-    
+
     bool lockView = true;
     bool rotateAroundTarget = false;
     bool rotateUp = false;
     bool moveInWorldPlane = (camera->mode == MKL_CAMERA_FIRST_PERSON || camera->mode == MKL_CAMERA_THIRD_PERSON);
-    
+
     // Apply rotation (in degrees, convert to radians)
     MKLCameraPitch(camera, -rotation.y * M_PI / 180.0f, lockView, rotateAroundTarget, rotateUp);
     MKLCameraYaw(camera, -rotation.x * M_PI / 180.0f, rotateAroundTarget);
     MKLCameraRoll(camera, rotation.z * M_PI / 180.0f);
-    
+
     // Apply movement
     MKLCameraMoveForward(camera, movement.x, moveInWorldPlane);
     MKLCameraMoveRight(camera, movement.y, moveInWorldPlane);
     MKLCameraMoveUp(camera, movement.z);
-    
+
     // Apply zoom
     MKLCameraMoveToTarget(camera, zoom);
 }

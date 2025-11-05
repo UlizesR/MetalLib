@@ -114,9 +114,9 @@ MKLAPI MKLTexture MKLLoadTextureEx(MKLRenderer *renderer, const char *fileName, 
  * @param config Texture configuration
  * @return Loaded texture or invalid texture on failure
  */
-MKLAPI MKLTexture MKLLoadTextureFromMemory(MKLRenderer *renderer, 
-                                              const void *data, 
-                                              int width, 
+MKLAPI MKLTexture MKLLoadTextureFromMemory(MKLRenderer *renderer,
+                                              const void *data,
+                                              int width,
                                               int height,
                                               MKLTextureFormat format,
                                               MKLTextureConfig config);
