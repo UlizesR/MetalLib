@@ -1,5 +1,5 @@
-#ifndef _MKL_VIEW_H_
-#define _MKL_VIEW_H_
+#ifndef _MKL_RENDERER_H_
+#define _MKL_RENDERER_H_
 
 #include <stdint.h>
 
@@ -9,6 +9,29 @@
 
 #include "MKLColors.h"
 #include "MKLTypes.h"
+
+// ============================================================================
+// Metal 3 GPU Capabilities (core detection, consolidated from MKLMetal3)
+// ============================================================================
+
+typedef struct MKLGPUCapabilities {
+    // Storage modes
+    bool supportsMemorylessTargets;
+    bool supportsFastResourceLoading;
+    bool supportsMeshShaders;
+    bool supportsRaytracing;
+    bool supportsNonuniformThreadgroups;
+    bool supportsReadWriteTextures;
+    bool supportsTileShaders;
+    
+    // GPU info
+    int primaryFamily;
+    const char *familyName;
+    const char *deviceName;
+    bool isAppleSilicon;
+    bool isiOS;
+    bool isMac;
+} MKLGPUCapabilities;
 
 #ifdef __OBJC__
 #import <MetalKit/MetalKit.h>
@@ -122,9 +145,6 @@ typedef struct MKLRenderer
     id<MTLRenderCommandEncoder> _renderEncoder;
 #endif
 
-    // PHASE 3: Draw command buffer for batching (C struct, works in both Obj-C and C)
-    void *_drawCommandBuffer;  // MKLCommandBuffer* (forward declaration)
-    bool _batchingEnabled;
 } MKLRenderer;
 
 MKLAPI MKLRenderer *MKLCreateRenderer(MKLWindow *window);
@@ -219,4 +239,7 @@ MKLAPI void MKLSetMSAASamples(MKLRenderer *renderer, int samples);
  */
 MKLAPI int MKLGetMSAASamples(MKLRenderer *renderer);
 
-#endif // _MKL_VIEW_H_
+// Metal 3 GPU capability function (consolidated from MKLMetal3)
+MKLAPI void MKLPrintGPUCapabilities(const MKLGPUCapabilities *caps);
+
+#endif // _MKL_RENDERER_H_

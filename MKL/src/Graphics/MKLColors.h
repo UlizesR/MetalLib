@@ -16,12 +16,17 @@ typedef vector_float4 MKLColor;
 #define MKL_COLOR_MAGENTA       (MKLColor){1.0f, 0.0f, 1.0f, 1.0f}
 #define MKL_COLOR_CYAN          (MKLColor){0.0f, 1.0f, 1.0f, 1.0f}
 
-// random colors
+// Additional common colors
+#define MKL_COLOR_ORANGE        (MKLColor){1.0f, 0.5f, 0.0f, 1.0f}
+#define MKL_COLOR_PURPLE        (MKLColor){0.5f, 0.0f, 0.5f, 1.0f}
+#define MKL_COLOR_PINK          (MKLColor){1.0f, 0.0f, 0.5f, 1.0f}
+#define MKL_COLOR_GRAY          (MKLColor){0.5f, 0.5f, 0.5f, 1.0f}
+
+// Theme colors
 #define MKL_COLOR_MAIN          (MKLColor){47.0f/255.0f, 79.0f/255.0f, 79.0f/255.0f, 1.0}
 #define MKL_COLOR_SKY           (MKLColor){182.0f/255.0f, 240.0f/255.0f, 228.0f/255.0f, 1.0f}
 
 // Grayscale colors
-#define MKL_COLOR_GRAY_0        (MKLColor){0.0f, 0.0f, 0.0f, 1.0f}
 #define MKL_COLOR_GRAY_1        (MKLColor){0.1f, 0.1f, 0.1f, 1.0f}
 #define MKL_COLOR_GRAY_2        (MKLColor){0.2f, 0.2f, 0.2f, 1.0f}
 #define MKL_COLOR_GRAY_3        (MKLColor){0.3f, 0.3f, 0.3f, 1.0f}
@@ -34,7 +39,6 @@ typedef vector_float4 MKLColor;
 #define MKL_COLOR_GRAY_10       (MKLColor){1.0f, 1.0f, 1.0f, 1.0f}
 
 // Redscale colors
-#define MKL_COLOR_RED_0         (MKLColor){0.0f, 0.0f, 0.0f, 1.0f}
 #define MKL_COLOR_RED_1         (MKLColor){0.1f, 0.0f, 0.0f, 1.0f}
 #define MKL_COLOR_RED_2         (MKLColor){0.2f, 0.0f, 0.0f, 1.0f}
 #define MKL_COLOR_RED_3         (MKLColor){0.3f, 0.0f, 0.0f, 1.0f}
@@ -47,7 +51,7 @@ typedef vector_float4 MKLColor;
 #define MKL_COLOR_RED_10        (MKLColor){1.0f, 0.0f, 0.0f, 1.0f}
 
 // Greenscale colors
-#define MKL_COLOR_GREEN_0       (MKLColor){0.0f, 0.0f, 0.0f, 1.0f}
+
 #define MKL_COLOR_GREEN_1       (MKLColor){0.0f, 0.1f, 0.0f, 1.0f}
 #define MKL_COLOR_GREEN_2       (MKLColor){0.0f, 0.2f, 0.0f, 1.0f}
 #define MKL_COLOR_GREEN_3       (MKLColor){0.0f, 0.3f, 0.0f, 1.0f}
@@ -60,7 +64,6 @@ typedef vector_float4 MKLColor;
 #define MKL_COLOR_GREEN_10      (MKLColor){0.0f, 1.0f, 0.0f, 1.0f}
 
 // Bluescale colors
-#define MKL_COLOR_BLUE_0        (MKLColor){0.0f, 0.0f, 0.0f, 1.0f}
 #define MKL_COLOR_BLUE_1        (MKLColor){0.0f, 0.0f, 0.1f, 1.0f}
 #define MKL_COLOR_BLUE_2        (MKLColor){0.0f, 0.0f, 0.2f, 1.0f}
 #define MKL_COLOR_BLUE_3        (MKLColor){0.0f, 0.0f, 0.3f, 1.0f}
@@ -73,7 +76,6 @@ typedef vector_float4 MKLColor;
 #define MKL_COLOR_BLUE_10       (MKLColor){0.0f, 0.0f, 1.0f, 1.0f}
 
 // Yellowscale colors
-#define MKL_COLOR_YELLOW_0      (MKLColor){0.0f, 0.0f, 0.0f, 1.0f}
 #define MKL_COLOR_YELLOW_1      (MKLColor){0.1f, 0.1f, 0.0f, 1.0f}
 #define MKL_COLOR_YELLOW_2      (MKLColor){0.2f, 0.2f, 0.0f, 1.0f}
 #define MKL_COLOR_YELLOW_3      (MKLColor){0.3f, 0.3f, 0.0f, 1.0f}
@@ -86,7 +88,6 @@ typedef vector_float4 MKLColor;
 #define MKL_COLOR_YELLOW_10     (MKLColor){1.0f, 1.0f, 0.0f, 1.0f}
 
 // Magentascale colors
-#define MKL_COLOR_MAGENTA_0     (MKLColor){0.0f, 0.0f, 0.0f, 1.0f}
 #define MKL_COLOR_MAGENTA_1     (MKLColor){0.1f, 0.0f, 0.1f, 1.0f}
 #define MKL_COLOR_MAGENTA_2     (MKLColor){0.2f, 0.0f, 0.2f, 1.0f}
 #define MKL_COLOR_MAGENTA_3     (MKLColor){0.3f, 0.0f, 0.3f, 1.0f}
@@ -99,7 +100,6 @@ typedef vector_float4 MKLColor;
 #define MKL_COLOR_MAGENTA_10    (MKLColor){1.0f, 0.0f, 1.0f, 1.0f}
 
 // Cyanscale colors
-#define MKL_COLOR_CYAN_0        (MKLColor){0.0f, 0.0f, 0.0f, 1.0f}
 #define MKL_COLOR_CYAN_1        (MKLColor){0.0f, 0.1f, 0.1f, 1.0f}
 #define MKL_COLOR_CYAN_2        (MKLColor){0.0f, 0.2f, 0.2f, 1.0f}
 #define MKL_COLOR_CYAN_3        (MKLColor){0.0f, 0.3f, 0.3f, 1.0f}
@@ -112,7 +112,6 @@ typedef vector_float4 MKLColor;
 #define MKL_COLOR_CYAN_10       (MKLColor){0.0f, 1.0f, 1.0f, 1.0f}
 
 // Brownscale colors
-#define MKL_COLOR_BROWN_0       (MKLColor){0.0f, 0.0f, 0.0f, 1.0f}
 #define MKL_COLOR_BROWN_1       (MKLColor){0.1f, 0.05f, 0.0f, 1.0f}
 #define MKL_COLOR_BROWN_2       (MKLColor){0.2f, 0.1f, 0.0f, 1.0f}
 #define MKL_COLOR_BROWN_3       (MKLColor){0.3f, 0.15f, 0.0f, 1.0f}
@@ -125,7 +124,6 @@ typedef vector_float4 MKLColor;
 #define MKL_COLOR_BROWN_10      (MKLColor){1.0f, 0.5f, 0.0f, 1.0f}
 
 // Orangescale colors
-#define MKL_COLOR_ORANGE_0      (MKLColor){0.0f, 0.0f, 0.0f, 1.0f}
 #define MKL_COLOR_ORANGE_1      (MKLColor){0.1f, 0.05f, 0.0f, 1.0f}
 #define MKL_COLOR_ORANGE_2      (MKLColor){0.2f, 0.1f, 0.0f, 1.0f}
 #define MKL_COLOR_ORANGE_3      (MKLColor){0.3f, 0.15f, 0.0f, 1.0f}
@@ -138,7 +136,6 @@ typedef vector_float4 MKLColor;
 #define MKL_COLOR_ORANGE_10     (MKLColor){1.0f, 0.5f, 0.0f, 1.0f}
 
 // Purplescale colors
-#define MKL_COLOR_PURPLE_0      (MKLColor){0.0f, 0.0f, 0.0f, 1.0f}
 #define MKL_COLOR_PURPLE_1      (MKLColor){0.1f, 0.0f, 0.1f, 1.0f}
 #define MKL_COLOR_PURPLE_2      (MKLColor){0.2f, 0.0f, 0.2f, 1.0f}
 #define MKL_COLOR_PURPLE_3      (MKLColor){0.3f, 0.0f, 0.3f, 1.0f}
@@ -151,7 +148,6 @@ typedef vector_float4 MKLColor;
 #define MKL_COLOR_PURPLE_10     (MKLColor){1.0f, 0.0f, 1.0f, 1.0f}
 
 // Pinkscale colors
-#define MKL_COLOR_PINK_0        (MKLColor){0.0f, 0.0f, 0.0f, 1.0f}
 #define MKL_COLOR_PINK_1        (MKLColor){0.1f, 0.0f, 0.05f, 1.0f}
 #define MKL_COLOR_PINK_2        (MKLColor){0.2f, 0.0f, 0.1f, 1.0f}
 #define MKL_COLOR_PINK_3        (MKLColor){0.3f, 0.0f, 0.15f, 1.0f}
@@ -164,7 +160,6 @@ typedef vector_float4 MKLColor;
 #define MKL_COLOR_PINK_10       (MKLColor){1.0f, 0.0f, 0.5f, 1.0f}
 
 // Tealscale colors
-#define MKL_COLOR_TEAL_0        (MKLColor){0.0f, 0.0f, 0.0f, 1.0f}
 #define MKL_COLOR_TEAL_1        (MKLColor){0.0f, 0.05f, 0.1f, 1.0f}
 #define MKL_COLOR_TEAL_2        (MKLColor){0.0f, 0.1f, 0.2f, 1.0f}
 #define MKL_COLOR_TEAL_3        (MKLColor){0.0f, 0.15f, 0.3f, 1.0f}
@@ -177,7 +172,6 @@ typedef vector_float4 MKLColor;
 #define MKL_COLOR_TEAL_10       (MKLColor){0.0f, 0.5f, 1.0f, 1.0f}
 
 // Lime scale colors
-#define MKL_COLOR_LIME_0        (MKLColor){0.0f, 0.0f, 0.0f, 1.0f}
 #define MKL_COLOR_LIME_1        (MKLColor){0.05f, 0.1f, 0.0f, 1.0f}
 #define MKL_COLOR_LIME_2        (MKLColor){0.1f, 0.2f, 0.0f, 1.0f}
 #define MKL_COLOR_LIME_3        (MKLColor){0.15f, 0.3f, 0.0f, 1.0f}

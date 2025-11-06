@@ -154,7 +154,7 @@ make -j8
 **Controls:**
 - ESC - Exit
 
-**Perfect for:** Game developers, particle systems, crowds, optimization
+**Perfect for:** Game developers, crowds, optimization
 
 ---
 

@@ -5,7 +5,6 @@
 
 #import "MKLTexture.h"
 #import "MKLRenderer.h"
-#import "MKLMetal3.h"
 #import <Metal/Metal.h>
 #import <MetalKit/MetalKit.h>
 #import <Foundation/Foundation.h>
@@ -112,9 +111,12 @@ MKLTexture MKLLoadTextureEx(MKLRenderer *renderer, const char *fileName, MKLText
 
         MTKTextureLoader *loader = [[MTKTextureLoader alloc] initWithDevice:renderer->_device];
 
+        // Use Metal 3 optimized storage mode for loaded textures (always private for best GPU performance)
+        MTLStorageMode storageMode = MTLStorageModePrivate;
+        
         NSDictionary *options = @{
             MTKTextureLoaderOptionTextureUsage: @(MTLTextureUsageShaderRead),
-            MTKTextureLoaderOptionTextureStorageMode: @(MTLStorageModePrivate),
+            MTKTextureLoaderOptionTextureStorageMode: @(storageMode),
             MTKTextureLoaderOptionGenerateMipmaps: @(config.generateMipmaps),
             MTKTextureLoaderOptionOrigin: MTKTextureLoaderOriginBottomLeft
         };
@@ -161,10 +163,8 @@ MKLTexture MKLLoadTextureFromMemory(MKLRenderer *renderer,
                                                                                      mipmapped:config.generateMipmaps];
         desc.usage = MTLTextureUsageShaderRead;
 
-        // Use Metal 3 optimized storage mode
-        MKLGPUCapabilities *gpuCaps = (MKLGPUCapabilities *)renderer->_gpuCapabilities;
-        desc.storageMode = gpuCaps ? MKLGetOptimalTextureStorageMode(MKL_TEXTURE_GPU_ONLY, gpuCaps->isAppleSilicon)
-                                   : MTLStorageModePrivate;
+        // Use Metal 3 optimized storage mode (always private for best GPU performance)
+        desc.storageMode = MTLStorageModePrivate;
 
         id<MTLTexture> mtlTexture = [renderer->_device newTextureWithDescriptor:desc];
         if (!mtlTexture) {
@@ -231,10 +231,8 @@ MKLTexture MKLCreateTexture(MKLRenderer *renderer,
                                                                                      mipmapped:config.generateMipmaps];
         desc.usage = MTLTextureUsageShaderRead | MTLTextureUsageRenderTarget;
 
-        // Use Metal 3 optimized storage mode for render targets
-        MKLGPUCapabilities *gpuCaps = (MKLGPUCapabilities *)renderer->_gpuCapabilities;
-        desc.storageMode = gpuCaps ? MKLGetOptimalTextureStorageMode(MKL_TEXTURE_RENDER_TARGET, gpuCaps->isAppleSilicon)
-                                   : MTLStorageModePrivate;
+        // Use Metal 3 optimized storage mode for render targets (always private for best GPU performance)
+        desc.storageMode = MTLStorageModePrivate;
 
         id<MTLTexture> mtlTexture = [renderer->_device newTextureWithDescriptor:desc];
         if (!mtlTexture) {
