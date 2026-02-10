@@ -303,10 +303,12 @@ void MKLDrawCube(MKLRenderer *renderer, const MKLCube cube, const MKLColor color
         id<MTLBuffer> vertexBuffer = _cubeGeometryCache.vertexBufferEnhanced;
         id<MTLBuffer> indexBuffer = _cubeGeometryCache.indexBufferEnhanced;
 
-        // Use enhanced pipeline with lighting
+        // Use enhanced pipeline with lighting (normal matrix for non-uniform scale)
+        matrix_float3x3 normalM = MKLNormalMatrix3x3(modelM);
         [renderer->_renderEncoder setRenderPipelineState:renderer->_pipelineStateLit];
         [renderer->_renderEncoder setVertexBytes:&color length:sizeof(vector_float4) atIndex:2];
         [renderer->_renderEncoder setVertexBytes:&modelM length:sizeof(matrix_float4x4) atIndex:3];
+        [renderer->_renderEncoder setVertexBytes:&normalM length:sizeof(matrix_float3x3) atIndex:5];
         [renderer->_renderEncoder setVertexBuffer:vertexBuffer offset:0 atIndex:0];
 
         // OPTIMIZATION: Lighting buffers already bound in MKLBeginDrawing - no need to rebind
@@ -368,10 +370,12 @@ void MKLDrawPlane(MKLRenderer *renderer, const MKLPlane plane, const MKLColor co
         id<MTLBuffer> indexBuffer = _planeGeometryCache[cacheIndex].indexBufferEnhanced;
         int indexCount = _planeGeometryCache[cacheIndex].indexCount;
 
-        // Use enhanced pipeline with lighting
+        // Use enhanced pipeline with lighting (normal matrix for non-uniform scale)
+        matrix_float3x3 normalM = MKLNormalMatrix3x3(modelM);
         [renderer->_renderEncoder setRenderPipelineState:renderer->_pipelineStateLit];
         [renderer->_renderEncoder setVertexBytes:&color length:sizeof(vector_float4) atIndex:2];
         [renderer->_renderEncoder setVertexBytes:&modelM length:sizeof(matrix_float4x4) atIndex:3];
+        [renderer->_renderEncoder setVertexBytes:&normalM length:sizeof(matrix_float3x3) atIndex:5];
         [renderer->_renderEncoder setVertexBuffer:vertexBuffer offset:0 atIndex:0];
 
         // OPTIMIZATION: Lighting buffers already bound in MKLBeginDrawing

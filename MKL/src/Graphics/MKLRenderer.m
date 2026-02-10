@@ -85,14 +85,17 @@ static MKLGPUCapabilities MKLDetectGPUCapabilities(id<MTLDevice> device) {
         caps.isAppleSilicon = false;
     }
     
-    // Feature detection
-    caps.supportsMemorylessTargets = [device supportsFamily:MTLGPUFamilyApple1];
+    // Feature detection (aligned with Metal Feature Set Tables: memoryless = Apple2+ / Metal4)
+    caps.supportsMemorylessTargets = [device supportsFamily:MTLGPUFamilyApple2];
     caps.supportsFastResourceLoading = [device supportsFamily:MTLGPUFamilyApple7] || [device supportsFamily:MTLGPUFamilyMac2];
     caps.supportsMeshShaders = [device supportsFamily:MTLGPUFamilyApple7] || [device supportsFamily:MTLGPUFamilyMac2];
     caps.supportsRaytracing = [device supportsFamily:MTLGPUFamilyApple7] || [device supportsFamily:MTLGPUFamilyMac2];
     caps.supportsNonuniformThreadgroups = [device supportsFamily:MTLGPUFamilyApple6] || [device supportsFamily:MTLGPUFamilyMac2];
     caps.supportsReadWriteTextures = [device supportsFamily:MTLGPUFamilyApple3];
     caps.supportsTileShaders = [device supportsFamily:MTLGPUFamilyApple4];
+
+    // Max MSAA sample count per feature tables (Mac2 = 4; Apple families may support 8)
+    caps.maxMSAASamples = (caps.primaryFamily == MTLGPUFamilyMac2) ? 4 : 8;
     
     return caps;
 }
@@ -107,6 +110,7 @@ void MKLPrintGPUCapabilities(const MKLGPUCapabilities *caps) {
     printf("Apple Silicon: %s\n", caps->isAppleSilicon ? "✅ YES" : "❌ NO");
     printf("\n--- Metal 3 Optimizations (ACTIVE) ---\n");
     printf("Memoryless Depth/MSAA: %s\n", caps->supportsMemorylessTargets ? "✅ ENABLED (20-30%% bandwidth savings)" : "❌ Not Available");
+    printf("Max MSAA samples (feature tables): %u\n", caps->maxMSAASamples);
     printf("Fast Resource Loading: %s\n", caps->supportsFastResourceLoading ? "✅ ENABLED (10-100x faster)" : "❌ Not Available");
     printf("\n--- Metal 3 Advanced Features ---\n");
     printf("Mesh Shaders: %s\n", caps->supportsMeshShaders ? "✅ Available" : "❌ Not Available");
@@ -910,14 +914,21 @@ void MKLSetMSAASamples(MKLRenderer *renderer, int samples)
     MKL_NULL_CHECK_VOID(renderer, NULL, MKL_ERROR_NULL_POINTER,
                         "MKLSetMSAASamples: renderer is NULL");
 
-    // Clamp to valid values (1, 2, 4, 8)
+    // Clamp to valid values (1, 2, 4, 8) and to family max per feature tables
+    MKLGPUCapabilities *caps = (MKLGPUCapabilities *)renderer->_gpuCapabilities;
+    NSUInteger familyMax = caps ? (NSUInteger)caps->maxMSAASamples : 4;
     NSUInteger validSamples = 1;
-    if (samples >= 8) validSamples = 8;
-    else if (samples >= 4) validSamples = 4;
+    if (samples >= 8 && familyMax >= 8) validSamples = 8;
+    else if (samples >= 4 && familyMax >= 4) validSamples = 4;
     else if (samples >= 2) validSamples = 2;
     else validSamples = 1;
 
-    renderer->_msaaSampleCount = validSamples;
+    if (renderer->_msaaSampleCount != validSamples) {
+        renderer->_msaaSampleCount = validSamples;
+        // Pipeline sample count must match render target; rebuild pipelines.
+        MKLRenderPipelineLib(renderer);
+        MKLSetupEnhancedRendering(renderer);
+    }
 
     // Clear existing MSAA textures (will be recreated on next frame)
     renderer->_msaaColorTexture = nil;

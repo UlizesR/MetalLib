@@ -109,6 +109,11 @@ fragment float4 shadertoyFragmentShader(
         finalColor += col * d;
     }
 
+    // Gamma correction: shader outputs linear RGB, but the display expects sRGB.
+    // Without this, the image appears too dim (display applies gamma again).
+    const float gamma = 1.0 / 2.2;
+    finalColor = pow(max(finalColor, 0.0), float3(gamma, gamma, gamma));
+
     return float4(finalColor, 1.0);
 }
 

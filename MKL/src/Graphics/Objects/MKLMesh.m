@@ -350,9 +350,11 @@ void MKLDrawMesh(MKLRenderer *renderer, MKLMesh *mesh, const MKLColor color)
 
     if (useLighting) {
         // Use enhanced pipeline - MTKMesh from ModelIO already has normals!
+        matrix_float3x3 normalM = MKLNormalMatrix3x3(modelM);
         [renderer->_renderEncoder setRenderPipelineState:renderer->_pipelineStateLit];
         [renderer->_renderEncoder setVertexBytes:&color length:sizeof(vector_float4) atIndex:2];
         [renderer->_renderEncoder setVertexBytes:&modelM length:sizeof(matrix_float4x4) atIndex:3];
+        [renderer->_renderEncoder setVertexBytes:&normalM length:sizeof(matrix_float3x3) atIndex:5];
         [renderer->_renderEncoder setVertexBuffer:mesh->_mtkMesh.vertexBuffers[0].buffer offset:0 atIndex:0];
 
         // OPTIMIZATION: Lighting buffers already bound in MKLBeginDrawing

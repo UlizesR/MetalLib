@@ -130,13 +130,15 @@ struct LightingUniforms {
 };
 
 /**
- * @brief Enhanced vertex shader with normal transformation
+ * @brief Enhanced vertex shader with correct normal transformation.
+ * Uses CPU-provided normal matrix (inverse-transpose 3x3) for non-uniform scaling.
  */
 vertex RasterizerDataEnhanced vertexShaderEnhanced(
     const VertexInEnhanced vIn [[stage_in]],
     constant Uniforms &uniforms [[buffer(1)]],
     constant float4 &color [[buffer(2)]],
-    constant float4x4 &modelMatrix [[buffer(3)]]
+    constant float4x4 &modelMatrix [[buffer(3)]],
+    constant float3x3 &normalMatrix [[buffer(5)]]
 )
 {
     RasterizerDataEnhanced out;
@@ -146,9 +148,6 @@ vertex RasterizerDataEnhanced vertexShaderEnhanced(
     out.position = uniforms.projectionMatrix * viewPos;
     out.worldPos = worldPos.xyz;
 
-    float3x3 normalMatrix = float3x3(modelMatrix[0].xyz,
-                                      modelMatrix[1].xyz,
-                                      modelMatrix[2].xyz);
     out.normal = normalize(normalMatrix * vIn.normal);
     out.texCoords = vIn.texCoords;
     out.color = color;

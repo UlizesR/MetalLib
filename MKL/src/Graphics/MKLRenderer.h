@@ -15,8 +15,9 @@
 // ============================================================================
 
 typedef struct MKLGPUCapabilities {
-    // Storage modes
-    bool supportsMemorylessTargets;
+    // Feature-table–aligned capabilities
+    bool supportsMemorylessTargets;   // Apple2+ (Metal4) per feature tables
+    unsigned maxMSAASamples;          // Mac2 = 4 per feature tables; Apple families may support 8
     bool supportsFastResourceLoading;
     bool supportsMeshShaders;
     bool supportsRaytracing;

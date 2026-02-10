@@ -127,3 +127,18 @@ vector_float3 MMulVecByScalar(const vector_float3 vec1, const float scalar)
     // Use SIMD multiplication for better performance
     return vec1 * scalar;
 }
+
+matrix_float3x3 MKLNormalMatrix3x3(const matrix_float4x4 model)
+{
+    // Inverse-transpose of upper-left 3x3 for correct normal transform under non-uniform scale.
+    // (M^{-1})^T in column-major: columns of result = rows of inverse 3x3.
+    matrix_float4x4 inv = matrix_invert(model);
+    if (!simd_equal(inv, inv)) { /* NaN on singular */
+        return matrix_identity_float3x3;
+    }
+    matrix_float3x3 result;
+    result.columns[0] = (vector_float3){ inv.columns[0].x, inv.columns[1].x, inv.columns[2].x };
+    result.columns[1] = (vector_float3){ inv.columns[0].y, inv.columns[1].y, inv.columns[2].y };
+    result.columns[2] = (vector_float3){ inv.columns[0].z, inv.columns[1].z, inv.columns[2].z };
+    return result;
+}

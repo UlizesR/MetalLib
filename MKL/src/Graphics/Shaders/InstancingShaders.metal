@@ -19,14 +19,14 @@ struct InstanceData
 vertex RasterizerData vertexShaderInstanced(
     const VertexIn vIn [[ stage_in ]],
     constant Uniforms &uniforms [[ buffer(1) ]],
-    constant InstanceData *instanceData [[ buffer(2) ]],
+    device const InstanceData *instanceData [[ buffer(2) ]],
     uint instanceID [[ instance_id ]]
 )
 {
     RasterizerData rd;
 
-    // Get per-instance data
-    constant InstanceData &instance = instanceData[instanceID];
+    // Get per-instance data (device: variable-sized array, per MSL/feature-table guidance)
+    device const InstanceData &instance = instanceData[instanceID];
 
     // Transform vertex using per-instance model matrix
     const float4 worldPos = instance.modelMatrix * vIn.position;

@@ -102,4 +102,13 @@ MKLAPI vector_float3 MSubVector(const vector_float3 vec1, const vector_float3 ve
  */
 MKLAPI vector_float3 MMulVecByScalar(const vector_float3 vec1, const float scalar);
 
+/**
+ * @brief Normal matrix for correct lighting under non-uniform scale.
+ * Returns the inverse-transpose of the upper-left 3x3 of model (column-major).
+ * Use for transforming normals; compute once per object on CPU.
+ * @param model Model matrix (e.g. scale * rotation * translation)
+ * @return matrix_float3x3 to transform normals in the vertex shader
+ */
+MKLAPI matrix_float3x3 MKLNormalMatrix3x3(const matrix_float4x4 model);
+
 #endif // _MKL_MATH_H_
