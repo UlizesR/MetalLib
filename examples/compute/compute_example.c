@@ -45,7 +45,7 @@ int main(void) {
     // Load compute shader
     MKLComputeShader *computeShader = MKLLoadComputeShader(
         renderer,
-        "examples/compute/compute_shader.metal",
+        "compute_shader.metal",
         "vector_add"
     );
 

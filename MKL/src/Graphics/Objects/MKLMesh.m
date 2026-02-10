@@ -1,6 +1,7 @@
 #import "MKLMesh.h"
 #import "../MKLTypes.h"
 #import "../../Core/MKLError.h"
+#import "../../Core/MKLPath.h"
 #import "../../Math/MKLMath.h"
 
 #include <math.h>
@@ -254,8 +255,9 @@ MKLMesh MKLMeshCreateWithFile(MKLRenderer *renderer, const char* path)
         return mesh;
     }
 
-    // Convert C string to NSString
-    NSString *filePath = [NSString stringWithUTF8String:path];
+    // Resolve path relative to executable (no NSBundle)
+    NSString *filePath = MKLResolveResourcePath(path);
+    if (!filePath) filePath = [NSString stringWithUTF8String:path];
     NSURL *fileURL = [NSURL fileURLWithPath:filePath];
 
     if (!fileURL) {

@@ -7,6 +7,7 @@
 #import "MKLRenderer.h"
 #import "MKLTypes.h"
 #import "../Core/MKLError.h"
+#import "../Core/MKLPath.h"
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
 #import <string.h>
@@ -80,8 +81,9 @@ MKLShader *MKLLoadShader(MKLRenderer *renderer,
         return NULL;
     }
 
-    // Read shader file
-    NSString *path = [NSString stringWithUTF8String:shaderPath];
+    // Read shader file (path resolved relative to executable, no NSBundle)
+    NSString *path = MKLResolveResourcePath(shaderPath);
+    if (!path) path = [NSString stringWithUTF8String:shaderPath];
     NSError *error = nil;
     NSString *shaderSource = [NSString stringWithContentsOfFile:path
                                                        encoding:NSUTF8StringEncoding

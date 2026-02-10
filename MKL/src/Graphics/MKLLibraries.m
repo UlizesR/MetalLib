@@ -2,8 +2,43 @@
 #import "MKLTypes.h"
 #import "MKLRenderer.h"
 #import "../Core/MKLError.h"
+#import "../Core/MKLPath.h"
 
 #include <stdio.h>
+#include <mach-o/dyld.h>
+
+#pragma mark - Executable-Relative Path (no NSBundle)
+
+static NSString *MKLGetExecutableDirectory(void)
+{
+    uint32_t size = 0;
+    _NSGetExecutablePath(NULL, &size);
+    if (size == 0) return nil;
+    char *buf = (char *)malloc(size);
+    if (!buf) return nil;
+    if (_NSGetExecutablePath(buf, &size) != 0) {
+        free(buf);
+        return nil;
+    }
+    NSString *exePath = [NSString stringWithUTF8String:buf];
+    free(buf);
+    NSString *dir = [exePath stringByDeletingLastPathComponent];
+    return dir.length > 0 ? dir : nil;
+}
+
+NSString *MKLResolveResourcePath(const char *path)
+{
+    if (path == NULL) return nil;
+    NSString *str = [NSString stringWithUTF8String:path];
+    if (str.length == 0) return str;
+    if (path[0] == '/') return str;
+    NSString *exeDir = MKLGetExecutableDirectory();
+    if (!exeDir) return str;
+    NSString *candidate = [exeDir stringByAppendingPathComponent:str];
+    if ([[NSFileManager defaultManager] fileExistsAtPath:candidate])
+        return candidate;
+    return str;
+}
 
 #pragma mark - Shader Library Loading
 
@@ -19,10 +54,11 @@ void MKLShaderLib(MKLRenderer *renderer, const char *shaderPath)
         return;
     }
 
-    // Second, try to load from the provided path (if it exists)
+    // Second, try to load from the provided path (resolved relative to executable, no NSBundle)
     if (shaderPath != NULL)
     {
-        NSString *shaderPathStr = [NSString stringWithUTF8String:shaderPath];
+        NSString *shaderPathStr = MKLResolveResourcePath(shaderPath);
+
         NSString *shaderString = [NSString stringWithContentsOfFile:shaderPathStr
                                                            encoding:NSUTF8StringEncoding
                                                               error:&error];

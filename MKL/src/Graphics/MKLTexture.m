@@ -5,6 +5,7 @@
 
 #import "MKLTexture.h"
 #import "MKLRenderer.h"
+#import "../Core/MKLPath.h"
 #import <Metal/Metal.h>
 #import <MetalKit/MetalKit.h>
 #import <Foundation/Foundation.h>
@@ -106,7 +107,8 @@ MKLTexture MKLLoadTextureEx(MKLRenderer *renderer, const char *fileName, MKLText
     }
 
     @autoreleasepool {
-        NSString *filePath = [NSString stringWithUTF8String:fileName];
+        NSString *filePath = MKLResolveResourcePath(fileName);
+        if (!filePath) filePath = [NSString stringWithUTF8String:fileName];
         NSURL *fileURL = [NSURL fileURLWithPath:filePath];
 
         MTKTextureLoader *loader = [[MTKTextureLoader alloc] initWithDevice:renderer->_device];

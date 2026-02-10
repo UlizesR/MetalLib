@@ -48,7 +48,7 @@ int main(void) {
     // Load custom ShaderToy shader
     MKLShader *shadertoyShader = MKLLoadShader(
         renderer,
-        "examples/shadertoy/shadertoy.metal",
+        "shadertoy.metal",
         "shadertoyVertexShader",
         "shadertoyFragmentShader"
     );
