@@ -17,9 +17,11 @@
      (GULI_VERSION_MAJOR == (major) && GULI_VERSION_MINOR == (minor) && GULI_VERSION_PATCH >= (patch)))
 
 // Check Platform and set appropriate graphics backend
-#if defined(__APPLE__)
+#if defined(GULI_FORCE_OPENGL)
+#define GULI_BACKEND_OPENGL
+#elif defined(__APPLE__)
 #define GULI_BACKEND_METAL
-#elif defined(__unix__) && !defined(__APPLE__) && defined(_WIN32)
+#elif defined(__linux__) || defined(_WIN32)
 #define GULI_BACKEND_OPENGL
 #else
 #error "Unsupported platform"
@@ -29,6 +31,10 @@
 struct MetalState;  /* forward declaration; full def in guli_metal_defines.h (ObjC only) */
 #include "Graphics/Metal/guli_metal_defines.h"
 #endif
+#ifdef GULI_BACKEND_OPENGL
+struct GLState;  /* forward declaration; full def in guli_gl_defines.h */
+#include "Graphics/OpenGL/guli_gl_defines.h"
+#endif
 
 typedef struct
 {
@@ -36,6 +42,9 @@ typedef struct
     GuliError error;
 #ifdef GULI_BACKEND_METAL
     struct MetalState* metal_s;
+#endif
+#ifdef GULI_BACKEND_OPENGL
+    struct GLState* gl_s;
 #endif
 } GuliState;
 
@@ -86,11 +95,6 @@ static inline void GuliGetWindowSize(int* width, int* height)
 static inline void GuliSetWindowTitle(const char* title)
 {
     GuliBackendSetWindowTitle(G_State.window, title);
-}
-
-static inline void GuliSwapBuffers(void)
-{
-    GuliBackendSwapBuffers(G_State.window);
 }
 
 static inline void GuliSetKeyCallback(void (*callback)(GuliWindow* window, int key, int scancode, int action, int mods))

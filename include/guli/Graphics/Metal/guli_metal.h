@@ -4,11 +4,23 @@
 #include "Core/guli_core.h"
 #include "guli_defines.h"
 
-void MetalInit(GuliState* state);
+GULIResult MetalInit(GuliState* state);
 
 void MetalShutdown(GuliState* state);
 
+// Frame submission
+void MetalBeginFrame(void);
+
+void MetalBeginPass(GULI_COLOR clearColor, double clearDepth);
+
+void MetalEndPass(void);
+
+void MetalEndFrame(void);
+
+// Returns 1 if a frame is active (GuliBeginDraw was called), 0 otherwise
+int MetalHasActiveFrame(void);
+
+// Clear only (BeginPass + EndPass); requires active frame. Standalone: BeginFrame + ClearColor + EndFrame
 void MetalClearColor(GULI_COLOR color);
 
-// Shader and Library Management
 #endif // GULI_METAL_H

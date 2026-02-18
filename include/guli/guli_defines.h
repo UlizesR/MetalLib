@@ -3,6 +3,9 @@
 
 #include <cglm/cglm.h>
 
+/* Shared graphics config (Metal + OpenGL) */
+#define GULI_MAX_FRAMES_IN_FLIGHT 3
+
 typedef vec4 GULI_COLOR;
 
 // Colors
@@ -15,4 +18,5 @@ typedef vec4 GULI_COLOR;
 #define GULI_COLOR_MAGENTA (GULI_COLOR){1.0f, 0.0f, 1.0f, 1.0f}
 #define GULI_COLOR_CYAN (GULI_COLOR){0.0f, 1.0f, 1.0f, 1.0f}
 
-#endif// GULI_DEFINES_H
+#endif // GULI_DEFINES_H
+

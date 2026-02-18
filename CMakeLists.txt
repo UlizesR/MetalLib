@@ -9,7 +9,12 @@ project(GULI
 # ------------------------------------------------------------------------------
 # Platform
 # ------------------------------------------------------------------------------
-if(UNIX AND NOT APPLE)
+option(GULI_FORCE_OPENGL "Force OpenGL backend (for testing on macOS)" OFF)
+
+if(GULI_FORCE_OPENGL)
+    set(GRAPHICS_API "opengl")
+    add_compile_definitions(GULI_FORCE_OPENGL)
+elseif(UNIX AND NOT APPLE)
     set(PLATFORM "linux")
     set(GRAPHICS_API "opengl")
 elseif(WIN32)
@@ -63,12 +68,21 @@ endif()
 # ------------------------------------------------------------------------------
 # GULI library
 # ------------------------------------------------------------------------------
-file(GLOB_RECURSE GULI_C_SOURCES "src/*.c")
-if(APPLE)
+file(GLOB GULI_CORE_SOURCES "src/Core/*.c")
+if(GRAPHICS_API STREQUAL "metal")
     file(GLOB_RECURSE GULI_OBJC_SOURCES "src/*.m")
-    add_library(GULI SHARED ${GULI_C_SOURCES} ${GULI_OBJC_SOURCES})
+    add_library(GULI SHARED ${GULI_CORE_SOURCES} ${GULI_OBJC_SOURCES})
 else()
-    add_library(GULI SHARED ${GULI_C_SOURCES})
+    set(GULI_GL_SOURCES
+        src/Graphics/OpenGL/guli_gl.c
+        external/glad/src/glad.c
+    )
+    add_library(GULI SHARED ${GULI_CORE_SOURCES} ${GULI_GL_SOURCES})
+    target_include_directories(GULI PRIVATE
+        ${CMAKE_SOURCE_DIR}/external/glad/include
+    )
+    find_package(OpenGL REQUIRED)
+    target_link_libraries(GULI PUBLIC glfw cglm OpenGL::GL)
 endif()
 
 target_compile_options(GULI PRIVATE -Wno-nullability-extension)

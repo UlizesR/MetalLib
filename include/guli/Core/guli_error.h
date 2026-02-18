@@ -2,8 +2,6 @@
 #define GULI_ERROR_H
 
 #include <stdio.h>
-#include <assert.h>
-
 
 typedef enum {
     GULI_ERROR_SUCCESS = 0,
@@ -18,13 +16,7 @@ typedef struct GuliError
     const char* message;
 } GuliError;
 
-#define GULI_ERROR_MSG(type, msg) #type ": " msg
 #define GULI_PRINT_ERROR(result, msg) fprintf(stderr, "ERROR [%d]: %s\n", (int)(result), (msg) ? (msg) : "(null)")
-#define GULI_ERROR_RETURN(type, msg) { GULI_PRINT_ERROR(type, msg); return GULI_ERROR_FAILED; }
-#define GULI_ERROR_RETURN_VOID(type, msg) { GULI_PRINT_ERROR(type, msg); return;}
-#define GULI_ERROR_ASSERT(condition, type, msg) assert(condition) || GULI_ERROR_RETURN(type, msg)
-#define GULI_ERROR_CHECK_N_RETURN(condition, type, msg) if (!condition) { GULI_PRINT_ERROR(type, msg); return GULI_ERROR_FAILED; }
-#define GULI_ERROR_CHECK_N_RETURN_VOID(condition, type, msg) if (!condition) { GULI_PRINT_ERROR(type, msg); return; }
 
 /* Fail, optionally set state->error, print, and return (for void functions) */
 #define GULI_FAIL_RETURN(state, type, msg) \
@@ -46,3 +38,4 @@ typedef struct GuliError
 void GuliSetError(GuliError* error, GULIResult result, const char* message);
 
 #endif // GULI_ERROR_H
+
