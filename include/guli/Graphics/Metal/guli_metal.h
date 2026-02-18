@@ -8,19 +8,17 @@ GULIResult MetalInit(GuliState* state);
 
 void MetalShutdown(GuliState* state);
 
-// Frame submission
-void MetalBeginFrame(void);
+// Frame submission (BeginDraw/EndDraw handle pass internally)
+void MetalBeginDraw(void);
 
-void MetalBeginPass(GULI_COLOR clearColor, double clearDepth);
+void MetalEndDraw(void);
 
-void MetalEndPass(void);
+void MetalDrawFullscreen(void);
 
-void MetalEndFrame(void);
-
-// Returns 1 if a frame is active (GuliBeginDraw was called), 0 otherwise
+// Returns 1 if between MetalBeginDraw and MetalEndDraw, 0 otherwise
 int MetalHasActiveFrame(void);
 
-// Clear only (BeginPass + EndPass); requires active frame. Standalone: BeginFrame + ClearColor + EndFrame
+// Clear color; only valid between MetalBeginDraw and MetalEndDraw
 void MetalClearColor(GULI_COLOR color);
 
 #endif // GULI_METAL_H

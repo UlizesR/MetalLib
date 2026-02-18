@@ -4,7 +4,6 @@
 #ifdef __OBJC__
 #import <Metal/Metal.h>
 #import <QuartzCore/QuartzCore.h>
-#import <dispatch/dispatch.h>
 
 #include "guli_defines.h"
 
@@ -14,7 +13,7 @@ struct MetalState {
     CAMetalLayer* _layer;
 
     // Frame pacing / indexing
-    dispatch_semaphore_t _inflightSemaphore;
+    GuliSemaphore _inflightSemaphore;
     NSUInteger _frameIndex;
 
     // Active per-frame objects (single-threaded submission model)
@@ -26,6 +25,7 @@ struct MetalState {
     MTLPixelFormat _colorFormat;
     MTLPixelFormat _depthFormat;
     NSUInteger _sampleCount;
+    BOOL _useDepth;
     CGSize _drawableSize;  // pixels
 
     // Reusable per-frame onscreen pass descriptors
@@ -34,6 +34,10 @@ struct MetalState {
     // Size-dependent attachments (created on resize)
     id<MTLTexture> _msaaColor;
     id<MTLTexture> _depth;
+
+    // Clear pipeline (fullscreen draw with color uniform)
+    id<MTLRenderPipelineState> _clearPipeline;
+    id<MTLBuffer> _clearUniformBuffer;
 };
 #endif
 

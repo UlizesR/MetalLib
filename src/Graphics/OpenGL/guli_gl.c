@@ -1,17 +1,12 @@
 #include "Graphics/OpenGL/guli_gl.h"
 
 #include <glad/glad.h>
+
+static void GlBeginPass(const GULI_COLOR* clearColor);
+static void GlEndPass(void);
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #include <stdlib.h>
-
-#if defined(__APPLE__)
-#define GL_SEM_WAIT(gl) dispatch_semaphore_wait((gl)->inflight_semaphore, DISPATCH_TIME_FOREVER)
-#define GL_SEM_POST(gl) dispatch_semaphore_signal((gl)->inflight_semaphore)
-#else
-#define GL_SEM_WAIT(gl) sem_wait(&(gl)->inflight_semaphore)
-#define GL_SEM_POST(gl) sem_post(&(gl)->inflight_semaphore)
-#endif
 
 GULIResult GlInit(GuliState* state)
 {
@@ -62,12 +57,19 @@ GULIResult GlInit(GuliState* state)
 
     state->gl_s->has_active_frame = 0;
     state->gl_s->frame_index = 0;
+
+    /* VAO required for draws in OpenGL 3.3 core (fullscreen triangle uses gl_VertexID) */
+    glGenVertexArrays(1, &state->gl_s->fullscreen_vao);
+
     GuliSetError(&state->error, GULI_ERROR_SUCCESS, NULL);
     return GULI_ERROR_SUCCESS;
 }
 
 void GlShutdown(GuliState* state)
 {
+    if (state && state->gl_s && state->gl_s->fullscreen_vao)
+        glDeleteVertexArrays(1, &state->gl_s->fullscreen_vao);
+
     if (!state)
     {
         GULI_PRINT_ERROR(GULI_ERROR_FAILED, "Failed to shutdown OpenGL: state is NULL");
@@ -89,7 +91,7 @@ void GlShutdown(GuliState* state)
     GuliSetError(&state->error, GULI_ERROR_SUCCESS, "OpenGL shutdown successfully");
 }
 
-void GlBeginFrame(void)
+static void GlBeginFrame(void)
 {
     struct GLState* gl = G_State.gl_s;
     if (!gl) return;
@@ -105,6 +107,12 @@ void GlBeginFrame(void)
         glViewport(0, 0, w, h);
 }
 
+void GlBeginDraw(void)
+{
+    GlBeginFrame();
+    GlBeginPass(NULL);
+}
+
 void GlClearColor(GULI_COLOR color)
 {
     struct GLState* gl = G_State.gl_s;
@@ -114,7 +122,33 @@ void GlClearColor(GULI_COLOR color)
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
-void GlEndFrame(void)
+static void GlBeginPass(const GULI_COLOR* clearColor)
+{
+    struct GLState* gl = G_State.gl_s;
+    if (!gl) return;
+
+    if (clearColor)
+    {
+        glClearColor((*clearColor)[0], (*clearColor)[1], (*clearColor)[2], (*clearColor)[3]);
+        glClear(GL_COLOR_BUFFER_BIT);
+    }
+}
+
+static void GlEndPass(void)
+{
+    (void)0; /* No-op for OpenGL; pass is implicit */
+}
+
+void GlDrawFullscreen(void)
+{
+    struct GLState* gl = G_State.gl_s;
+    if (!gl) return;
+
+    glBindVertexArray(gl->fullscreen_vao);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+}
+
+static void GlEndFrame(void)
 {
     struct GLState* gl = G_State.gl_s;
     if (!gl) return;
@@ -122,6 +156,12 @@ void GlEndFrame(void)
     gl->has_active_frame = 0;
     glfwSwapBuffers(G_State.window);
     GL_SEM_POST(gl);
+}
+
+void GlEndDraw(void)
+{
+    GlEndPass();
+    GlEndFrame();
 }
 
 int GlHasActiveFrame(void)

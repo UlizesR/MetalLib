@@ -75,6 +75,7 @@ if(GRAPHICS_API STREQUAL "metal")
 else()
     set(GULI_GL_SOURCES
         src/Graphics/OpenGL/guli_gl.c
+        src/Graphics/OpenGL/guli_gl_shader.c
         external/glad/src/glad.c
     )
     add_library(GULI SHARED ${GULI_CORE_SOURCES} ${GULI_GL_SOURCES})
@@ -105,6 +106,12 @@ target_link_libraries(GULI PUBLIC glfw cglm)
 if(APPLE)
     target_link_libraries(GULI PUBLIC ${GULI_FRAMEWORKS})
 endif()
+
+# ------------------------------------------------------------------------------
+# Shaders (copied to build/bin for runtime)
+# ------------------------------------------------------------------------------
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/bin/shaders)
+file(COPY ${CMAKE_SOURCE_DIR}/shaders DESTINATION ${CMAKE_BINARY_DIR}/bin)
 
 # ------------------------------------------------------------------------------
 # Test executable (window backend only, no graphics)

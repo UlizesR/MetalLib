@@ -8,12 +8,14 @@ GULIResult GlInit(GuliState* state);
 
 void GlShutdown(GuliState* state);
 
-void GlBeginFrame(void);
+void GlBeginDraw(void);
+
+void GlEndDraw(void);
 
 void GlClearColor(GULI_COLOR color);
 
-void GlEndFrame(void);
-
 int GlHasActiveFrame(void);
+
+void GlDrawFullscreen(void);
 
 #endif /* GULI_GL_H */

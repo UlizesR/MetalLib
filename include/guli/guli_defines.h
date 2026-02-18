@@ -18,5 +18,14 @@ typedef vec4 GULI_COLOR;
 #define GULI_COLOR_MAGENTA (GULI_COLOR){1.0f, 0.0f, 1.0f, 1.0f}
 #define GULI_COLOR_CYAN (GULI_COLOR){0.0f, 1.0f, 1.0f, 1.0f}
 
+#if defined(__APPLE__)
+#include <dispatch/dispatch.h>
+typedef dispatch_semaphore_t GuliSemaphore;
+#else
+#include <semaphore.h>
+typedef sem_t GuliSemaphore;
+#endif
+
 #endif // GULI_DEFINES_H
+
 
