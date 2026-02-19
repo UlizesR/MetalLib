@@ -36,12 +36,15 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
-set(COMMON_FLAGS "-Wall -Wextra -Wpedantic -Wno-nullability-completeness")
+set(COMMON_FLAGS "-Wall -Wextra -Wpedantic -Wno-nullability-completeness -O3 -march=native")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMMON_FLAGS}")
 set(CMAKE_OBJC_FLAGS "${CMAKE_OBJC_FLAGS} ${COMMON_FLAGS} -fobjc-arc -fno-objc-exceptions")
 
-# Project include directory 
-include_directories(${CMAKE_SOURCE_DIR}/include)
+# Project include directories
+include_directories(
+    ${CMAKE_SOURCE_DIR}/include
+    ${CMAKE_SOURCE_DIR}/external/assimp/contrib/stb
+)
 
 # ------------------------------------------------------------------------------
 # Dependencies (GLFW + macOS frameworks)
@@ -69,16 +72,18 @@ endif()
 # GULI library
 # ------------------------------------------------------------------------------
 file(GLOB GULI_CORE_SOURCES "src/Core/*.c")
+set(GULI_TEXTURE_SOURCES src/Graphics/guli_texture.c)
 if(GRAPHICS_API STREQUAL "metal")
     file(GLOB_RECURSE GULI_OBJC_SOURCES "src/*.m")
-    add_library(GULI SHARED ${GULI_CORE_SOURCES} ${GULI_OBJC_SOURCES})
+    add_library(GULI SHARED ${GULI_CORE_SOURCES} ${GULI_TEXTURE_SOURCES} ${GULI_OBJC_SOURCES})
 else()
     set(GULI_GL_SOURCES
         src/Graphics/OpenGL/guli_gl.c
         src/Graphics/OpenGL/guli_gl_shader.c
+        src/Graphics/OpenGL/guli_gl_texture.c
         external/glad/src/glad.c
     )
-    add_library(GULI SHARED ${GULI_CORE_SOURCES} ${GULI_GL_SOURCES})
+    add_library(GULI SHARED ${GULI_CORE_SOURCES} ${GULI_TEXTURE_SOURCES} ${GULI_GL_SOURCES})
     target_include_directories(GULI PRIVATE
         ${CMAKE_SOURCE_DIR}/external/glad/include
     )
@@ -111,7 +116,7 @@ endif()
 # Shaders (copied to build/bin for runtime)
 # ------------------------------------------------------------------------------
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/bin/shaders)
-file(COPY ${CMAKE_SOURCE_DIR}/shaders DESTINATION ${CMAKE_BINARY_DIR}/bin)
+file(COPY ${CMAKE_SOURCE_DIR}/examples/shaders DESTINATION ${CMAKE_BINARY_DIR}/bin)
 
 # ------------------------------------------------------------------------------
 # Test executable (window backend only, no graphics)

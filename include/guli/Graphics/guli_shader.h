@@ -26,9 +26,6 @@ typedef enum {
     GULI_SHADER_LOC_COUNT,
 } GuliShaderLocationIndex;
 
-/* Shader API - implemented as inline wrappers in guli_graphics.h (backend-specific).
-   Include guli_graphics.h (or guli.h) for the full API.
-   GuliShaderLoadFromFile loads custom shaders from disk (Metal: .metal, OpenGL: .vert.glsl + .frag.glsl).
-   Use GuliBeginDraw, GuliClearColor (optional), GuliShaderUse, GuliDrawFullscreen, GuliEndDraw. */
+_Static_assert(GULI_SHADER_LOC_COUNT >= 2, "GULI_SHADER_LOC_COUNT must include color and MVP");
 
 #endif // GULI_SHADER_H

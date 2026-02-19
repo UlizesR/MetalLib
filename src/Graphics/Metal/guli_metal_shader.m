@@ -1,13 +1,19 @@
 #import "Graphics/Metal/guli_metal.h"
 #import "Graphics/Metal/guli_metal_shader.h"
+#import "Graphics/guli_texture.h"
 #import "Graphics/guli_shader_defines.h"
 #import "Core/guli_file.h"
+#import "Core/guli_hash.h"
 
 #include <stdlib.h>
 #include <string.h>
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
+/* -----------------------------------------------------------------------------
+ * Metal shader backend
+ * ----------------------------------------------------------------------------- */
 
 /* Default MSL shader - fullscreen triangle, color uniform */
 static const char* default_msl =
@@ -26,21 +32,64 @@ static const char* default_msl =
     "    return u.colDiffuse * in.color;\n"
     "}\n";
 
+_Thread_local static char g_metal_shader_error[GULI_SHADER_ERROR_MAX];
+
+#define GULI_UNIFORM_HASH_EMPTY -1
+
 typedef struct { char name[32]; int offset; } MetalUniformLoc;
+
+typedef struct {
+    MetalUniformLoc* entries;
+    int count;
+    int hashTable[GULI_UNIFORM_HASH_SIZE];
+} MetalUniformHash;
+
+static void MetalHashInsert(MetalUniformHash* h, const char* name, int offset)
+{
+    uint32_t idx = GuliHashFNV1a(name) % GULI_UNIFORM_HASH_SIZE;
+    while (h->hashTable[idx] != GULI_UNIFORM_HASH_EMPTY)
+        idx = (idx + 1) % GULI_UNIFORM_HASH_SIZE;
+    h->hashTable[idx] = h->count;
+    size_t len = strlen(name);
+    if (len >= 31) len = 31;
+    memcpy(h->entries[h->count].name, name, len);
+    h->entries[h->count].name[len] = '\0';
+    h->entries[h->count].offset = offset;
+    h->count++;
+}
+
+static int MetalHashLookup(const MetalUniformHash* h, const char* name)
+{
+    uint32_t idx = GuliHashFNV1a(name) % GULI_UNIFORM_HASH_SIZE;
+    for (int probe = 0; probe < GULI_UNIFORM_HASH_SIZE; probe++)
+    {
+        int ei = h->hashTable[idx];
+        if (ei == GULI_UNIFORM_HASH_EMPTY) return -1;
+        if (strcmp(h->entries[ei].name, name) == 0)
+            return h->entries[ei].offset;
+        idx = (idx + 1) % GULI_UNIFORM_HASH_SIZE;
+    }
+    return -1;
+}
 
 struct GuliShader {
     id<MTLRenderPipelineState> pipeline;
     id<MTLBuffer> uniformBuffer;
+    id<MTLBuffer> vertexUniformBuffer;
     NSUInteger colorOffset;
-    MetalUniformLoc* uniformMap;
-    int uniformMapCount;
+    MetalUniformHash uniformHash;
+    MetalUniformHash vertexUniformHash;
 };
 
-static void MetalBuildUniformMap(GuliShader* shader, MTLRenderPipelineReflection* refl)
+static void MetalBuildUniformHash(MetalUniformHash* outHash, NSArray<MTLArgument*>* args)
 {
-    if (!shader || !refl) return;
+    outHash->entries = NULL;
+    outHash->count = 0;
+    for (int i = 0; i < GULI_UNIFORM_HASH_SIZE; i++)
+        outHash->hashTable[i] = GULI_UNIFORM_HASH_EMPTY;
+    if (!args) return;
 
-    for (MTLArgument* arg in refl.fragmentArguments)
+    for (MTLArgument* arg in args)
     {
         if (arg.type != MTLArgumentTypeBuffer || arg.bufferDataType != MTLDataTypeStruct)
             continue;
@@ -48,120 +97,78 @@ static void MetalBuildUniformMap(GuliShader* shader, MTLRenderPipelineReflection
         MTLStructType* st = arg.bufferStructType;
         if (!st || st.members.count == 0) continue;
 
-        shader->uniformMapCount = (int)st.members.count;
-        shader->uniformMap = (MetalUniformLoc*)calloc((size_t)shader->uniformMapCount, sizeof(MetalUniformLoc));
-        if (!shader->uniformMap) { shader->uniformMapCount = 0; return; }
+        int cnt = (int)st.members.count;
+        MetalUniformLoc* entries = (MetalUniformLoc*)calloc((size_t)cnt, sizeof(MetalUniformLoc));
+        if (!entries) return;
 
-        int i = 0;
+        outHash->entries = entries;
         for (MTLStructMember* member in st.members)
         {
-            if (i >= shader->uniformMapCount) break;
+            if (outHash->count >= cnt) break;
             const char* n = [member.name UTF8String];
             if (n)
-            {
-                size_t len = strlen(n);
-                if (len >= sizeof(shader->uniformMap[i].name)) len = sizeof(shader->uniformMap[i].name) - 1;
-                memcpy(shader->uniformMap[i].name, n, len);
-                shader->uniformMap[i].name[len] = '\0';
-            }
-            shader->uniformMap[i].offset = (int)member.offset;
-            i++;
+                MetalHashInsert(outHash, n, (int)member.offset);
         }
         break;
     }
 }
 
+static NSUInteger MetalFindColorOffset(NSArray<MTLArgument*>* args)
+{
+    if (!args) return 0;
+    for (MTLArgument* arg in args)
+    {
+        if (arg.type != MTLArgumentTypeBuffer || arg.bufferDataType != MTLDataTypeStruct)
+            continue;
+        for (MTLStructMember* member in arg.bufferStructType.members)
+        {
+            if ([member.name isEqualToString:@(GULI_SHADER_UNIFORM_COLOR)])
+                return member.offset;
+        }
+        break;
+    }
+    return 0;
+}
+
+static const char* kMetalVertexEntry = "vertexMain";
+static const char* kMetalFragmentEntry = "fragmentMain";
+
 GuliShader* MetalShaderLoadDefault(void)
 {
-    struct MetalState* m = G_State.metal_s;
-    if (!m || !m->_device) return NULL;
-
-    NSError* err = nil;
-    id<MTLLibrary> lib = [m->_device newLibraryWithSource:@(default_msl) options:nil error:&err];
-    if (!lib)
-    {
-        if (err) GULI_PRINT_ERROR(GULI_ERROR_FAILED, [[err localizedDescription] UTF8String]);
-        return NULL;
-    }
-
-    id<MTLFunction> vs = [lib newFunctionWithName:@"vertexMain"];
-    id<MTLFunction> fs = [lib newFunctionWithName:@"fragmentMain"];
-    if (!vs || !fs) { return NULL; }
-
-    MTLRenderPipelineDescriptor* desc = [MTLRenderPipelineDescriptor new];
-    desc.vertexFunction = vs;
-    desc.fragmentFunction = fs;
-    desc.colorAttachments[0].pixelFormat = m->_colorFormat;
-
-    MTLRenderPipelineReflection* refl = nil;
-    MTLPipelineOption opts = MTLPipelineOptionArgumentInfo | MTLPipelineOptionBufferTypeInfo;
-    id<MTLRenderPipelineState> pipeline = [m->_device newRenderPipelineStateWithDescriptor:desc
-                                                                                   options:opts
-                                                                                reflection:&refl
-                                                                                     error:&err];
-    if (!pipeline)
-    {
-        if (err) GULI_PRINT_ERROR(GULI_ERROR_FAILED, [[err localizedDescription] UTF8String]);
-        return NULL;
-    }
-
-    /* Find colDiffuse offset and build uniform map from reflection */
-    NSUInteger colorOffset = 0;
-    for (MTLArgument* arg in refl.fragmentArguments)
-    {
-        if (arg.type == MTLArgumentTypeBuffer && arg.bufferDataType == MTLDataTypeStruct)
-        {
-            for (MTLStructMember* member in arg.bufferStructType.members)
-            {
-                if ([member.name isEqualToString:@"colDiffuse"])
-                {
-                    colorOffset = member.offset;
-                    break;
-                }
-            }
-            break;
-        }
-    }
-
-    /* Uniform buffer: just the Uniforms struct (16 bytes for float4) */
-    id<MTLBuffer> uniformBuffer = [m->_device newBufferWithLength:16 options:MTLResourceStorageModeShared];
-
-    GuliShader* shader = calloc(1, sizeof(GuliShader));
-    if (!shader) { return NULL; }
-
-    shader->pipeline = pipeline;
-    shader->uniformBuffer = uniformBuffer;
-    shader->colorOffset = colorOffset;
-    MetalBuildUniformMap(shader, refl);
-
-    return shader;
+    return MetalShaderLoadFromMemoryEx(default_msl, NULL, kMetalVertexEntry, kMetalFragmentEntry);
 }
 
 GuliShader* MetalShaderLoadFromMemory(const char* vsCode, const char* fsCode)
 {
-    /* For custom Metal shaders: user passes full MSL. vsCode = vertex function name/source, fsCode = fragment.
-       Simplified: treat vsCode as optional (vertex), fsCode as optional (fragment). If both NULL, use default.
-       For Metal, a single MSL source can define both. So we accept: (fullMSL, NULL) or (NULL, fullMSL) or (NULL,NULL)=default.
-       If vsCode provided, use it as the main source. If only fsCode, use it. Metal compiles from one source. */
+    return MetalShaderLoadFromMemoryEx(vsCode, fsCode, NULL, NULL);
+}
+
+GuliShader* MetalShaderLoadFromMemoryEx(const char* vsCode, const char* fsCode, const char* vertexName, const char* fragmentName)
+{
     if (!vsCode && !fsCode)
         return MetalShaderLoadDefault();
 
+    const char* vName = vertexName ? vertexName : kMetalVertexEntry;
+    const char* fName = fragmentName ? fragmentName : kMetalFragmentEntry;
     const char* source = vsCode ? vsCode : fsCode;
+
     struct MetalState* m = G_State.metal_s;
     if (!m || !m->_device) return NULL;
 
     NSError* err = nil;
+    g_metal_shader_error[0] = '\0';
     id<MTLLibrary> lib = [m->_device newLibraryWithSource:@(source) options:nil error:&err];
     if (!lib)
     {
-        if (err) GULI_PRINT_ERROR(GULI_ERROR_FAILED, [[err localizedDescription] UTF8String]);
+        const char* msg = err ? [[err localizedDescription] UTF8String] : "Unknown Metal library error";
+        if (msg) { strncpy(g_metal_shader_error, msg, GULI_SHADER_ERROR_MAX - 1); g_metal_shader_error[GULI_SHADER_ERROR_MAX - 1] = '\0'; }
+        if (err) GULI_PRINT_ERROR(GULI_ERROR_FAILED, msg);
         return NULL;
     }
 
-    /* Assume vertexMain and fragmentMain - user's custom MSL must use these names or we need to make it configurable */
-    id<MTLFunction> vs = [lib newFunctionWithName:@"vertexMain"];
-    id<MTLFunction> fs = [lib newFunctionWithName:@"fragmentMain"];
-    if (!vs || !fs) { return NULL; }
+    id<MTLFunction> vs = [lib newFunctionWithName:@(vName)];
+    id<MTLFunction> fs = [lib newFunctionWithName:@(fName)];
+    if (!vs || !fs) return NULL;
 
     MTLRenderPipelineDescriptor* desc = [MTLRenderPipelineDescriptor new];
     desc.vertexFunction = vs;
@@ -176,53 +183,60 @@ GuliShader* MetalShaderLoadFromMemory(const char* vsCode, const char* fsCode)
                                                                                      error:&err];
     if (!pipeline)
     {
-        if (err) GULI_PRINT_ERROR(GULI_ERROR_FAILED, [[err localizedDescription] UTF8String]);
+        const char* msg = err ? [[err localizedDescription] UTF8String] : "Unknown Metal pipeline error";
+        if (msg) { strncpy(g_metal_shader_error, msg, GULI_SHADER_ERROR_MAX - 1); g_metal_shader_error[GULI_SHADER_ERROR_MAX - 1] = '\0'; }
+        if (err) GULI_PRINT_ERROR(GULI_ERROR_FAILED, msg);
         return NULL;
     }
 
-    NSUInteger colorOffset = 0;
-    for (MTLArgument* arg in refl.fragmentArguments)
+    NSUInteger colorOffset = MetalFindColorOffset(refl.fragmentArguments);
+    size_t uniformBufSize = (source == default_msl) ? 16 : 256;
+    id<MTLBuffer> uniformBuffer = [m->_device newBufferWithLength:uniformBufSize options:MTLResourceStorageModeShared];
+
+    id<MTLBuffer> vertexUniformBuffer = nil;
+    for (MTLArgument* arg in refl.vertexArguments)
     {
         if (arg.type == MTLArgumentTypeBuffer && arg.bufferDataType == MTLDataTypeStruct)
         {
-            for (MTLStructMember* member in arg.bufferStructType.members)
-            {
-                if ([member.name isEqualToString:@(GULI_SHADER_UNIFORM_COLOR)])
-                {
-                    colorOffset = member.offset;
-                    break;
-                }
-            }
+            vertexUniformBuffer = [m->_device newBufferWithLength:256 options:MTLResourceStorageModeShared];
             break;
         }
     }
 
-    id<MTLBuffer> uniformBuffer = [m->_device newBufferWithLength:256 options:MTLResourceStorageModeShared];
-
     GuliShader* shader = calloc(1, sizeof(GuliShader));
-    if (!shader) { return NULL; }
+    if (!shader) return NULL;
 
     shader->pipeline = pipeline;
     shader->uniformBuffer = uniformBuffer;
+    shader->vertexUniformBuffer = vertexUniformBuffer;
     shader->colorOffset = colorOffset;
-    MetalBuildUniformMap(shader, refl);
+    MetalBuildUniformHash(&shader->uniformHash, refl.fragmentArguments);
+    MetalBuildUniformHash(&shader->vertexUniformHash, refl.vertexArguments);
 
     return shader;
 }
 
 GuliShader* MetalShaderLoadFromFile(const char* path, const char* unused)
 {
+    return MetalShaderLoadFromFileEx(path, unused, NULL, NULL);
+}
+
+GuliShader* MetalShaderLoadFromFileEx(const char* path, const char* unused, const char* vertexName, const char* fragmentName)
+{
     (void)unused;
     if (!path) return NULL;
 
+    g_metal_shader_error[0] = '\0';
     char* source = GuliLoadFileText(path);
     if (!source)
     {
+        strncpy(g_metal_shader_error, "Failed to load shader file", GULI_SHADER_ERROR_MAX - 1);
+        g_metal_shader_error[GULI_SHADER_ERROR_MAX - 1] = '\0';
         GULI_PRINT_ERROR(GULI_ERROR_FAILED, "Failed to load shader file");
         return NULL;
     }
 
-    GuliShader* shader = MetalShaderLoadFromMemory(source, NULL);
+    GuliShader* shader = MetalShaderLoadFromMemoryEx(source, NULL, vertexName, fragmentName);
     free(source);
     return shader;
 }
@@ -232,9 +246,13 @@ void MetalShaderUnload(GuliShader* shader)
     if (!shader) return;
     shader->pipeline = nil;
     shader->uniformBuffer = nil;
-    free(shader->uniformMap);
-    shader->uniformMap = NULL;
-    shader->uniformMapCount = 0;
+    shader->vertexUniformBuffer = nil;
+    free(shader->uniformHash.entries);
+    shader->uniformHash.entries = NULL;
+    shader->uniformHash.count = 0;
+    free(shader->vertexUniformHash.entries);
+    shader->vertexUniformHash.entries = NULL;
+    shader->vertexUniformHash.count = 0;
     free(shader);
 }
 
@@ -243,16 +261,21 @@ int MetalShaderIsValid(const GuliShader* shader)
     return (shader && shader->pipeline != nil) ? 1 : 0;
 }
 
+const char* MetalShaderGetCompileError(void)
+{
+    return (g_metal_shader_error[0] != '\0') ? g_metal_shader_error : NULL;
+}
+
 int MetalShaderGetLocation(const GuliShader* shader, const char* uniformName)
 {
-    if (!shader || !uniformName || !shader->uniformMap) return -1;
+    if (!shader || !uniformName || !shader->uniformHash.entries) return -1;
+    return MetalHashLookup(&shader->uniformHash, uniformName);
+}
 
-    for (int i = 0; i < shader->uniformMapCount; i++)
-    {
-        if (strcmp(shader->uniformMap[i].name, uniformName) == 0)
-            return shader->uniformMap[i].offset;
-    }
-    return -1;
+int MetalShaderGetVertexLocation(const GuliShader* shader, const char* uniformName)
+{
+    if (!shader || !uniformName || !shader->vertexUniformHash.entries) return -1;
+    return MetalHashLookup(&shader->vertexUniformHash, uniformName);
 }
 
 int MetalShaderGetDefaultLocation(GuliShader* shader, GuliShaderLocationIndex idx)
@@ -274,41 +297,91 @@ void MetalShaderUse(GuliShader* shader)
     if (!m || !m->_enc) return;
 
     [m->_enc setRenderPipelineState:shader->pipeline];
+    if (shader->vertexUniformBuffer)
+        [m->_enc setVertexBuffer:shader->vertexUniformBuffer offset:0 atIndex:0];
     [m->_enc setFragmentBuffer:shader->uniformBuffer offset:0 atIndex:0];
 }
 
-void MetalShaderSetFloat(GuliShader* shader, int loc, float value)
+void MetalShaderSetFloat(GuliShader* restrict shader, int loc, float value)
 {
     if (!shader || !shader->uniformBuffer || loc < 0) return;
     float* ptr = (float*)((char*)shader->uniformBuffer.contents + loc);
     *ptr = value;
 }
 
-void MetalShaderSetVec2(GuliShader* shader, int loc, const float v[2])
+void MetalShaderSetVertexFloat(GuliShader* restrict shader, int loc, float value)
 {
-    (void)shader; (void)loc; (void)v;
+    if (!shader || !shader->vertexUniformBuffer || loc < 0) return;
+    float* ptr = (float*)((char*)shader->vertexUniformBuffer.contents + loc);
+    *ptr = value;
 }
 
-void MetalShaderSetVec3(GuliShader* shader, int loc, const float v[3])
+void MetalShaderSetVertexVec2(GuliShader* restrict shader, int loc, const float* restrict v)
 {
-    (void)shader; (void)loc; (void)v;
+    if (!shader || !shader->vertexUniformBuffer || loc < 0 || !v) return;
+    float* ptr = (float*)((char*)shader->vertexUniformBuffer.contents + loc);
+    ptr[0] = v[0]; ptr[1] = v[1];
 }
 
-void MetalShaderSetVec4(GuliShader* shader, int loc, const float v[4])
+void MetalShaderSetVertexVec3(GuliShader* restrict shader, int loc, const float* restrict v)
 {
-    if (!shader || !shader->uniformBuffer || loc < 0) return;
+    if (!shader || !shader->vertexUniformBuffer || loc < 0 || !v) return;
+    float* ptr = (float*)((char*)shader->vertexUniformBuffer.contents + loc);
+    ptr[0] = v[0]; ptr[1] = v[1]; ptr[2] = v[2];
+}
+
+void MetalShaderSetVertexVec4(GuliShader* restrict shader, int loc, const float* restrict v)
+{
+    if (!shader || !shader->vertexUniformBuffer || loc < 0 || !v) return;
+    float* ptr = (float*)((char*)shader->vertexUniformBuffer.contents + loc);
+    ptr[0] = v[0]; ptr[1] = v[1]; ptr[2] = v[2]; ptr[3] = v[3];
+}
+
+void MetalShaderSetVertexInt(GuliShader* restrict shader, int loc, int value)
+{
+    if (!shader || !shader->vertexUniformBuffer || loc < 0) return;
+    int* ptr = (int*)((char*)shader->vertexUniformBuffer.contents + loc);
+    *ptr = value;
+}
+
+void MetalShaderSetVertexMatrix4(GuliShader* restrict shader, int loc, const float* restrict m)
+{
+    if (!shader || !shader->vertexUniformBuffer || loc < 0 || !m) return;
+    memcpy((char*)shader->vertexUniformBuffer.contents + loc, m, 16 * sizeof(float));
+}
+
+void MetalShaderSetVec2(GuliShader* restrict shader, int loc, const float* restrict v)
+{
+    if (!shader || !shader->uniformBuffer || loc < 0 || !v) return;
+    float* ptr = (float*)((char*)shader->uniformBuffer.contents + loc);
+    ptr[0] = v[0]; ptr[1] = v[1];
+}
+
+void MetalShaderSetVec3(GuliShader* restrict shader, int loc, const float* restrict v)
+{
+    if (!shader || !shader->uniformBuffer || loc < 0 || !v) return;
+    float* ptr = (float*)((char*)shader->uniformBuffer.contents + loc);
+    ptr[0] = v[0]; ptr[1] = v[1]; ptr[2] = v[2];
+}
+
+void MetalShaderSetVec4(GuliShader* restrict shader, int loc, const float* restrict v)
+{
+    if (!shader || !shader->uniformBuffer || loc < 0 || !v) return;
     float* ptr = (float*)((char*)shader->uniformBuffer.contents + loc);
     ptr[0] = v[0]; ptr[1] = v[1]; ptr[2] = v[2]; ptr[3] = v[3];
 }
 
-void MetalShaderSetInt(GuliShader* shader, int loc, int value)
+void MetalShaderSetInt(GuliShader* restrict shader, int loc, int value)
 {
-    (void)shader; (void)loc; (void)value;
+    if (!shader || !shader->uniformBuffer || loc < 0) return;
+    int* ptr = (int*)((char*)shader->uniformBuffer.contents + loc);
+    *ptr = value;
 }
 
-void MetalShaderSetMatrix4(GuliShader* shader, int loc, const float m[16])
+void MetalShaderSetMatrix4(GuliShader* restrict shader, int loc, const float* restrict m)
 {
-    (void)shader; (void)loc; (void)m;
+    if (!shader || !shader->uniformBuffer || loc < 0 || !m) return;
+    memcpy((char*)shader->uniformBuffer.contents + loc, m, 16 * sizeof(float));
 }
 
 void MetalShaderSetColor(GuliShader* shader, int loc, GULI_COLOR color)
@@ -316,10 +389,20 @@ void MetalShaderSetColor(GuliShader* shader, int loc, GULI_COLOR color)
     MetalShaderSetVec4(shader, loc, color);
 }
 
-void MetalShaderSetTexture(GuliShader* shader, int loc, unsigned int texId)
+void MetalShaderSetTexture(GuliShader* shader, int loc, GuliTexture* texture)
 {
-    (void)shader; (void)loc; (void)texId;
-    /* Metal: setFragmentTexture:atIndex: - texId would need to be MTLTexture* cast */
+    MetalShaderSetTextureEx(shader, loc, texture, 0);
+}
+
+void MetalShaderSetTextureEx(GuliShader* shader, int loc, GuliTexture* texture, int slot)
+{
+    (void)loc;
+    if (!shader || !texture || !texture->_backend) return;
+    struct MetalState* m = G_State.metal_s;
+    if (!m || !m->_enc) return;
+
+    id<MTLTexture> mtlTex = (__bridge id<MTLTexture>)texture->_backend;
+    [m->_enc setFragmentTexture:mtlTex atIndex:(NSUInteger)slot];
 }
 
 #pragma clang diagnostic pop

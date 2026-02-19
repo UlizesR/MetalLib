@@ -1,16 +1,80 @@
 #include "Graphics/OpenGL/guli_gl.h"
 #include "Graphics/OpenGL/guli_gl_shader.h"
+#include "Graphics/guli_texture.h"
 #include "Graphics/guli_shader_defines.h"
 #include "Core/guli_file.h"
+#include "Core/guli_hash.h"
 
 #include <glad/glad.h>
 #include <stdlib.h>
 #include <string.h>
 
+/* -----------------------------------------------------------------------------
+ * OpenGL shader backend
+ * ----------------------------------------------------------------------------- */
+
+_Thread_local static char g_gl_shader_error[GULI_SHADER_ERROR_MAX];
+
+static unsigned int g_gl_current_program;
+
+static void GlEnsureProgram(unsigned int program)
+{
+    if (program != g_gl_current_program)
+    {
+        glUseProgram(program);
+        g_gl_current_program = program;
+    }
+}
+
+#define GULI_GL_HASH_EMPTY -1
+#define GULI_GL_CACHE_MISS -2  /* distinct from -1 (valid: uniform optimized out) */
+
+typedef struct {
+    char name[32];
+    int location;
+} GlUniformCacheEntry;
+
+typedef struct {
+    GlUniformCacheEntry entries[GULI_UNIFORM_CACHE_MAX];
+    int count;
+    int hashTable[GULI_UNIFORM_HASH_SIZE];
+} GlUniformCache;
+
 struct GuliShader {
     unsigned int program;
     int locs[GULI_SHADER_LOC_COUNT];
+    GlUniformCache uniformCache;
 };
+
+static int GlCacheLookup(GlUniformCache* cache, const char* name)
+{
+    uint32_t idx = GuliHashFNV1a(name) % GULI_UNIFORM_HASH_SIZE;
+    for (int probe = 0; probe < GULI_UNIFORM_HASH_SIZE; probe++)
+    {
+        int ei = cache->hashTable[idx];
+        if (ei == GULI_GL_HASH_EMPTY) return GULI_GL_CACHE_MISS;
+        if (strcmp(cache->entries[ei].name, name) == 0)
+            return cache->entries[ei].location;
+        idx = (idx + 1) % GULI_UNIFORM_HASH_SIZE;
+    }
+    return GULI_GL_CACHE_MISS;
+}
+
+static int GlCacheInsert(GlUniformCache* cache, const char* name, int location)
+{
+    if (cache->count >= GULI_UNIFORM_CACHE_MAX) return location;
+    uint32_t idx = GuliHashFNV1a(name) % GULI_UNIFORM_HASH_SIZE;
+    while (cache->hashTable[idx] != GULI_GL_HASH_EMPTY)
+        idx = (idx + 1) % GULI_UNIFORM_HASH_SIZE;
+    int ei = cache->count++;
+    size_t len = strlen(name);
+    if (len >= 31) len = 31;
+    memcpy(cache->entries[ei].name, name, len);
+    cache->entries[ei].name[len] = '\0';
+    cache->entries[ei].location = location;
+    cache->hashTable[idx] = ei;
+    return location;
+}
 
 static unsigned int compile_glsl(const char* source, unsigned int type)
 {
@@ -24,6 +88,8 @@ static unsigned int compile_glsl(const char* source, unsigned int type)
     {
         char log[512];
         glGetShaderInfoLog(shader, sizeof(log), NULL, log);
+        strncpy(g_gl_shader_error, log, GULI_SHADER_ERROR_MAX - 1);
+        g_gl_shader_error[GULI_SHADER_ERROR_MAX - 1] = '\0';
         GULI_PRINT_ERROR(GULI_ERROR_FAILED, log);
         glDeleteShader(shader);
         return 0;
@@ -44,6 +110,8 @@ static unsigned int link_program(unsigned int vs, unsigned int fs)
     {
         char log[512];
         glGetProgramInfoLog(program, sizeof(log), NULL, log);
+        strncpy(g_gl_shader_error, log, GULI_SHADER_ERROR_MAX - 1);
+        g_gl_shader_error[GULI_SHADER_ERROR_MAX - 1] = '\0';
         GULI_PRINT_ERROR(GULI_ERROR_FAILED, log);
         glDeleteProgram(program);
         return 0;
@@ -84,6 +152,7 @@ static const char* default_fs_glsl =
 
 GuliShader* GlShaderLoadDefault(void)
 {
+    g_gl_shader_error[0] = '\0';
     unsigned int vs = compile_glsl(default_vs_glsl, GL_VERTEX_SHADER);
     if (!vs) return NULL;
 
@@ -97,6 +166,8 @@ GuliShader* GlShaderLoadDefault(void)
     if (!shader) { glDeleteProgram(program); return NULL; }
 
     shader->program = program;
+    for (int i = 0; i < GULI_UNIFORM_HASH_SIZE; i++)
+        shader->uniformCache.hashTable[i] = GULI_GL_HASH_EMPTY;
     shader->locs[GULI_SHADER_LOC_COLOR] = glGetUniformLocation(program, GULI_SHADER_UNIFORM_COLOR);
     shader->locs[GULI_SHADER_LOC_MVP] = glGetUniformLocation(program, GULI_SHADER_UNIFORM_MVP);
 
@@ -105,6 +176,7 @@ GuliShader* GlShaderLoadDefault(void)
 
 GuliShader* GlShaderLoadFromMemory(const char* vsCode, const char* fsCode)
 {
+    g_gl_shader_error[0] = '\0';
     const char* vs = vsCode ? vsCode : default_vs_glsl;
     const char* fs = fsCode ? fsCode : default_fs_glsl;
 
@@ -121,6 +193,8 @@ GuliShader* GlShaderLoadFromMemory(const char* vsCode, const char* fsCode)
     if (!shader) { glDeleteProgram(program); return NULL; }
 
     shader->program = program;
+    for (int i = 0; i < GULI_UNIFORM_HASH_SIZE; i++)
+        shader->uniformCache.hashTable[i] = GULI_GL_HASH_EMPTY;
     for (int i = 0; i < GULI_SHADER_LOC_COUNT; i++)
         shader->locs[i] = -1;
     shader->locs[GULI_SHADER_LOC_COLOR] = glGetUniformLocation(program, GULI_SHADER_UNIFORM_COLOR);
@@ -129,13 +203,32 @@ GuliShader* GlShaderLoadFromMemory(const char* vsCode, const char* fsCode)
     return shader;
 }
 
+GuliShader* GlShaderLoadFromMemoryEx(const char* vsCode, const char* fsCode,
+    const char* vertexName, const char* fragmentName)
+{
+    (void)vertexName;
+    (void)fragmentName;
+    return GlShaderLoadFromMemory(vsCode, fsCode);
+}
+
+GuliShader* GlShaderLoadFromFileEx(const char* vertPath, const char* fragPath,
+    const char* vertexName, const char* fragmentName)
+{
+    (void)vertexName;
+    (void)fragmentName;
+    return GlShaderLoadFromFile(vertPath, fragPath);
+}
+
 GuliShader* GlShaderLoadFromFile(const char* vertPath, const char* fragPath)
 {
     if (!vertPath || !fragPath) return NULL;
 
+    g_gl_shader_error[0] = '\0';
     char* vs = GuliLoadFileText(vertPath);
     if (!vs)
     {
+        strncpy(g_gl_shader_error, "Failed to load vertex shader file", GULI_SHADER_ERROR_MAX - 1);
+        g_gl_shader_error[GULI_SHADER_ERROR_MAX - 1] = '\0';
         GULI_PRINT_ERROR(GULI_ERROR_FAILED, "Failed to load vertex shader file");
         return NULL;
     }
@@ -143,6 +236,8 @@ GuliShader* GlShaderLoadFromFile(const char* vertPath, const char* fragPath)
     char* fs = GuliLoadFileText(fragPath);
     if (!fs)
     {
+        strncpy(g_gl_shader_error, "Failed to load fragment shader file", GULI_SHADER_ERROR_MAX - 1);
+        g_gl_shader_error[GULI_SHADER_ERROR_MAX - 1] = '\0';
         GULI_PRINT_ERROR(GULI_ERROR_FAILED, "Failed to load fragment shader file");
         free(vs);
         return NULL;
@@ -169,77 +264,99 @@ int GlShaderIsValid(const GuliShader* shader)
 int GlShaderGetLocation(const GuliShader* shader, const char* uniformName)
 {
     if (!shader || !shader->program || !uniformName) return -1;
-    return glGetUniformLocation(shader->program, uniformName);
+    GlUniformCache* cache = (GlUniformCache*)&shader->uniformCache;
+    int loc = GlCacheLookup(cache, uniformName);
+    if (loc != GULI_GL_CACHE_MISS) return loc;
+    loc = glGetUniformLocation(shader->program, uniformName);
+    GlCacheInsert(cache, uniformName, loc);
+    return loc;
+}
+
+int GlShaderGetVertexLocation(const GuliShader* shader, const char* uniformName)
+{
+    return GlShaderGetLocation(shader, uniformName);
 }
 
 void GlShaderUse(GuliShader* shader)
 {
-    if (shader && shader->program)
-        glUseProgram(shader->program);
-    else
-        glUseProgram(0);
+    unsigned int program = (shader && shader->program) ? shader->program : 0;
+    if (program != g_gl_current_program)
+    {
+        glUseProgram(program);
+        g_gl_current_program = program;
+    }
 }
 
-void GlShaderSetFloat(GuliShader* shader, int loc, float value)
+void GlShaderSetFloat(GuliShader* restrict shader, int loc, float value)
 {
     if (!shader || !shader->program || loc < 0) return;
-    glUseProgram(shader->program);
+    GlEnsureProgram(shader->program);
     glUniform1f(loc, value);
 }
 
-void GlShaderSetVec2(GuliShader* shader, int loc, const float v[2])
+void GlShaderSetVec2(GuliShader* restrict shader, int loc, const float* restrict v)
 {
-    if (!shader || !shader->program || loc < 0) return;
-    glUseProgram(shader->program);
+    if (!shader || !shader->program || loc < 0 || !v) return;
+    GlEnsureProgram(shader->program);
     glUniform2fv(loc, 1, v);
 }
 
-void GlShaderSetVec3(GuliShader* shader, int loc, const float v[3])
+void GlShaderSetVec3(GuliShader* restrict shader, int loc, const float* restrict v)
 {
-    if (!shader || !shader->program || loc < 0) return;
-    glUseProgram(shader->program);
+    if (!shader || !shader->program || loc < 0 || !v) return;
+    GlEnsureProgram(shader->program);
     glUniform3fv(loc, 1, v);
 }
 
-void GlShaderSetVec4(GuliShader* shader, int loc, const float v[4])
+void GlShaderSetVec4(GuliShader* restrict shader, int loc, const float* restrict v)
 {
-    if (!shader || !shader->program || loc < 0) return;
-    glUseProgram(shader->program);
+    if (!shader || !shader->program || loc < 0 || !v) return;
+    GlEnsureProgram(shader->program);
     glUniform4fv(loc, 1, v);
 }
 
-void GlShaderSetInt(GuliShader* shader, int loc, int value)
+void GlShaderSetInt(GuliShader* restrict shader, int loc, int value)
 {
     if (!shader || !shader->program || loc < 0) return;
-    glUseProgram(shader->program);
+    GlEnsureProgram(shader->program);
     glUniform1i(loc, value);
 }
 
-void GlShaderSetMatrix4(GuliShader* shader, int loc, const float m[16])
+void GlShaderSetMatrix4(GuliShader* restrict shader, int loc, const float* restrict m)
 {
-    if (!shader || !shader->program || loc < 0) return;
-    glUseProgram(shader->program);
+    if (!shader || !shader->program || loc < 0 || !m) return;
+    GlEnsureProgram(shader->program);
     glUniformMatrix4fv(loc, 1, GL_FALSE, m);
 }
 
-void GlShaderSetColor(GuliShader* shader, int loc, GULI_COLOR color)
+void GlShaderSetColor(GuliShader* restrict shader, int loc, GULI_COLOR color)
 {
     if (!shader || !shader->program || loc < 0) return;
-    glUseProgram(shader->program);
+    GlEnsureProgram(shader->program);
     glUniform4fv(loc, 1, color);
 }
 
-void GlShaderSetTexture(GuliShader* shader, int loc, unsigned int texId)
+void GlShaderSetTexture(GuliShader* shader, int loc, GuliTexture* texture)
 {
-    if (!shader || !shader->program || loc < 0) return;
-    glUseProgram(shader->program);
-    glUniform1i(loc, 0);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texId);
+    GlShaderSetTextureEx(shader, loc, texture, 0);
+}
+
+void GlShaderSetTextureEx(GuliShader* restrict shader, int loc, GuliTexture* texture, int slot)
+{
+    if (!shader || !shader->program || loc < 0 || !texture || !texture->_backend) return;
+    GlEnsureProgram(shader->program);
+    glUniform1i(loc, slot);
+    glActiveTexture(GL_TEXTURE0 + (unsigned int)slot);
+    glBindTexture(GL_TEXTURE_2D, (unsigned int)(uintptr_t)texture->_backend);
 }
 
 int GlShaderGetDefaultLocation(GuliShader* shader, GuliShaderLocationIndex idx)
 {
     if (!shader || idx < 0 || idx >= GULI_SHADER_LOC_COUNT) return -1;
     return shader->locs[idx];
+}
+
+const char* GlShaderGetCompileError(void)
+{
+    return (g_gl_shader_error[0] != '\0') ? g_gl_shader_error : NULL;
 }

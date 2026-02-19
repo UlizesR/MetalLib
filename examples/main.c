@@ -11,8 +11,6 @@
  
  static const char* kWindowTitle = "Guli Ripple - SDF sinewave (ESC to close)";
  
- static int is_valid_loc(int loc) { return loc >= 0; }
- 
  int main(void)
  {
      GuliShader* shader = NULL;
@@ -23,11 +21,11 @@
  
  #if defined(GULI_BACKEND_METAL)
     // Expect shader next to executable: build/bin/shaders/ripple.metal
-    const char* metalPath = "/Users/ulirodriguez/CodeProjects/MetalLib-1/shaders/ripple.metal";
+    const char* metalPath = "/Users/ulirodriguez/CodeProjects/MetalLib-1/examples/shaders/ripple.metal";
     shader = GuliShaderLoadFromFile(metalPath, NULL);
  #elif defined(GULI_BACKEND_OPENGL)
-    const char* vertPath = "/Users/ulirodriguez/CodeProjects/MetalLib-1/shaders/ripple.vert.glsl";
-    const char* fragPath = "/Users/ulirodriguez/CodeProjects/MetalLib-1/shaders/ripple.frag.glsl";
+    const char* vertPath = "/Users/ulirodriguez/CodeProjects/MetalLib-1/examples/shaders/ripple.vert.glsl";
+    const char* fragPath = "/Users/ulirodriguez/CodeProjects/MetalLib-1/examples/shaders/ripple.frag.glsl";
     shader = GuliShaderLoadFromFile(vertPath, fragPath);
  #else
  #   error "Define one backend: GULI_BACKEND_METAL or GULI_BACKEND_OPENGL"
@@ -79,11 +77,11 @@
  
          GuliShaderUse(shader);
  
-         // Be tolerant of shaders that omit some uniforms.
-         if (is_valid_loc(loc_time))   GuliShaderSetFloat(shader, loc_time, t);
-         if (is_valid_loc(loc_freq))   GuliShaderSetFloat(shader, loc_freq, frequency);
-         if (is_valid_loc(loc_speed))  GuliShaderSetFloat(shader, loc_speed, speed);
-         if (is_valid_loc(loc_aspect)) GuliShaderSetFloat(shader, loc_aspect, aspect);
+         /* Setters no-op when loc < 0 (uniform optimized out). GuliShaderSetScalar uses _Generic. */
+        GuliShaderSetScalar(shader, loc_time, t);
+        GuliShaderSetScalar(shader, loc_freq, frequency);
+        GuliShaderSetScalar(shader, loc_speed, speed);
+        GuliShaderSetScalar(shader, loc_aspect, aspect);
  
          GuliDrawFullscreen();
          GuliEndDraw();
